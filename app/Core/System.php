@@ -1,6 +1,7 @@
 <?php
 namespace App\Core;
 
+use App\Core\Exceptions\Exception;
 use Roolith\Configuration\Config;
 use Roolith\Configuration\Exception\InvalidArgumentException;
 use Roolith\Route\Interfaces\RouterInterface;
@@ -25,6 +26,7 @@ class System
      * Bootstrap application
      *
      * @return $this
+     * @throws Exception
      */
     public function bootstrap()
     {
@@ -32,7 +34,7 @@ class System
             $dbConfig = Config::get('database');
             $this->connectToDatabase($dbConfig);
         } catch (InvalidArgumentException $e) {
-            echo $e->getMessage();
+            throw new Exception($e->getMessage());
         }
 
         return $this;

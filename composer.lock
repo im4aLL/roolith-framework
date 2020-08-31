@@ -410,16 +410,16 @@
         },
         {
             "name": "roolith/template-engine",
-            "version": "1.0.0",
+            "version": "1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/im4aLL/roolith-template-engine.git",
-                "reference": "0b7c46fdb9095b5a0551a9836b3b9178e58d592a"
+                "reference": "59d13632494cfa4ffc8a56cabecb05c8ba048a0e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/im4aLL/roolith-template-engine/zipball/0b7c46fdb9095b5a0551a9836b3b9178e58d592a",
-                "reference": "0b7c46fdb9095b5a0551a9836b3b9178e58d592a",
+                "url": "https://api.github.com/repos/im4aLL/roolith-template-engine/zipball/59d13632494cfa4ffc8a56cabecb05c8ba048a0e",
+                "reference": "59d13632494cfa4ffc8a56cabecb05c8ba048a0e",
                 "shasum": ""
             },
             "require-dev": {
@@ -428,7 +428,7 @@
             "type": "library",
             "autoload": {
                 "psr-4": {
-                    "Roolith\\": "src/"
+                    "Roolith\\Template\\Engine\\": "src/"
                 }
             },
             "notification-url": "https://packagist.org/downloads/",
@@ -442,7 +442,7 @@
                 }
             ],
             "description": "PHP simple template engine",
-            "time": "2020-08-30T12:47:00+00:00"
+            "time": "2020-08-31T14:43:52+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",
