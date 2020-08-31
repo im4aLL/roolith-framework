@@ -1,23 +1,23 @@
 <?php
 namespace App\Core;
 
-use Roolith\Database;
+use Roolith\Store\Database;
 
 class DatabaseFactory
 {
-    private static $instance = null;
+    private static $db = null;
 
     private function __construct() {}
 
     /**
      * @return Database
      */
-    public static function getInstance()
+    public static function getDb()
     {
-        if (self::$instance === null) {
-            self::$instance = new Database();
+        if (self::$db === null) {
+            self::$db = new Database();
         }
 
-        return self::$instance;
+        return self::$db;
     }
 }
