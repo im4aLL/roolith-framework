@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "300e079957827a30bdbb77b7cf4828b7",
+    "content-hash": "9db63a71ecffa3c39723d23e63bcc136",
     "packages": [
         {
             "name": "nesbot/carbon",
@@ -374,16 +374,16 @@
         },
         {
             "name": "roolith/router",
-            "version": "1.0.1",
+            "version": "1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/im4aLL/roolith-router.git",
-                "reference": "f60fa66feea45012a9e7b436ebf86f79328fe128"
+                "reference": "65432fa48397f75f85e6a9486024228a8652f251"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/im4aLL/roolith-router/zipball/f60fa66feea45012a9e7b436ebf86f79328fe128",
-                "reference": "f60fa66feea45012a9e7b436ebf86f79328fe128",
+                "url": "https://api.github.com/repos/im4aLL/roolith-router/zipball/65432fa48397f75f85e6a9486024228a8652f251",
+                "reference": "65432fa48397f75f85e6a9486024228a8652f251",
                 "shasum": ""
             },
             "require-dev": {
@@ -406,7 +406,7 @@
                 }
             ],
             "description": "Simple PHP router",
-            "time": "2020-08-31T14:40:03+00:00"
+            "time": "2020-08-31T19:15:20+00:00"
         },
         {
             "name": "roolith/template-engine",

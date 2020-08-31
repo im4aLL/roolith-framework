@@ -1,4 +1,4 @@
-    <script src="<?= $this->url('assets/app.js') ?>"></script>
+    <script src="<?= $this->url('assets/js/app.js') ?>"></script>
 
 </body>
 </html>
