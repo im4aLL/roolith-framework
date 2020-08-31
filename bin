@@ -1,0 +1,10 @@
+<?php
+use Roolith\Generator\GeneratorFactory;
+
+require_once __DIR__ . '/vendor/autoload.php';
+
+$generator = GeneratorFactory::getInstance();
+$generator
+    ->setTemplateDirectory(__DIR__.'/app/Core/generator-templates')
+    ->setProjectBaseDirectory(__DIR__)
+    ->watch($argv);

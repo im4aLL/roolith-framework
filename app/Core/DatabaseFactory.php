@@ -2,6 +2,7 @@
 namespace App\Core;
 
 use Roolith\Store\Database;
+use Roolith\Store\Interfaces\DatabaseInterface;
 
 class DatabaseFactory
 {
@@ -10,9 +11,9 @@ class DatabaseFactory
     private function __construct() {}
 
     /**
-     * @return Database
+     * @return DatabaseInterface
      */
-    public static function getDb()
+    public static function getInstance()
     {
         if (self::$db === null) {
             self::$db = new Database();

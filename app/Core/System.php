@@ -3,23 +3,46 @@ namespace App\Core;
 
 use Roolith\Configuration\Config;
 use Roolith\Configuration\Exception\InvalidArgumentException;
+use Roolith\Route\Interfaces\RouterInterface;
+use Roolith\Store\Interfaces\DatabaseInterface;
 
 class System
 {
+    /**
+     * @var DatabaseInterface
+     */
     protected $db;
 
     public function __construct()
     {
+        require_once __DIR__ . '/../../constant.php';
+        require_once __DIR__ . '/../Utils/functions.php';
+
         $this->db = null;
     }
 
+    /**
+     * Bootstrap application
+     *
+     * @return $this
+     */
     public function bootstrap()
     {
-        $this->connectToDatabase();
+        try {
+            $dbConfig = Config::get('database');
+            $this->connectToDatabase($dbConfig);
+        } catch (InvalidArgumentException $e) {
+            echo $e->getMessage();
+        }
 
         return $this;
     }
 
+    /**
+     * Close application
+     *
+     * @return $this
+     */
     public function complete()
     {
         $this->disconnectFromDatabase();
@@ -27,21 +50,49 @@ class System
         return $this;
     }
 
-    protected function connectToDatabase()
+    public function processRequest()
     {
-        try {
-            $databaseConfig = Config::get('database');
+        $router = require_once __DIR__ . '/../Http/routes.php';
 
-            if ($databaseConfig) {
-                $this->db = DatabaseFactory::getDb();
-                $this->db->connect($databaseConfig);
-            }
-        } catch (InvalidArgumentException $e) {
+        $this->router($router);
+
+        return $this;
+    }
+
+    /**
+     * Router
+     *
+     * @param RouterInterface $router
+     * @return $this
+     */
+    protected function router(RouterInterface $router)
+    {
+        $router->run();
+
+        return $this;
+    }
+
+    /**
+     * Connect to database
+     *
+     * @param $databaseConfig
+     * @return $this
+     */
+    protected function connectToDatabase($databaseConfig)
+    {
+        if ($databaseConfig) {
+            $this->db = DatabaseFactory::getInstance();
+            $this->db->connect($databaseConfig);
         }
 
         return $this;
     }
 
+    /**
+     * Disconnect from database
+     *
+     * @return $this
+     */
     protected function disconnectFromDatabase()
     {
         if ($this->db) {
