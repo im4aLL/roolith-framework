@@ -6,6 +6,7 @@ $router = new Router();
 
 try {
     $router->setBaseUrl(Config::get('baseUrl'));
+    $router->setViewDir(APP_VIEW_ROOT);
 } catch (\Roolith\Configuration\Exception\InvalidArgumentException $e) {
     echo $e->getMessage();
 }

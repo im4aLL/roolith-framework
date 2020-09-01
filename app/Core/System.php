@@ -16,8 +16,8 @@ class System
 
     public function __construct()
     {
-        require_once __DIR__ . '/../../constant.php';
-        require_once __DIR__ . '/../Utils/functions.php';
+        require_once APP_ROOT . '/constant.php';
+        require_once APP_ROOT . '/app/Utils/functions.php';
 
         $this->db = null;
     }
@@ -52,9 +52,14 @@ class System
         return $this;
     }
 
+    /**
+     * Process route
+     *
+     * @return $this
+     */
     public function processRequest()
     {
-        $router = require_once __DIR__ . '/../Http/routes.php';
+        $router = require_once APP_ROOT . '/app/Http/routes.php';
 
         $this->router($router);
 

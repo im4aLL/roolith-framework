@@ -374,17 +374,20 @@
         },
         {
             "name": "roolith/router",
-            "version": "1.0.2",
+            "version": "1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/im4aLL/roolith-router.git",
-                "reference": "65432fa48397f75f85e6a9486024228a8652f251"
+                "reference": "4d00f2a06bf9adf5dcb2cc0b428c1e5e0916e727"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/im4aLL/roolith-router/zipball/65432fa48397f75f85e6a9486024228a8652f251",
-                "reference": "65432fa48397f75f85e6a9486024228a8652f251",
+                "url": "https://api.github.com/repos/im4aLL/roolith-router/zipball/4d00f2a06bf9adf5dcb2cc0b428c1e5e0916e727",
+                "reference": "4d00f2a06bf9adf5dcb2cc0b428c1e5e0916e727",
                 "shasum": ""
+            },
+            "require": {
+                "ext-json": "*"
             },
             "require-dev": {
                 "phpunit/phpunit": "^9.2"
@@ -406,7 +409,7 @@
                 }
             ],
             "description": "Simple PHP router",
-            "time": "2020-08-31T19:15:20+00:00"
+            "time": "2020-09-01T18:31:22+00:00"
         },
         {
             "name": "roolith/template-engine",

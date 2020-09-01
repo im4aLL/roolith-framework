@@ -64,7 +64,7 @@ class Model
     /**
      * Get called class instance
      *
-     * @return Model
+     * @return Model|object
      * @throws ReflectionException
      */
     protected static function instance()
