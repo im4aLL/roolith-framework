@@ -2,7 +2,7 @@
 <?php
 namespace App\Controllers;
 
-class {{name}}Controller extends Controller
+class {{name}} extends Controller
 {
     public function index()
     {

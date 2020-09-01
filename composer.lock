@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "9db63a71ecffa3c39723d23e63bcc136",
+    "content-hash": "300e079957827a30bdbb77b7cf4828b7",
     "packages": [
         {
             "name": "nesbot/carbon",
@@ -262,16 +262,16 @@
         },
         {
             "name": "roolith/database",
-            "version": "1.0.1",
+            "version": "1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/im4aLL/roolith-database.git",
-                "reference": "a80990189403077b05de086ff5cf21d13a9f8cb1"
+                "reference": "ec162e59333daebba46fac1108f58529e79fea1f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/im4aLL/roolith-database/zipball/a80990189403077b05de086ff5cf21d13a9f8cb1",
-                "reference": "a80990189403077b05de086ff5cf21d13a9f8cb1",
+                "url": "https://api.github.com/repos/im4aLL/roolith-database/zipball/ec162e59333daebba46fac1108f58529e79fea1f",
+                "reference": "ec162e59333daebba46fac1108f58529e79fea1f",
                 "shasum": ""
             },
             "require": {
@@ -298,7 +298,7 @@
                 }
             ],
             "description": "PHP database driver",
-            "time": "2020-08-31T14:13:35+00:00"
+            "time": "2020-09-01T13:00:47+00:00"
         },
         {
             "name": "roolith/event",
@@ -338,16 +338,16 @@
         },
         {
             "name": "roolith/generator",
-            "version": "1.0.1",
+            "version": "1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/im4aLL/roolith-generator.git",
-                "reference": "947cd40c0bc8bbd6e6a16e4a51542e83be0ba351"
+                "reference": "8cfaa5d2c6668425495a1bb037e98c7981e65af4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/im4aLL/roolith-generator/zipball/947cd40c0bc8bbd6e6a16e4a51542e83be0ba351",
-                "reference": "947cd40c0bc8bbd6e6a16e4a51542e83be0ba351",
+                "url": "https://api.github.com/repos/im4aLL/roolith-generator/zipball/8cfaa5d2c6668425495a1bb037e98c7981e65af4",
+                "reference": "8cfaa5d2c6668425495a1bb037e98c7981e65af4",
                 "shasum": ""
             },
             "require-dev": {
@@ -370,7 +370,7 @@
                 }
             ],
             "description": "Generate php file using php",
-            "time": "2020-08-31T14:33:16+00:00"
+            "time": "2020-09-01T11:37:37+00:00"
         },
         {
             "name": "roolith/router",
@@ -410,16 +410,16 @@
         },
         {
             "name": "roolith/template-engine",
-            "version": "1.0.1",
+            "version": "1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/im4aLL/roolith-template-engine.git",
-                "reference": "59d13632494cfa4ffc8a56cabecb05c8ba048a0e"
+                "reference": "3097a1e65f83522039d4eac788c603674db02a9a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/im4aLL/roolith-template-engine/zipball/59d13632494cfa4ffc8a56cabecb05c8ba048a0e",
-                "reference": "59d13632494cfa4ffc8a56cabecb05c8ba048a0e",
+                "url": "https://api.github.com/repos/im4aLL/roolith-template-engine/zipball/3097a1e65f83522039d4eac788c603674db02a9a",
+                "reference": "3097a1e65f83522039d4eac788c603674db02a9a",
                 "shasum": ""
             },
             "require-dev": {
@@ -442,7 +442,7 @@
                 }
             ],
             "description": "PHP simple template engine",
-            "time": "2020-08-31T14:43:52+00:00"
+            "time": "2020-09-01T09:26:14+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",

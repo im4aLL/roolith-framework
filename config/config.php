@@ -4,8 +4,8 @@ return [
 
     'database' => [
         'host' => 'localhost',
-        'name' => 'support',
+        'name' => 'roolith_database',
         'user' => 'root',
-        'pass' => 'hadi',
+        'pass' => '',
     ],
 ];

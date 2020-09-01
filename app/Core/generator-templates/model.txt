@@ -1,0 +1,8 @@
+# outputBaseDir: app/Models
+<?php
+namespace App\Models;
+
+class {{name}} extends Model
+{
+
+}
