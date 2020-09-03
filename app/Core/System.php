@@ -32,7 +32,12 @@ class System
     {
         try {
             $dbConfig = Config::get('database');
-            $this->connectToDatabase($dbConfig);
+
+            try {
+                $this->connectToDatabase($dbConfig);
+            } catch (Exception $e) {
+                throw new Exception($e->getMessage());
+            }
         } catch (InvalidArgumentException $e) {
             throw new Exception($e->getMessage());
         }
@@ -84,12 +89,17 @@ class System
      *
      * @param $databaseConfig
      * @return $this
+     * @throws Exception
      */
     protected function connectToDatabase($databaseConfig)
     {
         if ($databaseConfig) {
             $this->db = DatabaseFactory::getInstance();
-            $this->db->connect($databaseConfig);
+            $isConnected = $this->db->connect($databaseConfig);
+
+            if (!$isConnected) {
+                throw new Exception("Unable to connect to the database");
+            }
         }
 
         return $this;
