@@ -10,9 +10,9 @@ interface RequestInterface
      *
      * @param $name
      * @param $default
-     * @return false|mixed
+     * @return null|mixed
      */
-    public function input($name, $default);
+    public static function input($name, $default = null);
 
     /**
      * Whether has not input or not
@@ -20,85 +20,54 @@ interface RequestInterface
      * @param $name
      * @return bool
      */
-    public function has($name);
+    public static function has($name);
 
     /**
      * Get all input
      *
-     * @return object
+     * @return array
      */
-    public function all();
+    public static function all();
 
     /**
-     * Get only specified object
+     * Get only specified array
      *
      * @param $name string|array
-     * @return object|false
+     * @return array
      */
-    public function only($name);
+    public static function only($name);
 
     /**
      * Get all input except provided
      *
      * @param $name string|array
-     * @return object|false
+     * @return array
      */
-    public function except($name);
-
-    /**
-     * Remove all inputs
-     *
-     * @return bool
-     */
-    public function flush();
-
-    /**
-     * Remove only provided input names
-     *
-     * @param $name string|array
-     * @return bool
-     */
-    public function flashOnly($name);
-
-    /**
-     * Remove all input except provided ones
-     *
-     * @param $name string|array
-     * @return bool
-     */
-    public function flashExcept($name);
+    public static function except($name);
 
     /**
      * Redirect to given url
      *
      * @param $url
-     * @return bool
+     * @return void
      */
-    public function redirect($url);
-
-    /**
-     * Get old value for a input
-     *
-     * @param $name
-     * @return mixed
-     */
-    public function old($name);
+    public static function redirect($url);
 
     /**
      * Get cookie by name
      *
      * @param $name
-     * @return mixed
+     * @return null|string
      */
-    public function cookie($name);
+    public static function cookie($name);
 
     /**
      * Get file in request
      *
      * @param $name
-     * @return FileInterface
+     * @return false|FileInterface
      */
-    public function file($name);
+    public static function file($name);
 
     /**
      * If request has file by name
@@ -106,28 +75,35 @@ interface RequestInterface
      * @param $name
      * @return bool
      */
-    public function hasFile($name);
+    public static function hasFile($name);
 
     /**
      * If request type is ajax
      *
      * @return bool
      */
-    public function ajax();
+    public static function ajax();
 
     /**
      * Get request url
      *
      * @return string
      */
-    public function url();
+    public static function url();
+
+    /**
+     * Get full url with query param
+     *
+     * @return string
+     */
+    public static function fullUrl();
 
     /**
      * Get request method name
      *
      * @return string
      */
-    public function method();
+    public static function method();
 
     /**
      * Check whether request method name match
@@ -135,5 +111,5 @@ interface RequestInterface
      * @param $methodName string
      * @return bool
      */
-    public function isMethod($methodName);
+    public static function isMethod($methodName);
 }

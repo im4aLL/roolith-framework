@@ -35,4 +35,12 @@ interface SanitizeInterface
      * @return string
      */
     public static function string($string);
+
+    /**
+     * Sanitize multiple items at once
+     *
+     * @param $items array
+     * @return iterable
+     */
+    public static function items($items);
 }

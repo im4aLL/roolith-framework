@@ -53,4 +53,18 @@ class Sanitize implements SanitizeInterface
     {
         return filter_var($string, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
     }
+
+    /**
+     * @inheritDoc
+     */
+    public static function items($items)
+    {
+        $result = [];
+
+        foreach ($items as $item) {
+            $result[] = self::any($item);
+        }
+
+        return $result;
+    }
 }

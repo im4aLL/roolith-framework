@@ -11,136 +11,173 @@ class Request implements RequestInterface
     /**
      * @inheritDoc
      */
-    public function input($name, $default)
+    public static function input($name, $default = null)
     {
-        // TODO: Implement input() method.
+        if (isset($_POST[$name])) {
+            return Sanitize::any($_POST[$name]);
+        }
+
+        if (isset($_GET[$name])) {
+            return Sanitize::url($_GET[$name]);
+        }
+
+        $steamInput = self::steamInput($name);
+        if ($steamInput) {
+            return $steamInput;
+        }
+
+        return $default;
+    }
+
+    /**
+     * Get steam input
+     *
+     * @param $name
+     * @return false|mixed
+     */
+    protected static function steamInput($name)
+    {
+        $var = self::steamInputs();
+
+        return isset($var[$name]) ? $var[$name] : false;
+    }
+
+    /**
+     * Get steam inputs
+     *
+     * @return array
+     */
+    protected static function steamInputs()
+    {
+        parse_str(file_get_contents("php://input"), $var);
+
+        return $var;
     }
 
     /**
      * @inheritDoc
      */
-    public function has($name)
+    public static function has($name)
     {
-        // TODO: Implement has() method.
+        $steamInput = self::steamInput($name);
+
+        return isset($_POST[$name]) || isset($_GET[$name]) || $steamInput;
     }
 
     /**
      * @inheritDoc
      */
-    public function all()
+    public static function all()
     {
-        // TODO: Implement all() method.
+        if (self::isMethod('POST')) {
+            return Sanitize::items($_POST);
+        }
+
+        if (self::isMethod('GET')) {
+            return Sanitize::items($_GET);
+        }
+
+        $inputs = self::steamInputs();
+
+        return Sanitize::items($inputs);
     }
 
     /**
      * @inheritDoc
      */
-    public function only($name)
+    public static function only($name)
     {
-        // TODO: Implement only() method.
+        $inputs = self::all();
+
+        return _::only($inputs, $name);
     }
 
     /**
      * @inheritDoc
      */
-    public function except($name)
+    public static function except($name)
     {
-        // TODO: Implement except() method.
+        $inputs = self::all();
+
+        return _::except($inputs, $name);
     }
 
     /**
      * @inheritDoc
      */
-    public function flush()
+    public static function redirect($url)
     {
-        // TODO: Implement flush() method.
+        header('Location: '. $url);
+        exit();
     }
 
     /**
      * @inheritDoc
      */
-    public function flashOnly($name)
+    public static function cookie($name)
     {
-        // TODO: Implement flashOnly() method.
+        return isset($_COOKIE[$name]) ? $_COOKIE[$name] : null;
     }
 
     /**
      * @inheritDoc
      */
-    public function flashExcept($name)
+    public static function file($name)
     {
-        // TODO: Implement flashExcept() method.
+        if (self::hasFile($name)) {
+            $fileInstance = new File();
+
+            return $fileInstance->setFile($_FILES[$name]);
+        }
+
+        return false;
     }
 
     /**
      * @inheritDoc
      */
-    public function redirect($url)
+    public static function hasFile($name)
     {
-        // TODO: Implement redirect() method.
+        return isset($_FILES[$name]);
     }
 
     /**
      * @inheritDoc
      */
-    public function old($name)
+    public static function ajax()
     {
-        // TODO: Implement old() method.
+        return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
     }
 
     /**
      * @inheritDoc
      */
-    public function cookie($name)
+    public static function url()
     {
-        // TODO: Implement cookie() method.
+        return strtok(self::fullUrl(), '?');
     }
 
     /**
      * @inheritDoc
      */
-    public function file($name)
+    public static function fullUrl()
     {
-        // TODO: Implement file() method.
+        return (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
     }
 
     /**
      * @inheritDoc
      */
-    public function hasFile($name)
+    public static function method()
     {
-        // TODO: Implement hasFile() method.
+        return $_SERVER['REQUEST_METHOD'];
     }
 
     /**
      * @inheritDoc
      */
-    public function ajax()
+    public static function isMethod($methodName)
     {
-        // TODO: Implement ajax() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function url()
-    {
-        // TODO: Implement url() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function method()
-    {
-        // TODO: Implement method() method.
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function isMethod($methodName)
-    {
-        // TODO: Implement isMethod() method.
+        return self::method() === $methodName;
     }
 }
