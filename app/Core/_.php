@@ -30,6 +30,13 @@ class _
         return $resultArray;
     }
 
+    /**
+     * Exclude items from array
+     *
+     * @param $items
+     * @param $except
+     * @return array
+     */
     public static function except($items, $except)
     {
         $resultArray = [];

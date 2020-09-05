@@ -64,21 +64,22 @@ class Model
     /**
      * Get called class instance
      *
-     * @return Model|object
-     * @throws ReflectionException
+     * @return false|object
      */
     protected static function instance()
     {
-        $reflectionClass = new ReflectionClass(get_called_class());
-
-        return $reflectionClass->newInstance();
+        try {
+            $reflectionClass = new ReflectionClass(get_called_class());
+            return $reflectionClass->newInstance();
+        } catch (ReflectionException $e) {
+            return false;
+        }
     }
 
     /**
      * Get all records
      *
      * @return iterable
-     * @throws ReflectionException
      */
     public static function all()
     {
@@ -89,7 +90,6 @@ class Model
      * Get orm
      *
      * @return DatabaseInterface
-     * @throws ReflectionException
      */
     public static function orm()
     {

@@ -1,4 +1,5 @@
 <?php
+use App\Core\Rules;
 use App\Core\System;
 
 define('APP_ROOT', __DIR__);
