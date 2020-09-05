@@ -6,6 +6,6 @@ return [
         'host' => 'localhost',
         'name' => 'roolith_database',
         'user' => 'root',
-        'pass' => '',
+        'pass' => 'hadi',
     ],
 ];

@@ -28,3 +28,15 @@ function url($path) {
         return $path;
     }
 }
+
+/**
+ * Get url by router name
+ *
+ * @param $name
+ * @return string
+ */
+function route($name) {
+    $routerInstance = \App\Core\RouterFactory::getInstance();
+
+    return $routerInstance->getUrlByName($name);
+}
