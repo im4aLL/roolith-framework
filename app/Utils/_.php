@@ -1,6 +1,9 @@
 <?php
-namespace App\Core\Utils;
+namespace App\Utils;
 
+
+use RecursiveArrayIterator;
+use RecursiveIteratorIterator;
 
 class _
 {
@@ -228,12 +231,13 @@ class _
 
                 if ($isValid) {
                     return self::indexOf($array, $n);
-                    break;
                 }
             }
         } else {
             return self::indexOf($array, $callback);
         }
+
+        return -1;
     }
 
     /**
@@ -389,7 +393,6 @@ class _
         foreach ($array as $key => $value) {
             if ($value === $n) {
                 return true;
-                break;
             }
         }
 
@@ -419,7 +422,7 @@ class _
     }
 
     /**
-     * Is multidimentional array
+     * Is multidimensional array
      *
      * @param $array
      * @return bool
@@ -513,5 +516,133 @@ class _
         }
 
         return $array;
+    }
+
+    /**
+     * Add
+     * add(['name' => 'rx 5600'], 'price', 100)
+     *
+     * @param $array
+     * @param $key
+     * @param null $value
+     * @return array
+     */
+    public static function add($array, $key, $value = null)
+    {
+        $result = $array;
+
+        if ($value) {
+            $result[$key] = $value;
+        } else {
+            $result[] = $key;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Flatted array
+     * [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+     *
+     * @param $array
+     * @return array
+     */
+    public static function flat($array)
+    {
+        $result = [];
+
+        foreach ($array as $key => $value) {
+            if (is_array($value)) {
+                $result = array_merge($result, self::flat($value));
+            } else {
+                $result[$key] = $value;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Dot notation
+     *
+     * @param $array
+     * @return array
+     */
+    public static function dot($array)
+    {
+        $recursiveIterator = new RecursiveIteratorIterator(new RecursiveArrayIterator($array));
+        $result = [];
+
+        foreach ($recursiveIterator as $leafValue) {
+            $keys = [];
+
+            foreach (range(0, $recursiveIterator->getDepth()) as $depth) {
+                $keys[] = $recursiveIterator->getSubIterator($depth)->key();
+            }
+
+            $result[join('.', $keys)] = $leafValue;
+        }
+
+        return $result;
+    }
+
+    /**
+     * Exists
+     *
+     * @param $array
+     * @param $name
+     * @return bool
+     */
+    public static function exists($array, $name)
+    {
+        return isset($array[$name]);
+    }
+
+    /**
+     * Get array value
+     *
+     * @param $array
+     * @param $name
+     * @return mixed|null
+     */
+    public static function get($array, $name)
+    {
+        $newArray = self::dot($array);
+
+        return isset($newArray[$name]) ? $newArray[$name] : null;
+    }
+
+    /**
+     * Has array key
+     *
+     * @param $array
+     * @param $name
+     * @return bool
+     */
+    public static function has($array, $name)
+    {
+        return (bool) self::get($array, $name);
+    }
+
+    /**
+     * Pluck
+     *
+     * @param $array
+     * @param $name
+     * @return array
+     */
+    public static function pluck($array, $name)
+    {
+        $result = [];
+
+        foreach ($array as $key => $value) {
+            $newArray = self::dot($value);
+
+            if (isset($newArray[$name])) {
+                $result[] = $newArray[$name];
+            }
+        }
+
+        return $result;
     }
 }

@@ -12,10 +12,9 @@ $app->bootstrap()
     ->processRequest()
     ->complete();
 
-$data = [
-    ['name' => 'z', 'age' => 10],
-    ['name' => 'y', 'age' => 5],
-    ['name' => 'x', 'age' => 54],
+$array = [
+    ['developer' => ['id' => 1, 'name' => 'Taylor']],
+    ['developer' => ['id' => 2, 'name' => 'Abigail']],
 ];
-$result = \App\Core\Utils\_::orderByString($data, 'name');
+$result = \App\Utils\_::pluck($array, 'developer.name');
 p($result);

@@ -4,7 +4,7 @@ namespace App\Core;
 
 use App\Core\Interfaces\FileInterface;
 use App\Core\Interfaces\RequestInterface;
-use App\Core\Utils\_;
+use App\Utils\_;
 
 class Request implements RequestInterface
 {
