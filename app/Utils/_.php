@@ -645,4 +645,62 @@ class _
 
         return $result;
     }
+
+    /**
+     * Prepend
+     *
+     * @param $array
+     * @param $key
+     * @param null $value
+     * @return array
+     */
+    public static function prepend($array, $key, $value = null)
+    {
+        if ($value) {
+            $array = [$key => $value] + $array;
+        } else {
+            array_unshift($array, $key);
+        }
+
+        return $array;
+    }
+
+    /**
+     * Array to query string
+     *
+     * @param $array
+     * @return string
+     */
+    public static function query($array)
+    {
+        $string = http_build_query($array, '', '&');
+
+        return preg_replace(['/%5B/', '/%5D/'], ['[', ']'], $string);
+    }
+
+    /**
+     * Set array value
+     *
+     * @param $array
+     * @param $key
+     * @param $value
+     * @return mixed
+     */
+    public static function set($array, $key, $value)
+    {
+        if (strstr($key, '.')) {
+            $keys = explode('.', $key);
+            $result = $array;
+
+            foreach ($keys as $key) {
+                $result = $result[$key];
+            }
+
+            return $result;
+        }
+
+        $array[$key] = $value;
+
+        return $array;
+    }
 }

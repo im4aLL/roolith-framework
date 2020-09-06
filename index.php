@@ -12,9 +12,6 @@ $app->bootstrap()
     ->processRequest()
     ->complete();
 
-$array = [
-    ['developer' => ['id' => 1, 'name' => 'Taylor']],
-    ['developer' => ['id' => 2, 'name' => 'Abigail']],
-];
-$result = \App\Utils\_::pluck($array, 'developer.name');
+$array = ['products' => ['desk' => ['price' => 100]]];
+$result = \App\Utils\_::set($array, 'products.desk.price', 200);
 p($result);
