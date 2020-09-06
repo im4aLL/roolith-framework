@@ -3,6 +3,7 @@ namespace App\Core;
 
 
 use App\Core\Interfaces\FileInterface;
+use App\Utils\FS;
 
 class File implements FileInterface
 {
@@ -44,7 +45,7 @@ class File implements FileInterface
      */
     protected function isValidExtension()
     {
-        $extension = $this->getFileExtension($this->file['name']);
+        $extension = FS::getFileExtension($this->file['name']);
 
         return in_array($extension, $this->allowedFileTypes);
     }
@@ -78,12 +79,12 @@ class File implements FileInterface
      */
     public function upload($destinationPath, $name = null)
     {
-        if ($this->makeDirectory($destinationPath)) {
+        if (FS::makeDirectory($destinationPath)) {
             if ($this->isValid()) {
                 $filename = $name ? $name : $this->generateFileName();
                 $destination = $destinationPath . '/' . $filename;
 
-                $isUploaded = move_uploaded_file($this->file['tmp_name'], $destination);
+                $isUploaded = FS::upload($this->file['tmp_name'], $destination);
 
                 if ($isUploaded) {
                     return $filename;
@@ -114,32 +115,6 @@ class File implements FileInterface
         $this->allowedFileTypes = $types;
 
         return $this;
-    }
-
-    /**
-     * Get file extension
-     *
-     * @param $filename
-     * @return string
-     */
-    protected function getFileExtension($filename)
-    {
-        return strtolower(pathinfo($filename, PATHINFO_EXTENSION));
-    }
-
-    /**
-     * Create directory if not exists
-     *
-     * @param $path
-     * @return bool
-     */
-    protected function makeDirectory($path)
-    {
-        if (!is_dir($path)) {
-            return mkdir($path, 0777, true);
-        }
-
-        return false;
     }
 
     /**

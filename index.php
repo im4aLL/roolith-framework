@@ -1,5 +1,4 @@
 <?php
-use App\Core\Rules;
 use App\Core\System;
 
 define('APP_ROOT', __DIR__);
@@ -12,3 +11,11 @@ $app = new System();
 $app->bootstrap()
     ->processRequest()
     ->complete();
+
+$data = [
+    ['name' => 'z', 'age' => 10],
+    ['name' => 'y', 'age' => 5],
+    ['name' => 'x', 'age' => 54],
+];
+$result = \App\Core\Utils\_::orderByString($data, 'name');
+p($result);
