@@ -10,7 +10,7 @@ interface SanitizeInterface
      * @param $string
      * @return string
      */
-    public static function url($string);
+    public static function param($string);
 
     /**
      * Sanitize email string

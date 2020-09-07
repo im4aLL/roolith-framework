@@ -9,7 +9,7 @@ class Sanitize implements SanitizeInterface
     /**
      * @inheritDoc
      */
-    public static function url($string)
+    public static function param($string)
     {
         return preg_replace("/[^a-zA-Z0-9-._]+/", "", $string);
     }

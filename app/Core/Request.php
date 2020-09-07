@@ -19,7 +19,7 @@ class Request implements RequestInterface
         }
 
         if (isset($_GET[$name])) {
-            return Sanitize::url($_GET[$name]);
+            return Sanitize::param($_GET[$name]);
         }
 
         $steamInput = self::steamInput($name);
