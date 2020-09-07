@@ -104,8 +104,6 @@ View files are into `/views` and view files are straight forward [documentation]
 ### Request
 
 ```php
-use \App\Core\Request;
-
 Request::input('page');
 Request::has('page');
 Request::all();
@@ -125,7 +123,7 @@ Request::hasFile('photo');
 
 ### Validator
 ```php
-$validator = new \App\Core\Validator();
+$validator = new Validator();
 $validator->check(
     [
         'name' => 'john',
@@ -150,8 +148,6 @@ if ($validator->success()) {
 
 ### Sanitize
 ```php
-use \App\Core\Sanitize;
-
 Sanitize::param($_GET['param']);
 Sanitize::any('untrusted_string<script>alert("a")</script>');
 Sanitize::email('something/@bad.com');
@@ -162,8 +158,6 @@ Sanitize::string('xss_protect');
 
 Example:
 ```php
-use \App\Utils\_;
-
 _::only(['name' => 'hadi', 'age' => 33], 'name');
 _::only(['name' => 'hadi', 'age' => 33, 'something' => 'else'], ['name', 'something']);
 _::drop([1, 2, 3, 4, 5]);
@@ -219,8 +213,8 @@ __('errors.required'); // This field is required
 
 Set local
 ```php
-\App\Core\Settings::setLang('es');
-\App\Core\Settings::getLang();
+Settings::setLang('es');
+Settings::getLang();
 ```
 
 Once `es` lang is set it will look `lang/es/message.php`. So when `es` has been set then below code will output - 

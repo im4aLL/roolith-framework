@@ -1,6 +1,6 @@
 {
   "name": "roolith-framework",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Roolith PHP framework. Very minimalistic and less overhead.",
   "scripts": {
     "start": "gulp sass && gulp js && gulp watch",
