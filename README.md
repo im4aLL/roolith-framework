@@ -76,6 +76,7 @@ Controller files located into `app/Controllers`
 ```php
 <?php
 namespace App\Controllers;
+use App\Models\User;
 
 class WelcomeController extends Controller
 {
@@ -87,6 +88,16 @@ class WelcomeController extends Controller
         ];
 
         return $this->view('home', $data);
+    }
+    
+    public function users()
+    {
+        return User::all();
+    }
+
+    public function show($id)
+    {
+        return User::orm()->find($id);
     }
 }
 ```
