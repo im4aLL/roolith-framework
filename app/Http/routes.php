@@ -1,8 +1,8 @@
 <?php
+use App\Core\RouterFactory;
 use Roolith\Configuration\Config;
-use Roolith\Route\Router;
 
-$router = new Router();
+$router = RouterFactory::getInstance();
 
 try {
     $router->setBaseUrl(Config::get('baseUrl'));
@@ -16,5 +16,7 @@ $router->get('/', function() {
 });
 
 $router->get('/example', \App\Controllers\WelcomeController::class . '@index');
+$router->get('/form', \App\Controllers\WelcomeController::class . '@form')->name('welcome.form');
+$router->post('/form', \App\Controllers\WelcomeController::class . '@formSubmit');
 
 return $router;

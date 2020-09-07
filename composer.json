@@ -17,12 +17,13 @@
         "roolith/event": "^1.0",
         "roolith/generator": "^1.0",
         "roolith/router": "^1.0",
-        "roolith/template-engine": "^1.0"
+        "roolith/template-engine": "^1.0",
+        "nesbot/carbon": "^2.39"
     },
     "autoload": {
         "psr-4": {
             "App\\": "app/"
         }
     },
-    "version": "1.0.0"
+    "version": "1.1.0"
 }
