@@ -11,7 +11,3 @@ $app = new System();
 $app->bootstrap()
     ->processRequest()
     ->complete();
-
-$array = ['products' => ['desk' => ['price' => 100]]];
-$result = \App\Utils\_::set($array, 'products.desk.price', 200);
-p($result);

@@ -40,3 +40,13 @@ function route($name) {
 
     return $routerInstance->getUrlByName($name);
 }
+
+/**
+ * Get message
+ *
+ * @param $name
+ * @return mixed|null
+ */
+function __($name) {
+    return \App\Utils\Str::getMessage($name);
+}
