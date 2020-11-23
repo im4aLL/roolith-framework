@@ -49,6 +49,17 @@ class Storage
     }
 
     /**
+     * Get session value by name
+     *
+     * @param $name
+     * @return false|mixed
+     */
+    public static function getSession($name)
+    {
+        return isset($_SESSION[$name]) ? $_SESSION[$name] : false;
+    }
+
+    /**
      * Delete session
      *
      * @param $name
