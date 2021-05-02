@@ -61,8 +61,8 @@ class Sanitize implements SanitizeInterface
     {
         $result = [];
 
-        foreach ($items as $item) {
-            $result[] = self::any($item);
+        foreach ($items as $itemKey => $itemValue) {
+            $result[$itemKey] = self::any($itemValue);
         }
 
         return $result;
