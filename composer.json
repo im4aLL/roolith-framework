@@ -11,13 +11,13 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "roolith/cache": "^1.0",
-        "roolith/config": "^1.0",
-        "roolith/database": "^1.0",
-        "roolith/event": "^1.0",
-        "roolith/generator": "^1.0",
-        "roolith/router": "^1.0",
-        "roolith/template-engine": "^1.0",
+        "roolith/cache": "1.0.2",
+        "roolith/config": "1.0.1",
+        "roolith/database": "1.0.2",
+        "roolith/event": "1.0.1",
+        "roolith/generator": "1.0.2",
+        "roolith/router": "1.0.5",
+        "roolith/template-engine": "1.0.3",
         "nesbot/carbon": "^2.39"
     },
     "autoload": {
@@ -25,5 +25,5 @@
             "App\\": "app/"
         }
     },
-    "version": "1.1.0"
+    "version": "1.2.0"
 }
