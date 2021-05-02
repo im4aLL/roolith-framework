@@ -10,4 +10,6 @@ return [
 //        'user' => 'root',
 //        'pass' => 'hadi',
 //    ]
+
+    'forceNonWww' => true,
 ];

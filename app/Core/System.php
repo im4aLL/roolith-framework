@@ -30,6 +30,8 @@ class System
      */
     public function bootstrap()
     {
+        $this->preProcessor();
+
         try {
             $dbConfig = Config::get('database');
 
@@ -114,6 +116,24 @@ class System
     {
         if ($this->db) {
             $this->db->disconnect();
+        }
+
+        return $this;
+    }
+
+    /**
+     * Pre processor
+     *
+     * @return $this
+     */
+    protected function preProcessor()
+    {
+        if (Config::get('forceNonWww')) {
+            PreProcessor::forceNonWww();
+        }
+
+        if (Config::get('forceWww')) {
+            PreProcessor::forceWww();
         }
 
         return $this;
