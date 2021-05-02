@@ -24,6 +24,7 @@ composer create-project roolith/framework your_app_name
 ```
 php roolith generate controller DemoController
 php roolith generate model Product
+php roolith generate middlware AuthMiddleware
 ```
 
 ### Define route
