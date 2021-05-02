@@ -65,7 +65,7 @@ function browserSyncReload(done) {
 }
 
 function watchFiles() {
-    gulp.watch('./source/sass/**/*.scss', sassTask);
+    gulp.watch('./source/scss/**/*.scss', sassTask);
     gulp.watch('./source/js/**/*.js', jsTask);
     gulp.watch(['./**/*.html', './**/*.php'], browserSyncReload);
 }
