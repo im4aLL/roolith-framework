@@ -39,7 +39,7 @@ class Sanitize implements SanitizeInterface
         $str = strip_tags(trim($str));
         $str = htmlentities($str, ENT_QUOTES, "UTF-8");
 
-        if (get_magic_quotes_gpc()) {
+        if (function_exists('get_magic_quotes_gpc')) {
             $str = stripslashes($str);
         }
 
@@ -54,6 +54,7 @@ class Sanitize implements SanitizeInterface
         return filter_var($string, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_HIGH);
     }
 
+        
     /**
      * @inheritDoc
      */
