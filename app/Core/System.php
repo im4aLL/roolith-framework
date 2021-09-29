@@ -27,6 +27,7 @@ class System
      *
      * @return $this
      * @throws Exception
+     * @throws InvalidArgumentException
      */
     public function bootstrap()
     {
@@ -125,8 +126,9 @@ class System
      * Pre processor
      *
      * @return $this
+     * @throws InvalidArgumentException
      */
-    protected function preProcessor()
+    private function preProcessor()
     {
         if (Config::get('forceNonWww')) {
             PreProcessor::forceNonWww();

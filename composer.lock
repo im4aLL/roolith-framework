@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "05e0a290cf70342164782548082bd939",
+    "content-hash": "d6723c5815d3eb9100c81b78cbf357fb",
     "packages": [
         {
             "name": "nesbot/carbon",
@@ -290,16 +290,16 @@
         },
         {
             "name": "roolith/database",
-            "version": "1.0.2",
+            "version": "1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/im4aLL/roolith-database.git",
-                "reference": "ec162e59333daebba46fac1108f58529e79fea1f"
+                "reference": "5cb5e5ac99867afec43f6a70288d07a5cea6b866"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/im4aLL/roolith-database/zipball/ec162e59333daebba46fac1108f58529e79fea1f",
-                "reference": "ec162e59333daebba46fac1108f58529e79fea1f",
+                "url": "https://api.github.com/repos/im4aLL/roolith-database/zipball/5cb5e5ac99867afec43f6a70288d07a5cea6b866",
+                "reference": "5cb5e5ac99867afec43f6a70288d07a5cea6b866",
                 "shasum": ""
             },
             "require": {
@@ -328,9 +328,9 @@
             "description": "PHP database driver",
             "support": {
                 "issues": "https://github.com/im4aLL/roolith-database/issues",
-                "source": "https://github.com/im4aLL/roolith-database/tree/1.0.2"
+                "source": "https://github.com/im4aLL/roolith-database/tree/1.0.3"
             },
-            "time": "2020-09-01T13:00:47+00:00"
+            "time": "2021-09-29T10:09:14+00:00"
         },
         {
             "name": "roolith/event",
@@ -374,16 +374,16 @@
         },
         {
             "name": "roolith/generator",
-            "version": "1.0.2",
+            "version": "1.0.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/im4aLL/roolith-generator.git",
-                "reference": "8cfaa5d2c6668425495a1bb037e98c7981e65af4"
+                "reference": "ef7ff6024c3f33ebbe0a2f24b85d1964c1db5dc1"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/im4aLL/roolith-generator/zipball/8cfaa5d2c6668425495a1bb037e98c7981e65af4",
-                "reference": "8cfaa5d2c6668425495a1bb037e98c7981e65af4",
+                "url": "https://api.github.com/repos/im4aLL/roolith-generator/zipball/ef7ff6024c3f33ebbe0a2f24b85d1964c1db5dc1",
+                "reference": "ef7ff6024c3f33ebbe0a2f24b85d1964c1db5dc1",
                 "shasum": ""
             },
             "require-dev": {
@@ -408,22 +408,22 @@
             "description": "Generate php file using php",
             "support": {
                 "issues": "https://github.com/im4aLL/roolith-generator/issues",
-                "source": "https://github.com/im4aLL/roolith-generator/tree/1.0.2"
+                "source": "https://github.com/im4aLL/roolith-generator/tree/1.0.3"
             },
-            "time": "2020-09-01T11:37:37+00:00"
+            "time": "2021-09-29T10:05:23+00:00"
         },
         {
             "name": "roolith/router",
-            "version": "1.0.5",
+            "version": "1.0.7",
             "source": {
                 "type": "git",
                 "url": "https://github.com/im4aLL/roolith-router.git",
-                "reference": "965cec9b58d5ef83dd541969735597a14187ac60"
+                "reference": "5722679ca049b4fd0dd7f23f78d23a086d3dc67e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/im4aLL/roolith-router/zipball/965cec9b58d5ef83dd541969735597a14187ac60",
-                "reference": "965cec9b58d5ef83dd541969735597a14187ac60",
+                "url": "https://api.github.com/repos/im4aLL/roolith-router/zipball/5722679ca049b4fd0dd7f23f78d23a086d3dc67e",
+                "reference": "5722679ca049b4fd0dd7f23f78d23a086d3dc67e",
                 "shasum": ""
             },
             "require": {
@@ -451,9 +451,9 @@
             "description": "Simple PHP router",
             "support": {
                 "issues": "https://github.com/im4aLL/roolith-router/issues",
-                "source": "https://github.com/im4aLL/roolith-router/tree/1.0.5"
+                "source": "https://github.com/im4aLL/roolith-router/tree/1.0.7"
             },
-            "time": "2021-05-02T11:15:50+00:00"
+            "time": "2021-09-29T10:14:17+00:00"
         },
         {
             "name": "roolith/template-engine",

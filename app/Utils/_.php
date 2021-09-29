@@ -8,6 +8,17 @@ use RecursiveIteratorIterator;
 class _
 {
     /**
+     * Is associative array
+     *
+     * @param $array
+     * @return bool
+     */
+    public static function isAssociativeArray($array)
+    {
+        return count(array_filter(array_keys($array), 'is_string')) > 0;
+    }
+
+    /**
      * Get only selected array
      *
      * @param $items
@@ -19,9 +30,17 @@ class _
         $resultArray = [];
 
         if (is_array($only)) {
-            foreach ($items as $item) {
-                if (in_array($item, $only)) {
-                    $resultArray[] = $item;
+            if (self::isAssociativeArray($items)) {
+                foreach ($items as $itemKey => $itemValue) {
+                    if (in_array($itemKey, $only)) {
+                        $resultArray[$itemKey] = $itemValue;
+                    }
+                }
+            } else {
+                foreach ($items as $item) {
+                    if (in_array($item, $only)) {
+                        $resultArray[] = $item;
+                    }
                 }
             }
         } else {
@@ -45,9 +64,17 @@ class _
         $resultArray = [];
 
         if (is_array($except)) {
-            foreach ($items as $item) {
-                if (!in_array($item, $except)) {
-                    $resultArray[] = $item;
+            if (self::isAssociativeArray($items)) {
+                foreach ($items as $itemKey => $itemValue) {
+                    if (!in_array($itemKey, $except)) {
+                        $resultArray[$itemKey] = $itemValue;
+                    }
+                }
+            } else {
+                foreach ($items as $item) {
+                    if (!in_array($item, $except)) {
+                        $resultArray[] = $item;
+                    }
                 }
             }
         } else {
