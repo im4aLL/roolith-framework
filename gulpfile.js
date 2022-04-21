@@ -1,6 +1,6 @@
 const gulp = require('gulp');
 const browserSync = require('browser-sync').create();
-const sass = require('gulp-sass');
+const sass = require('gulp-sass')(require('sass'));
 const autoprefixer = require('gulp-autoprefixer');
 const babelify = require('babelify');
 const source = require('vinyl-source-stream');
