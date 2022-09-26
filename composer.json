@@ -16,7 +16,7 @@
         "roolith/database": "1.0.3",
         "roolith/event": "1.0.1",
         "roolith/generator": "1.0.3",
-        "roolith/router": "1.0.7",
+        "roolith/router": "1.0.8",
         "roolith/template-engine": "1.0.3",
         "nesbot/carbon": "^2.39"
     },
@@ -25,5 +25,5 @@
             "App\\": "app/"
         }
     },
-    "version": "1.4.0"
+    "version": "1.4.1"
 }
