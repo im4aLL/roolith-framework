@@ -71,16 +71,16 @@ class _
                     }
                 }
             } else {
-                foreach ($items as $item) {
-                    if (!in_array($item, $except)) {
-                        $resultArray[] = $item;
+                foreach ($items as $itemKey => $itemValue) {
+                    if (!in_array($itemKey, $except)) {
+                        $resultArray[$itemKey] = $itemValue;
                     }
                 }
             }
-        } else {
-            foreach ($items as $item) {
-                if ($item !== $except) {
-                    $resultArray[] = $item;
+        } else {            
+            foreach ($items as $itemKey => $itemValue) {
+                if ($itemKey !== $except) {
+                    $resultArray[$itemKey] = $itemValue;
                 }
             }
         }
@@ -290,7 +290,7 @@ class _
      */
     public static function join($array, $separator = ',')
     {
-        return implode($array, $separator);
+        return implode($separator, $array);
     }
 
     /**
@@ -386,7 +386,6 @@ class _
                 }
 
                 return $n;
-                break;
             }
         }
 
@@ -551,7 +550,7 @@ class _
      *
      * @param $array
      * @param $key
-     * @param null $value
+     * @param $value null
      * @return array
      */
     public static function add($array, $key, $value = null)
@@ -678,7 +677,7 @@ class _
      *
      * @param $array
      * @param $key
-     * @param null $value
+     * @param $value null
      * @return array
      */
     public static function prepend($array, $key, $value = null)
