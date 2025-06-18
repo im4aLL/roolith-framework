@@ -8,7 +8,7 @@ class PreProcessor
      *
      * @return void
      */
-    static function forceNonWww()
+    public static function forceNonWww()
     {
         if (substr($_SERVER['HTTP_HOST'], 0, 4) === 'www.') {
             header('Location: http'.(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']=='on' ? 's':'').'://' . substr($_SERVER['HTTP_HOST'], 4).$_SERVER['REQUEST_URI']);
@@ -21,7 +21,7 @@ class PreProcessor
      *
      * @return void
      */
-    static function forceWww()
+    public static function forceWww()
     {
         if ((strpos($_SERVER['HTTP_HOST'], 'www.') === false)) {
             header('Location: http'.(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']=='on' ? 's':'').'://www.'.$_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"]);

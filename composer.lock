@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b616544d355e372e460cc79ba5d38a4b",
+    "content-hash": "7697a2410ee97c7353075b4ecf5b78a0",
     "packages": [
         {
             "name": "nesbot/carbon",
@@ -423,16 +423,16 @@
         },
         {
             "name": "roolith/router",
-            "version": "1.0.8",
+            "version": "1.0.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/im4aLL/roolith-router.git",
-                "reference": "1e20bdd678994f05d175409f0329d380a28c326c"
+                "reference": "d89f702fcb55c4ef0008242c67a49e219315d096"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/im4aLL/roolith-router/zipball/1e20bdd678994f05d175409f0329d380a28c326c",
-                "reference": "1e20bdd678994f05d175409f0329d380a28c326c",
+                "url": "https://api.github.com/repos/im4aLL/roolith-router/zipball/d89f702fcb55c4ef0008242c67a49e219315d096",
+                "reference": "d89f702fcb55c4ef0008242c67a49e219315d096",
                 "shasum": ""
             },
             "require": {
@@ -460,9 +460,9 @@
             "description": "Simple PHP router",
             "support": {
                 "issues": "https://github.com/im4aLL/roolith-router/issues",
-                "source": "https://github.com/im4aLL/roolith-router/tree/1.0.8"
+                "source": "https://github.com/im4aLL/roolith-router/tree/1.0.9"
             },
-            "time": "2022-09-26T18:50:41+00:00"
+            "time": "2025-06-18T05:18:07+00:00"
         },
         {
             "name": "roolith/template-engine",
@@ -851,10 +851,10 @@
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": [],
+    "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": [],
-    "platform-dev": [],
-    "plugin-api-version": "2.3.0"
+    "platform": {},
+    "platform-dev": {},
+    "plugin-api-version": "2.6.0"
 }

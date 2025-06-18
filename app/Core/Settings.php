@@ -6,8 +6,8 @@ use Carbon\Carbon;
 
 class Settings
 {
-    const LANG_COOKIE_NAME = 'lang';
-    const LANG_DEFAULT = 'en';
+    public const LANG_COOKIE_NAME = 'lang';
+    public const LANG_DEFAULT = 'en';
 
     /**
      * Set language

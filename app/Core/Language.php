@@ -33,7 +33,7 @@ class Language
     /**
      * Get message array
      *
-     * @param null $lang
+     * @param $lang null
      * @return array
      */
     public function getMessages($lang = null)
