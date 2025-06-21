@@ -1,0 +1,11 @@
+@mixin roolith-admin-layout() {
+    .layout {
+        display: grid;
+        grid-template-columns: 12.5rem 1fr;
+        padding: 1.25rem;
+    }
+
+    .layout__sidebar {
+        position: relative;
+    }
+}

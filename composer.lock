@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7697a2410ee97c7353075b4ecf5b78a0",
+    "content-hash": "35de16c2560bc3437d724ab7c665525b",
     "packages": [
         {
             "name": "nesbot/carbon",
@@ -466,16 +466,16 @@
         },
         {
             "name": "roolith/template-engine",
-            "version": "1.0.3",
+            "version": "1.0.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/im4aLL/roolith-template-engine.git",
-                "reference": "3097a1e65f83522039d4eac788c603674db02a9a"
+                "reference": "19f953176476fe23698cb7c31cb3f95bd3ced294"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/im4aLL/roolith-template-engine/zipball/3097a1e65f83522039d4eac788c603674db02a9a",
-                "reference": "3097a1e65f83522039d4eac788c603674db02a9a",
+                "url": "https://api.github.com/repos/im4aLL/roolith-template-engine/zipball/19f953176476fe23698cb7c31cb3f95bd3ced294",
+                "reference": "19f953176476fe23698cb7c31cb3f95bd3ced294",
                 "shasum": ""
             },
             "require-dev": {
@@ -500,9 +500,9 @@
             "description": "PHP simple template engine",
             "support": {
                 "issues": "https://github.com/im4aLL/roolith-template-engine/issues",
-                "source": "https://github.com/im4aLL/roolith-template-engine/tree/1.0.3"
+                "source": "https://github.com/im4aLL/roolith-template-engine/tree/1.0.4"
             },
-            "time": "2020-09-01T09:26:14+00:00"
+            "time": "2025-06-21T05:00:46+00:00"
         },
         {
             "name": "symfony/polyfill-mbstring",

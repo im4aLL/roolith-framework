@@ -1,0 +1,15 @@
+@mixin roolith-admin-base() {
+    html {
+        box-sizing: border-box;
+    }
+
+    *, *:before, *:after {
+        box-sizing: inherit;
+    }
+
+    body {
+        font: 14px/1.2 monospace;
+        background-color: var(--color-bg);
+        color: var(--color-text);
+    }
+}

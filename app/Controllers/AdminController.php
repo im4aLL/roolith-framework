@@ -7,10 +7,10 @@ class AdminController extends Controller
     {
         $data = [
             'content' => 'Welcome to Roolith admin!',
-            'title' => 'Roolith Framework',
+            'title' => 'Roolith Admin',
         ];
 
-        return $this->view('home', $data);
+        return $this->view('admin.dashboard', $data);
     }
 
     public function create()

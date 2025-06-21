@@ -1,0 +1,28 @@
+$color-link: #58a6ff;
+$color-link-visited: #8e96f0;
+$color-white: #fff;
+$color-gray: #363B42;
+$color-dark-gray: #15181C;
+$color-text: #c9d1d9;
+$color-bg: #0d1117;
+$color-dark-bg: #080C12;
+$color-darker-bg: #03070D;
+$color-success: greenyellow;
+$color-danger: lightsalmon;
+
+@mixin roolith-admin-settings() {
+    :root {
+        --color-link: #{$color-link};
+        --color-link-visited: #{$color-link-visited};
+        --color-white: #{$color-white};
+        --color-gray: #{$color-gray};
+        --color-dark-gray: #{$color-dark-gray};
+        --color-text: #{$color-text};
+        --color-bg: #{$color-bg};
+        --color-dark-bg: #{$color-dark-bg};
+        --color-darker-bg: #{$color-darker-bg};
+        --color-success: #{$color-success};
+        --color-danger: #{$color-danger};
+        --color-border: #{$color-dark-gray};
+    }
+}

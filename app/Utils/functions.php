@@ -1,5 +1,6 @@
 <?php
 use Carbon\Carbon;
+use Roolith\Configuration\Config;
 
 /**
  * Print anything
@@ -193,4 +194,13 @@ function parseBasicTemplate($string, $data = []) {
     }
 
     return preg_replace($findArray, $replaceArray, $string);
+}
+
+/**
+ * Get version
+ * 
+ * @return string
+ */
+function getVersion() {
+    return Config::get('version');
 }

@@ -2,7 +2,9 @@
   "version": "1.4.0",
   "scripts": {
     "start": "gulp sass && gulp js && gulp watch",
-    "build": "gulp production"
+    "build": "gulp production",
+    "watch:admin": "gulp watch:admin",
+    "build:admin": "gulp build:admin"
   },
   "license": "MIT",
   "devDependencies": {

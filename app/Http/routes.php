@@ -22,7 +22,6 @@ $router->post('/form', \App\Controllers\WelcomeController::class . '@formSubmit'
 
 $router->group(['middleware' => AuthMiddleware::class, 'urlPrefix' => '/admin', 'namePrefix' => 'admin.'], function () use ($router) {
     $router->get('/', \App\Controllers\AdminController::class . '@index')->name('home');
-    $router->get('/home', \App\Controllers\AdminController::class . '@index')->name('home');
 });
 
 return $router;

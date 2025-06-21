@@ -1,0 +1,26 @@
+@mixin roolith-admin-nav() {
+    .nav {
+        padding-top: 1.25rem;
+        position: sticky;
+        top: 0;
+        left: 0;
+    }
+
+    .nav__item {
+        padding-bottom: .4375rem;
+
+        &:last-child {
+            padding-bottom: 0;
+        }
+    }
+
+    .nav__list--sub {
+        padding: .625rem;
+    }
+
+    .nav__logo,
+    .nav__logo:visited {
+        color: var(--color-white);
+        text-decoration: none;
+    }
+}

@@ -1,0 +1,44 @@
+@mixin roolith-admin-table() {
+    .table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+
+        caption {
+            text-align: left;
+            margin-bottom: .625rem;
+        }
+    }
+
+    .table thead th,
+    .table tfoot th {
+        background-color: var(--color-dark-bg);
+        font-weight: 600;
+    }
+
+    .table th,
+    .table td {
+        padding: .5rem;
+        border: .0625rem solid var(--color-border);
+    }
+
+    .table th {
+        text-align: left;
+    }
+
+    .table tr:nth-child(odd) {
+        background-color: var(--color-darker-bg);
+    }
+
+    .table tr:nth-child(even) {
+        background-color: var(--color-dark-bg);
+    }
+
+    .table tr:hover {
+        background-color: var(--color-bg);
+    }
+
+    .table tr:hover td {
+        color: var(--color-white);
+    }
+}

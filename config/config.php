@@ -12,4 +12,6 @@ return [
 //    ]
 
     'forceNonWww' => true,
+
+    'version' => time(),
 ];
