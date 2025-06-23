@@ -4,11 +4,13 @@ $color-white: #fff;
 $color-gray: #363B42;
 $color-dark-gray: #15181C;
 $color-text: #c9d1d9;
+$color-dimmed-text: #8b949e;
 $color-bg: #0d1117;
 $color-dark-bg: #080C12;
 $color-darker-bg: #03070D;
 $color-success: greenyellow;
-$color-danger: lightsalmon;
+$color-danger: firebrick;
+$border-radius: .25rem;
 
 @mixin roolith-admin-settings() {
     :root {
@@ -24,5 +26,7 @@ $color-danger: lightsalmon;
         --color-success: #{$color-success};
         --color-danger: #{$color-danger};
         --color-border: #{$color-dark-gray};
+        --color-dimmed-text: #{$color-dimmed-text};
+        --border-radius: #{$border-radius};
     }
 }

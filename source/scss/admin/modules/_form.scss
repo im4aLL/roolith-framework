@@ -1,0 +1,50 @@
+@mixin roolith-admin-form() {
+    .form__input {
+        background-color: var(--color-dark-bg);
+        border: .0625rem solid var(--color-border);
+        padding: .5rem .75rem;
+        color: var(--color-text);
+        outline: none;
+        width: 100%;
+        border-radius: var(--border-radius);
+
+        &:focus {
+            border: .0625rem solid var(--color-link);
+        }
+    }
+
+    .form--radio,
+    .form--checkbox {
+        width: auto;
+    }
+
+    .form__label {
+        display: block;
+        margin-bottom: .3125rem;
+        color: var(--color-dimmed-text);
+    }
+
+    .form__field {
+        margin-bottom: .625rem;
+    }
+
+    select {
+        font-family: monospace;
+    }
+
+    .form__hint {
+        color: var(--color-dimmed-text);
+        display: block;
+        margin-top: .3125rem;
+    }
+
+    .form__field--error {
+        .form__input {
+            border: .0625rem solid var(--color-danger);
+        }
+
+        .form__hint {
+            color: var(--color-danger);
+        }
+    }
+}

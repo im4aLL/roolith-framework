@@ -1,0 +1,23 @@
+@mixin roolith-admin-button() {
+    .button {
+        background-color: var(--color-dark-bg);
+        display: inline-block;
+        border: .0625rem solid var(--color-border);
+        padding: .5rem .75rem;
+        cursor: pointer;
+        font-family: monospace;
+        color: var(--color-link);
+        font-size: .875rem;
+        text-decoration: none;
+        line-height: 1.2;
+        border-radius: var(--border-radius);
+
+        &:visited {
+            color: var(--color-link);
+        }
+
+        &:hover {
+            background-color: var(--color-darker-bg);
+        }
+    }
+}

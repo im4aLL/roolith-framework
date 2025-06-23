@@ -1,16 +1,12 @@
 <?php
-namespace App\Controllers;
+namespace App\Controllers\Admin;
 
-class AdminController extends Controller
+use App\Controllers\Controller;
+
+class AdminPageController extends Controller
 {
     public function index()
     {
-        $data = [
-            'content' => 'Welcome to Roolith admin!',
-            'title' => 'Roolith Admin',
-        ];
-
-        return $this->view('admin.dashboard', $data);
     }
 
     public function create()

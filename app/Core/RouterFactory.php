@@ -6,11 +6,11 @@ use Roolith\Route\Router;
 
 class RouterFactory
 {
-    private static $router = null;
+    private static Router|null $router = null;
 
     private function __construct() {}
 
-    public static function getInstance()
+    public static function getInstance(): Router
     {
         if (self::$router === null) {
             self::$router = new Router();

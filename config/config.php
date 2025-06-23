@@ -2,14 +2,12 @@
 return [
     'baseUrl' => 'http://local.roolith-framework.me/',
 
-    'database' => null,
-
-//    [
-//        'host' => 'localhost',
-//        'name' => 'roolith_database',
-//        'user' => 'root',
-//        'pass' => 'hadi',
-//    ]
+    'database' => [
+        'host' => 'localhost',
+        'name' => 'ka_website',
+        'user' => 'root',
+        'pass' => '',
+    ],
 
     'forceNonWww' => true,
 

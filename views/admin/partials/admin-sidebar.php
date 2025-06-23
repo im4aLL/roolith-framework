@@ -1,5 +1,5 @@
 <div>
-    <h3><a href="<?= route('admin.home') ?>" class="nav__logo">CMS</a> <span>v<?= getVersion() ?></span></h3>
+    <h2><a href="<?= route('admin.home') ?>" class="nav__logo">CMS</a> <span>v<?= getVersion() ?></span></h2>
 </div>
 
 <nav class="nav">

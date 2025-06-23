@@ -7,7 +7,7 @@ use Roolith\Route\Response;
 
 class AuthMiddleware extends Middleware
 {
-    public function process(Request $request, Response $response)
+    public function process(Request $request, Response $response): bool
     {
         return true;
     }
