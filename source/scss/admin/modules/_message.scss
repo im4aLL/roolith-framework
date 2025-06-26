@@ -1,0 +1,13 @@
+@mixin roolith-admin-message() {
+    .message {
+        background-color: var(--color-darker-bg);
+        border: .0625rem solid var(--color-border);
+        padding: .625rem;
+        border-radius: var(--border-radius);
+        margin-bottom: 1.25rem;
+    }
+
+    .message--danger {
+        background-color: var(--color-danger);
+    }
+}

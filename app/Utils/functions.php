@@ -8,7 +8,8 @@ use Roolith\Configuration\Config;
  * @param $any
  * @param bool $exit
  */
-function p($any, $exit = false) {
+function p($any, bool $exit = false): void
+{
     echo '<pre>';
     print_r($any);
     echo '</pre>';
@@ -19,14 +20,15 @@ function p($any, $exit = false) {
 }
 
 /**
- * Prefix app url in path
+ * Prefix app url in a path
  *
  * @param $path
  * @return string
  */
-function url($path) {
+function url($path): string
+{
     try {
-        return \Roolith\Configuration\Config::get('baseUrl') . $path;
+        return Config::get('baseUrl') . $path;
     } catch (\Roolith\Configuration\Exception\InvalidArgumentException $e) {
         return $path;
     }
@@ -39,7 +41,8 @@ function url($path) {
  * @param array $settings
  * @return string
  */
-function route($name, $settings = []) {
+function route($name, array $settings = []): string
+{
     $routerInstance = \App\Core\RouterFactory::getInstance();
 
     return $routerInstance->getUrlByName($name, $settings);
@@ -50,19 +53,21 @@ function route($name, $settings = []) {
  *
  * @return array
  */
-function getActiveRoute() {
+function getActiveRoute(): array
+{
     $routerInstance = \App\Core\RouterFactory::getInstance();
 
     return $routerInstance->activeRoute();
 }
 
 /**
- * Get message
+ * Get a message
  *
  * @param $name
  * @return mixed|null
  */
-function __($name) {
+function __($name): mixed
+{
     return \App\Utils\Str::getMessage($name);
 }
 
@@ -73,7 +78,7 @@ function __($name) {
  * @param integer $statusCode
  * @return void
  */
-function redirect($url, $statusCode = 303) {
+function redirect(string $url, int $statusCode = 303): void {
     header('Location: ' . $url, true, $statusCode);
 
     die();
@@ -87,7 +92,8 @@ function redirect($url, $statusCode = 303) {
  * @param integer $statusCode
  * @return void
  */
-function redirectToRoute($routeName, $settings = [], $statusCode = 303) {
+function redirectToRoute(string $routeName, array $settings = [], int $statusCode = 303): void
+{
     $url = route($routeName, $settings);
 
     redirect($url, $statusCode);
@@ -98,7 +104,8 @@ function redirectToRoute($routeName, $settings = [], $statusCode = 303) {
  *
  * @return string
  */
-function generateUniqueAlphaNumericNumber() {
+function generateUniqueAlphaNumericNumber(): string
+{
     $prefix  = substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZ',4)),0,4);
     $postfix = time();
 
@@ -110,7 +117,8 @@ function generateUniqueAlphaNumericNumber() {
  *
  * @return string
  */
-function generateUniqueNumber() {
+function generateUniqueNumber(): string
+{
     return substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZ',4)),0,2).'-'.mt_rand(100000,999999).time();
 }
 
@@ -119,7 +127,8 @@ function generateUniqueNumber() {
  *
  * @return string
  */
-function getCurrentDateTime() {
+function getCurrentDateTime(): string
+{
     return Carbon::now()->toDateTimeString();
 }
 
@@ -128,16 +137,18 @@ function getCurrentDateTime() {
  *
  * @return string
  */
-function getCurrentDate() {
+function getCurrentDate(): string
+{
     return Carbon::now()->toDateString();
 }
 
 /**
- * Is is dev environment
+ * Is dev environment
  *
  * @return bool
  */
-function isDevEnvironment() {
+function isDevEnvironment(): bool
+{
     return ROOLITH_ENV == 'development';
 }
 
@@ -146,7 +157,8 @@ function isDevEnvironment() {
  *
  * @return mixed|string
  */
-function getIpAddress() {
+function getIpAddress(): mixed
+{
     $ipAddress = 'UNKNOWN';
 
     if (isset($_SERVER['HTTP_CLIENT_IP'])) {
@@ -167,24 +179,14 @@ function getIpAddress() {
 }
 
 /**
- * If string contain a piece
- *
- * @param $string
- * @param $piece
- * @return bool
- */
-function stringContains($string, $piece) {
-    return strpos($string, $piece) !== false;
-}
-
-/**
  * Parse basic template
  *
  * @param $string
  * @param array $data
  * @return string|string[]|null
  */
-function parseBasicTemplate($string, $data = []) {
+function parseBasicTemplate($string, array $data = []): array|string|null
+{
     $findArray = [];
     $replaceArray = [];
 
@@ -197,10 +199,12 @@ function parseBasicTemplate($string, $data = []) {
 }
 
 /**
- * Get version
- * 
+ * Get a version
+ *
  * @return string
+ * @throws \Roolith\Configuration\Exception\InvalidArgumentException
  */
-function getVersion() {
+function getVersion(): string
+{
     return Config::get('version');
 }

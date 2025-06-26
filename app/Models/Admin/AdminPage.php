@@ -3,7 +3,7 @@ namespace App\Models\Admin;
 
 use App\Models\Model;
 
-class Page extends Model
+class AdminPage extends Model
 {
     protected $table = 'pages';
 }

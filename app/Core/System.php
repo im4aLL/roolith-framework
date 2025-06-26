@@ -10,9 +10,9 @@ use Roolith\Store\Interfaces\DatabaseInterface;
 class System
 {
     /**
-     * @var DatabaseInterface
+     * @var ?DatabaseInterface
      */
-    protected $db;
+    protected ?DatabaseInterface $db;
 
     public function __construct()
     {
@@ -29,7 +29,7 @@ class System
      * @throws Exception
      * @throws InvalidArgumentException
      */
-    public function bootstrap()
+    public function bootstrap(): static
     {
         $this->preProcessor();
 
@@ -53,9 +53,10 @@ class System
      *
      * @return $this
      */
-    public function complete()
+    public function complete(): static
     {
         $this->disconnectFromDatabase();
+        Storage::removeTemp();
 
         return $this;
     }
@@ -65,7 +66,7 @@ class System
      *
      * @return $this
      */
-    public function processRequest()
+    public function processRequest(): static
     {
         $router = require_once APP_ROOT . '/app/Http/routes.php';
 
@@ -80,7 +81,7 @@ class System
      * @param RouterInterface $router
      * @return $this
      */
-    protected function router(RouterInterface $router)
+    protected function router(RouterInterface $router): static
     {
         $router->run();
 
@@ -94,7 +95,7 @@ class System
      * @return $this
      * @throws Exception
      */
-    protected function connectToDatabase($databaseConfig)
+    protected function connectToDatabase($databaseConfig): static
     {
         if ($databaseConfig) {
             $this->db = DatabaseFactory::getInstance();
@@ -109,15 +110,13 @@ class System
     }
 
     /**
-     * Disconnect from database
+     * Disconnect from a database
      *
      * @return $this
      */
-    protected function disconnectFromDatabase()
+    protected function disconnectFromDatabase(): static
     {
-        if ($this->db) {
-            $this->db->disconnect();
-        }
+        $this->db?->disconnect();
 
         return $this;
     }
@@ -125,10 +124,10 @@ class System
     /**
      * Pre processor
      *
-     * @return $this
+     * @return void
      * @throws InvalidArgumentException
      */
-    private function preProcessor()
+    private function preProcessor(): void
     {
         if (Config::get('forceNonWww')) {
             PreProcessor::forceNonWww();
@@ -137,7 +136,5 @@ class System
         if (Config::get('forceWww')) {
             PreProcessor::forceWww();
         }
-
-        return $this;
     }
 }

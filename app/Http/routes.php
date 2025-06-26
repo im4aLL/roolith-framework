@@ -1,12 +1,13 @@
 <?php
-
-use App\Controllers\Admin\AdminController;
-use App\Controllers\Admin\AdminPageController;
 use App\Controllers\WelcomeController;
 use App\Core\RouterFactory;
-use App\Middlewares\AuthMiddleware;
 use Roolith\Configuration\Config;
+
 use App\Controllers\Admin\AdminModuleController;
+use App\Middlewares\Admin\AdminAuthMiddleware;
+use App\Controllers\Admin\AdminAuthController;
+use App\Controllers\Admin\AdminController;
+use App\Controllers\Admin\AdminPageController;
 
 $router = RouterFactory::getInstance();
 
@@ -25,7 +26,13 @@ $router->get('/example', WelcomeController::class . '@index');
 $router->get('/form', WelcomeController::class . '@form')->name('welcome.form');
 $router->post('/form', WelcomeController::class . '@formSubmit');
 
-$router->group(['middleware' => AuthMiddleware::class, 'urlPrefix' => '/admin', 'namePrefix' => 'admin.'], function () use ($router) {
+/**
+ * Admin routes
+ */
+$router->get('/admin/login', AdminAuthController::class . '@login')->name('admin.auth.login');
+$router->post('/admin/login', AdminAuthController::class . '@verifyCredential')->name('admin.auth.verifyCredential');
+
+$router->group(['middleware' => AdminAuthMiddleware::class, 'urlPrefix' => '/admin', 'namePrefix' => 'admin.'], function () use ($router) {
     $router->get('/', AdminController::class . '@index')->name('home');
     $router->crud('/pages', AdminPageController::class);
     $router->crud('/modules', AdminModuleController::class);

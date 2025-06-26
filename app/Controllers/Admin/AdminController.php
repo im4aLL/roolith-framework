@@ -12,7 +12,7 @@ class AdminController extends Controller
             'title' => 'Roolith Admin',
         ];
 
-        return $this->view('admin.dashboard', $data);
+        return $this->view('admin.admin-dashboard', $data);
     }
 
     public function create()
