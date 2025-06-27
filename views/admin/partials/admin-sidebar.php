@@ -8,7 +8,7 @@
             <a href="<?= route('admin.home') ?>" class="nav__link">Dashboard</a>
         </li>
         <li class="nav__item">
-            <a href="<?= route('admin.posts.index') ?>" class="nav__link">Pages</a>
+            <a href="<?= route('admin.pages.index') ?>" class="nav__link">Pages</a>
         </li>
         <li class="nav__item">
             <a href="<?= route('admin.posts.index') ?>" class="nav__link">Modules</a>
@@ -26,7 +26,7 @@
             </ul>
         </li>
         <li class="nav__item">
-            <a href="<?= route('admin.posts.index') ?>" class="nav__link">Sign Out</a>
+            <a href="<?= route('admin.auth.logout') ?>" class="nav__link">Sign Out</a>
         </li>
     </ul>
 </nav>

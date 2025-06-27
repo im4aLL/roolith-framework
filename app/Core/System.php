@@ -20,6 +20,7 @@ class System
         require_once APP_ROOT . '/app/Utils/functions.php';
 
         $this->db = null;
+        $this->registerCustomError();
     }
 
     /**
@@ -136,5 +137,25 @@ class System
         if (Config::get('forceWww')) {
             PreProcessor::forceWww();
         }
+    }
+
+    /**
+     * Register custom error
+     *
+     * @return void
+     */
+    private function registerCustomError(): void
+    {
+        if (isProductionEnvironment()) {
+            ini_set('display_errors', 0);
+            ini_set('log_errors', 1);
+            error_reporting(E_ALL);
+
+            return;
+        }
+
+        $whoops = new \Whoops\Run;
+        $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler);
+        $whoops->register();
     }
 }

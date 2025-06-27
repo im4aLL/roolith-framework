@@ -149,7 +149,25 @@ function getCurrentDate(): string
  */
 function isDevEnvironment(): bool
 {
+    if (!defined('ROOLITH_ENV')) {
+        return true;
+    }
+
     return ROOLITH_ENV == 'development';
+}
+
+/**
+ * Is production environment
+ *
+ * @return bool
+ */
+function isProductionEnvironment(): bool
+{
+    if (!defined('ROOLITH_ENV')) {
+        return false;
+    }
+
+    return ROOLITH_ENV == 'production';
 }
 
 /**

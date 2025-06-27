@@ -36,6 +36,8 @@ $router->group(['middleware' => AdminAuthMiddleware::class, 'urlPrefix' => '/adm
     $router->get('/', AdminController::class . '@index')->name('home');
     $router->crud('/pages', AdminPageController::class);
     $router->crud('/modules', AdminModuleController::class);
+
+    $router->get('/logout', AdminAuthController::class . '@logout')->name('auth.logout');
 });
 
 return $router;

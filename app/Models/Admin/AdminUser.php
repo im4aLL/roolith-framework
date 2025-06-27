@@ -7,10 +7,10 @@ use App\Models\Model;
 class AdminUser extends Model
 {
     protected $table = 'users';
-    private static string $sessionKey = 'roolithAdminUser';
+    private static string $sessionKey = APP_ADMIN_SESSION_KEY;
 
     /**
-     * Check if email and password combination is valid
+     * Check if email and password combination are valid
      *
      * @param string $email
      * @param string $password

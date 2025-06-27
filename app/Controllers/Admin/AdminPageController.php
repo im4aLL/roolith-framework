@@ -7,6 +7,7 @@ class AdminPageController extends Controller
 {
     public function index()
     {
+//        return 'pages';
     }
 
     public function create()
