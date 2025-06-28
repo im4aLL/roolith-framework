@@ -6,14 +6,14 @@ use Roolith\Store\Interfaces\DatabaseInterface;
 
 class DatabaseFactory
 {
-    private static $db = null;
+    private static DatabaseInterface | null $db = null;
 
     private function __construct() {}
 
     /**
      * @return DatabaseInterface
      */
-    public static function getInstance()
+    public static function getInstance(): DatabaseInterface
     {
         if (self::$db === null) {
             self::$db = new Database();

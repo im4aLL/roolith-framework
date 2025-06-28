@@ -2,12 +2,20 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\Controller;
+use App\Models\Admin\AdminPage;
 
 class AdminPageController extends Controller
 {
-    public function index()
+    public function index(): mixed
     {
-//        return 'pages';
+        $data = [
+            'title' => 'Pages'
+        ];
+
+        $pages = AdminPage::all();
+        return $pages;
+
+       return $this->view('admin/page/admin-page', $data);
     }
 
     public function create()
