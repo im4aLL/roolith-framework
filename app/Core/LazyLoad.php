@@ -54,18 +54,30 @@ class LazyLoad
      */
     private function attachModelData(LazyLoadDTO $dto): void
     {
+        $key = $dto->foreignKey . '_data';
         $ids = [];
 
         foreach ($this->result as $item) {
+            $item->{$key} = null;
+
             if ($item->{$dto->foreignKey}) {
                 $ids[] = $item->{$dto->foreignKey};
             }
         }
 
+        $uniqueIds = _::uniq($ids);
+        if (count($uniqueIds) == 0) {
+            return;
+        }
+
         $modelInstance = (fn($instance):Model => $instance)(new ($dto->model)());
         $data = $modelInstance::orm()->select([
-            'condition' => 'WHERE '.$dto->localKey.' IN ('.implode(',', _::uniq($ids)).')'
+            'condition' => 'WHERE '.$dto->localKey.' IN ('.implode(',', $uniqueIds).')'
         ])->get();
+
+        if (!$data) {
+            return;
+        }
 
         foreach ($this->result as $item) {
             $modelData = _::find($data, function ($modelDataItem) use ($dto, $item) {
@@ -73,7 +85,6 @@ class LazyLoad
             });
 
             if ($modelData) {
-                $key = $dto->foreignKey . '_data';
                 $item->{$key} = $modelData;
             }
         }

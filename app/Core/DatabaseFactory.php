@@ -19,6 +19,6 @@ class DatabaseFactory
             self::$db = new Database();
         }
 
-        return self::$db;
+        return self::$db->debugMode(false);
     }
 }

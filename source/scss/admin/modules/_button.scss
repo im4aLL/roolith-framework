@@ -20,4 +20,17 @@
             background-color: var(--color-darker-bg);
         }
     }
+
+    .button--active {
+        background-color: var(--color-darker-bg);
+        color: var(--color-white);
+
+        &:visited {
+            color: var(--color-white);
+        }
+    }
+
+    .button--small {
+        padding: .3125rem .5rem;
+    }
 }

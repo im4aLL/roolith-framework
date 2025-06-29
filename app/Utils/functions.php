@@ -226,3 +226,14 @@ function getVersion(): string
 {
     return Config::get('version');
 }
+
+/**
+ * Carbon diff for humans
+ *
+ * @param string $dateString
+ * @return string
+ */
+function diffForHumans(string $dateString): string
+{
+    return \Carbon\Carbon::parse($dateString)->diffForHumans();
+}

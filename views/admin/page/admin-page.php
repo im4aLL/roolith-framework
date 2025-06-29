@@ -6,42 +6,49 @@
     </aside>
 
     <section class="layout__body">
-        <h3>Pages</h3>
+        <h3>Pages (<?= $total ?>)</h3>
 
         <table class="table">
-            <caption>
-                Front-end web developer course 2021
-            </caption>
             <thead>
                 <tr>
-                    <th>Person</th>
-                    <th>Most interest in</th>
-                    <th>Age</th>
+                    <th>Title</th>
+                    <th>Slug</th>
+                    <th>Type</th>
+                    <th>Status</th>
+                    <th>Category</th>
+                    <th>User</th>
+                    <th>Created</th>
+                    <th>Last updated</th>
                 </tr>
             </thead>
             <tbody>
+                <?php foreach ($pages->data as $page): ?>
                 <tr>
-                    <td>Chris</td>
-                    <td>HTML tables</td>
-                    <td>22</td>
+                    <td><?= $page->title ?></td>
+                    <td>/<?= $page->slug ?></td>
+                    <td><?= $page->type ?></td>
+                    <td><?= $page->status ?></td>
+                    <td><?= $page->category_id_data ? $page->category_id_data->name : '-' ?></td>
+                    <td><?= $page->user_id_data ? $page->user_id_data->name : '-' ?></td>
+                    <td><?= diffForHumans($page->created_at) ?></td>
+                    <td><?= diffForHumans($page->updated_at) ?></td>
                 </tr>
-                <tr>
-                    <td>Dennis</td>
-                    <td>Web accessibility</td>
-                    <td>45</td>
-                </tr>
-                <tr>
-                    <td>Sarah</td>
-                    <td>JavaScript frameworks</td>
-                    <td>29</td>
-                </tr>
-                <tr>
-                    <td>Karen</td>
-                    <td>Web performance</td>
-                    <td>36</td>
-                </tr>
+                <?php endforeach; ?>
             </tbody>
         </table>
+
+        <ul class="pagination">
+            <li class="pagination__item"><a href="<?= $pages->prevPageUrl ?>" class="button button--small">Previous</a></li>
+            <?php foreach ($pageNumbers as $pageNumber) : ?>
+                <li class="pagination__item">
+                    <a href="<?= $pages->path ?>?page=<?= $pageNumber ?>" class="button button--small<?= $pageNumber == $pages->currentPage ? ' button--active' : '' ?>">
+                        <?= $pageNumber ?>
+                    </a>
+                </li>
+            <?php endforeach; ?>
+            <li class="pagination__item"><a href="<?= $pages->nextPageUrl ?>" class="button button--small">Next</a></li>
+        </ul>
+
     </section>
 </main>
 

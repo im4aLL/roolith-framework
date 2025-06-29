@@ -11,6 +11,7 @@
 @use "./modules/form";
 @use "./modules/login";
 @use "./modules/message";
+@use "./modules/pagination";
 
 @include reset.roolith-admin-reset();
 @include settings.roolith-admin-settings();
@@ -25,3 +26,4 @@
 @include form.roolith-admin-form();
 @include login.roolith-admin-login();
 @include message.roolith-admin-message();
+@include pagination.roolith-admin-pagination();

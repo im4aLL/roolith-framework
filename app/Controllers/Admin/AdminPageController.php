@@ -9,15 +9,27 @@ use App\Models\Admin\AdminUser;
 
 class AdminPageController extends Controller
 {
-    public function index(): string|bool
+    public function index(): mixed
     {
-        $pageData = AdminPage::all();
-        $lazyLoad = new LazyLoad($pageData);
-        $pages = $lazyLoad->with(AdminCategory::class, 'category_id')->with(AdminUser::class, 'user_id')->get();
+        $total = AdminPage::orm()->select([
+            'field' => ['id']
+        ])->count();
+
+        $pagination = AdminPage::orm()->query('SELECT * FROM '.AdminPage::tableName())->paginate([
+            'perPage' => APP_ADMIN_PAGINATION_PER_PAGE,
+            'total' => $total,
+            'pageUrl' => route('admin.pages.index')
+        ]);
+        $paginationData = $pagination->getDetails();
+
+        $lazyLoad = new LazyLoad($paginationData->data);
+        $lazyLoad->with(AdminCategory::class, 'category_id')->with(AdminUser::class, 'user_id')->get();
 
         $data = [
             'title' => 'Pages',
-            'pages' => $pages,
+            'pages' => $paginationData,
+            'pageNumbers' => $pagination->pageNumbers(),
+            'total' => $total,
         ];
 
         return $this->view('admin/page/admin-page', $data);
