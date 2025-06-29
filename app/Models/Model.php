@@ -8,15 +8,15 @@ use Roolith\Store\Interfaces\DatabaseInterface;
 
 class Model
 {
-    protected $table = '';
-    protected $primaryColumn = 'id';
+    protected string $table = '';
+    protected string $primaryColumn = 'id';
 
     /**
      * Get db instance
      *
      * @return DatabaseInterface
      */
-    protected function db()
+    protected function db(): DatabaseInterface
     {
         return DatabaseFactory::getInstance();
     }
@@ -26,7 +26,7 @@ class Model
      *
      * @return string
      */
-    protected function getTableName()
+    protected function getTableName(): string
     {
         return $this->table;
     }
@@ -36,7 +36,7 @@ class Model
      *
      * @return string
      */
-    protected function getPrimaryColumn()
+    protected function getPrimaryColumn(): string
     {
         return $this->primaryColumn;
     }
@@ -46,7 +46,7 @@ class Model
      *
      * @return DatabaseInterface
      */
-    public function getOrm()
+    public function getOrm(): DatabaseInterface
     {
         return $this->db()->table($this->getTableName());
     }
@@ -56,7 +56,7 @@ class Model
      *
      * @return iterable
      */
-    public function getAll()
+    public function getAll(): iterable
     {
         return $this->getOrm()->get();
     }
@@ -64,9 +64,9 @@ class Model
     /**
      * Get called class instance
      *
-     * @return false|object
+     * @return Model|false
      */
-    protected static function instance()
+    protected static function instance(): Model|false
     {
         try {
             $reflectionClass = new ReflectionClass(get_called_class());
@@ -81,7 +81,7 @@ class Model
      *
      * @return iterable
      */
-    public static function all()
+    public static function all(): iterable
     {
         return self::instance()->getAll();
     }
@@ -91,8 +91,26 @@ class Model
      *
      * @return DatabaseInterface
      */
-    public static function orm()
+    public static function orm(): DatabaseInterface
     {
         return self::instance()->getOrm();
+    }
+
+    /**
+     * @return DatabaseInterface
+     */
+    public static function raw(): DatabaseInterface
+    {
+        return self::instance()->db();
+    }
+
+    /**
+     * Get Table name
+     *
+     * @return string
+     */
+    public static function tableName(): string
+    {
+        return self::instance()->getTableName();
     }
 }

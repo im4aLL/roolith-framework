@@ -77,7 +77,7 @@ class _
                     }
                 }
             }
-        } else {            
+        } else {
             foreach ($items as $itemKey => $itemValue) {
                 if ($itemKey !== $except) {
                     $resultArray[$itemKey] = $itemValue;
@@ -368,14 +368,14 @@ class _
 
     /**
      * Find
-     * Iterates over elements of collection, returning the first element predicate returns truthy for
+     * Iterates over elements of a collection, returning the first element predicate returns truthy for
      *
      * @param $array
      * @param $callback
      * @param bool $withKey
      * @return array|bool|mixed
      */
-    public static function find($array, $callback, $withKey = false)
+    public static function find($array, $callback, bool $withKey = false): mixed
     {
         foreach ($array as $k => $n) {
             $isValid = call_user_func($callback, $n);

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 28, 2025 at 10:16 PM
+-- Generation Time: Jun 29, 2025 at 02:35 AM
 -- Server version: 10.4.22-MariaDB
 -- PHP Version: 8.1.2
 
@@ -36,6 +36,13 @@ CREATE TABLE `categories` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `categories`
+--
+
+INSERT INTO `categories` (`id`, `name`, `slug`, `body`, `created_at`, `updated_at`) VALUES
+(1, 'test', 'test', NULL, '2025-06-28 22:19:28', '2025-06-28 22:19:28');
+
 -- --------------------------------------------------------
 
 --
@@ -54,6 +61,18 @@ CREATE TABLE `pages` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `pages`
+--
+
+INSERT INTO `pages` (`id`, `title`, `slug`, `body`, `type`, `user_id`, `category_id`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'Sample page 1', 'sample-page-1', NULL, 'page', NULL, NULL, 'draft', '2025-06-28 22:19:56', '2025-06-28 22:19:56'),
+(2, 'Sample page 2', 'sample-page-2', NULL, 'page', 1, NULL, 'draft', '2025-06-28 22:20:05', '2025-06-28 23:08:20'),
+(3, 'Sample page 3', 'sample-page-3', NULL, 'page', 1, NULL, 'draft', '2025-06-28 22:20:13', '2025-06-28 23:08:22'),
+(4, 'Blog page 1', 'blog-page-1', NULL, 'page', NULL, 1, 'draft', '2025-06-28 22:20:28', '2025-06-28 23:08:34'),
+(5, 'Blog page 2', 'blog-page-2', NULL, 'page', NULL, 1, 'draft', '2025-06-28 22:20:34', '2025-06-28 23:08:26'),
+(6, 'Blog page 3', 'blog-page-3', NULL, 'page', NULL, NULL, 'draft', '2025-06-28 22:20:41', '2025-06-28 22:20:41');
 
 -- --------------------------------------------------------
 
@@ -79,6 +98,7 @@ CREATE TABLE `page_meta` (
 
 CREATE TABLE `users` (
   `id` int(11) NOT NULL,
+  `name` varchar(150) DEFAULT NULL,
   `email` varchar(150) NOT NULL,
   `password` varchar(255) NOT NULL,
   `role` varchar(50) DEFAULT 'user',
@@ -91,8 +111,8 @@ CREATE TABLE `users` (
 -- Dumping data for table `users`
 --
 
-INSERT INTO `users` (`id`, `email`, `password`, `role`, `last_logged_in`, `created_at`, `updated_at`) VALUES
-(1, 'admin@website.com', '$2y$10$4KVrVzLxkpTsSCP2O3EZPeBwKUV0dn93ZJvk0tx4oHXaenz2sX1ry', 'admin', '2025-06-26 07:01:22', '2025-06-26 05:01:42', '2025-06-26 05:01:42');
+INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `last_logged_in`, `created_at`, `updated_at`) VALUES
+(1, 'Admin', 'admin@website.com', '$2y$10$4KVrVzLxkpTsSCP2O3EZPeBwKUV0dn93ZJvk0tx4oHXaenz2sX1ry', 'admin', '2025-06-26 07:01:22', '2025-06-26 05:01:42', '2025-06-28 23:21:04');
 
 --
 -- Indexes for dumped tables
@@ -136,13 +156,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `pages`
 --
 ALTER TABLE `pages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `page_meta`

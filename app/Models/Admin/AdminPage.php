@@ -5,5 +5,5 @@ use App\Models\Model;
 
 class AdminPage extends Model
 {
-    protected $table = 'pages';
+    protected string $table = 'pages';
 }

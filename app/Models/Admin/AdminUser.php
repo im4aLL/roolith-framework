@@ -6,7 +6,7 @@ use App\Models\Model;
 
 class AdminUser extends Model
 {
-    protected $table = 'users';
+    protected string $table = 'users';
     private static string $sessionKey = APP_ADMIN_SESSION_KEY;
 
     /**

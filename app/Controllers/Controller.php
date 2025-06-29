@@ -9,7 +9,7 @@ use Roolith\Template\Engine\Exceptions\Exception;
 
 class Controller
 {
-    private $templateEngine;
+    private null|\Roolith\Template\Engine\Interfaces\ViewInterface|\Roolith\Template\Engine\View $templateEngine;
 
     /**
      * Controller constructor.
@@ -32,9 +32,9 @@ class Controller
      *
      * @param $filename
      * @param array $data
-     * @return string|false
+     * @return string|bool
      */
-    public function view($filename, $data = [])
+    public function view($filename, array $data = []): string|bool
     {
         try {
             return $this->templateEngine->compile($filename, $data);
