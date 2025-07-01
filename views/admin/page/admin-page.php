@@ -8,6 +8,14 @@
     <section class="layout__body">
         <h3>Pages (<?= $total ?>)</h3>
 
+        <nav class="nav nav--horizontal">
+            <ul class="nav__list">
+                <li class="nav__item">
+                    <a href="<?= route('admin.pages.create') ?>" class="nav__link">Add Page</a>
+                </li>
+            </ul>
+        </nav>
+
         <table class="table">
             <thead>
                 <tr>
@@ -24,7 +32,7 @@
             <tbody>
                 <?php foreach ($pages->data as $page): ?>
                 <tr>
-                    <td><?= $page->title ?></td>
+                    <td><a href="<?= route('admin.pages.show', ['param' => $page->id]) ?>"><?= $page->title ?></a></td>
                     <td>/<?= $page->slug ?></td>
                     <td><?= $page->type ?></td>
                     <td><?= $page->status ?></td>
@@ -34,20 +42,28 @@
                     <td><?= diffForHumans($page->updated_at) ?></td>
                 </tr>
                 <?php endforeach; ?>
+
+                <?php if ($total == 0) : ?>
+                <tr>
+                    <td colspan="8">Looks like this table decided to go minimalist. No records here!</td>
+                </tr>
+                <?php endif; ?>
             </tbody>
         </table>
 
+        <?php if ($isShowPagination) : ?>
         <ul class="pagination">
-            <li class="pagination__item"><a href="<?= $pages->prevPageUrl ?>" class="button button--small">Previous</a></li>
+            <li class="pagination__item"><a href="<?= $pages->prevPageUrl ?>">Previous</a></li>
             <?php foreach ($pageNumbers as $pageNumber) : ?>
-                <li class="pagination__item">
-                    <a href="<?= $pages->path ?>?page=<?= $pageNumber ?>" class="button button--small<?= $pageNumber == $pages->currentPage ? ' button--active' : '' ?>">
+                <li class="pagination__item <?= $pageNumber == $pages->currentPage ? 'pagination__item--active' : '' ?>">
+                    <a href="<?= $pages->path ?>?page=<?= $pageNumber ?>">
                         <?= $pageNumber ?>
                     </a>
                 </li>
             <?php endforeach; ?>
-            <li class="pagination__item"><a href="<?= $pages->nextPageUrl ?>" class="button button--small">Next</a></li>
+            <li class="pagination__item"><a href="<?= $pages->nextPageUrl ?>">Next</a></li>
         </ul>
+        <?php endif; ?>
 
     </section>
 </main>

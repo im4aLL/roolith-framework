@@ -23,5 +23,9 @@
     "gulp-uglify": "^3.0.2",
     "sass": "^1.50.1",
     "vinyl-source-stream": "^2.0.0"
+  },
+  "dependencies": {
+    "jquery": "^3.7.1",
+    "quill": "^2.0.3"
   }
 }

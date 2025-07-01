@@ -3,4 +3,24 @@
         display: flex;
         margin: 1.25rem 0;
     }
+
+    .pagination__item {
+        padding: .3125rem;
+
+        &:first-child {
+            padding-left: 0;
+        }
+    }
+
+    .pagination__item--active {
+        color: var(--color-white);
+
+        a {
+            color: inherit;
+
+            &:focus {
+                color: inherit;
+            }
+        }
+    }
 }

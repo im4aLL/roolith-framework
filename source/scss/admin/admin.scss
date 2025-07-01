@@ -12,6 +12,8 @@
 @use "./modules/login";
 @use "./modules/message";
 @use "./modules/pagination";
+@use "./modules/breadcrumb";
+@use "./modules/quill";
 
 @include reset.roolith-admin-reset();
 @include settings.roolith-admin-settings();
@@ -27,3 +29,5 @@
 @include login.roolith-admin-login();
 @include message.roolith-admin-message();
 @include pagination.roolith-admin-pagination();
+@include breadcrumb.roolith-admin-breadcrumb();
+@include quill.roolith-admin-quill();

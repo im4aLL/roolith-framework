@@ -6,7 +6,7 @@ use App\Core\Interfaces\ValidatorRulesInterface;
 
 class ValidatorRules implements ValidatorRulesInterface
 {
-    protected $rules;
+    protected array $rules;
 
     public function __construct()
     {
@@ -16,7 +16,7 @@ class ValidatorRules implements ValidatorRulesInterface
     /**
      * @inheritDoc
      */
-    public function rules()
+    public function rules(): array
     {
         return $this->rules;
     }
@@ -24,7 +24,7 @@ class ValidatorRules implements ValidatorRulesInterface
     /**
      * @inheritDoc
      */
-    public function isRequired()
+    public function isRequired(): static
     {
         $this->rules['required'] = true;
 
@@ -34,7 +34,7 @@ class ValidatorRules implements ValidatorRulesInterface
     /**
      * @inheritDoc
      */
-    public function isEmail()
+    public function isEmail(): static
     {
         $this->rules['email'] = true;
 
@@ -44,7 +44,7 @@ class ValidatorRules implements ValidatorRulesInterface
     /**
      * @inheritDoc
      */
-    public function minLength($length)
+    public function minLength(int $length): static
     {
         $this->rules['minLength'] = $length;
 
@@ -54,7 +54,7 @@ class ValidatorRules implements ValidatorRulesInterface
     /**
      * @inheritDoc
      */
-    public function maxLength($length)
+    public function maxLength($length): static
     {
         $this->rules['maxLength'] = $length;
 
@@ -64,7 +64,7 @@ class ValidatorRules implements ValidatorRulesInterface
     /**
      * @inheritDoc
      */
-    public function isArray()
+    public function isArray(): static
     {
         $this->rules['isArray'] = true;
 
@@ -74,7 +74,7 @@ class ValidatorRules implements ValidatorRulesInterface
     /**
      * @inheritDoc
      */
-    public function isRequiredIf($condition)
+    public function isRequiredIf($condition): static
     {
         $this->rules['requiredIf'] = explode(':', $condition);
 
@@ -84,7 +84,7 @@ class ValidatorRules implements ValidatorRulesInterface
     /**
      * @inheritDoc
      */
-    public function notExists($condition)
+    public function notExists($condition): static
     {
         $this->rules['notExistsInTable'] = $condition;
 
@@ -94,7 +94,7 @@ class ValidatorRules implements ValidatorRulesInterface
     /**
      * @inheritDoc
      */
-    public function isUrl()
+    public function isUrl(): static
     {
         $this->rules['url'] = true;
 
@@ -104,7 +104,7 @@ class ValidatorRules implements ValidatorRulesInterface
     /**
      * @inheritDoc
      */
-    public function isNumeric()
+    public function isNumeric(): static
     {
         $this->rules['numeric'] = true;
 

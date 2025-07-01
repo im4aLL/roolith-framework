@@ -1,0 +1,18 @@
+@mixin roolith-admin-quill() {
+    .ql-container.ql-snow,
+    .ql-toolbar.ql-snow {
+        border: 1px solid var(--color-border);
+        background-color: var(--color-dark-bg);
+    }
+
+    .ql-editor.ql-blank::before {
+        color: var(--color-dimmed-text);
+        font-style: normal;
+    }
+
+    .ql-editor {
+        font-family: monospace;
+        font-size: .875rem;
+        min-height: 25rem;
+    }
+}

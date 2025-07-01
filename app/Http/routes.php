@@ -40,4 +40,6 @@ $router->group(['middleware' => AdminAuthMiddleware::class, 'urlPrefix' => '/adm
     $router->get('/logout', AdminAuthController::class . '@logout')->name('auth.logout');
 });
 
+//p($router->getRouteList(), true);
+
 return $router;

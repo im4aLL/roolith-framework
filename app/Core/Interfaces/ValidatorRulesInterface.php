@@ -7,56 +7,56 @@ interface ValidatorRulesInterface
     /**
      * @return $this
      */
-    public function isRequired();
+    public function isRequired(): static;
 
     /**
      * @return $this
      */
-    public function isEmail();
+    public function isEmail(): static;
 
     /**
      * @param $length int
      * @return $this
      */
-    public function minLength($length);
+    public function minLength(int $length): static;
 
     /**
      * @param $length
      * @return $this
      */
-    public function maxLength($length);
+    public function maxLength($length): static;
 
     /**
      * @return $this
      */
-    public function isArray();
-
-    /**
-     * @param $condition
-     * @return $this
-     */
-    public function isRequiredIf($condition);
+    public function isArray(): static;
 
     /**
      * @param $condition
      * @return $this
      */
-    public function notExists($condition);
+    public function isRequiredIf($condition): static;
+
+    /**
+     * @param $condition
+     * @return $this
+     */
+    public function notExists($condition): static;
 
     /**
      * @return $this
      */
-    public function isUrl();
+    public function isUrl(): static;
 
     /**
      * @return $this
      */
-    public function isNumeric();
+    public function isNumeric(): static;
 
     /**
      * Get rules
      *
      * @return array
      */
-    public function rules();
+    public function rules(): array;
 }

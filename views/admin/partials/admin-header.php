@@ -6,6 +6,7 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title><?= $this->escape('title') ?></title>
+    <?php $this->inject('admin/partials/admin-inject-editor') ?>
     <link rel="stylesheet" href="<?= $this->url('assets/css/admin.css' . '?v=' . getVersion()) ?>">
 </head>
 <body>

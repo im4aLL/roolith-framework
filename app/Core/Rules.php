@@ -4,13 +4,14 @@ namespace App\Core;
 use App\Core\Interfaces\ValidatorRulesInterface;
 use App\Models\Model;
 use ReflectionClass;
+use ReflectionException;
 
 class Rules
 {
     /**
      * @return ValidatorRulesInterface
      */
-    public static function set()
+    public static function set(): ValidatorRulesInterface
     {
         return new ValidatorRules();
     }
@@ -22,9 +23,9 @@ class Rules
      * @param $name
      * @return mixed|null
      */
-    protected static function getValue($inputs, $name)
+    protected static function getValue($inputs, $name): mixed
     {
-        return isset($inputs[$name]) ? $inputs[$name] : null;
+        return $inputs[$name] ?? null;
     }
 
     /**
@@ -35,7 +36,7 @@ class Rules
      * @param $ruleValue
      * @return bool
      */
-    public static function required($inputs, $name, $ruleValue)
+    public static function required($inputs, $name, $ruleValue): bool
     {
         $value = self::getValue($inputs, $name);
 
@@ -54,7 +55,7 @@ class Rules
      * @param $ruleValue
      * @return bool
      */
-    public static function email($inputs, $name, $ruleValue)
+    public static function email($inputs, $name, $ruleValue): bool
     {
         $value = self::getValue($inputs, $name);
 
@@ -69,7 +70,7 @@ class Rules
      * @param $ruleValue
      * @return bool
      */
-    public static function minLength($inputs, $name, $ruleValue)
+    public static function minLength($inputs, $name, $ruleValue): bool
     {
         $value = self::getValue($inputs, $name);
 
@@ -84,7 +85,7 @@ class Rules
      * @param $ruleValue
      * @return bool
      */
-    public static function maxLength($inputs, $name, $ruleValue)
+    public static function maxLength($inputs, $name, $ruleValue): bool
     {
         $value = self::getValue($inputs, $name);
 
@@ -99,7 +100,7 @@ class Rules
      * @param $ruleValue
      * @return bool
      */
-    public static function isArray($inputs, $name, $ruleValue)
+    public static function isArray($inputs, $name, $ruleValue): bool
     {
         $value = self::getValue($inputs, $name);
 
@@ -114,7 +115,7 @@ class Rules
      * @param $ruleValue
      * @return bool
      */
-    public static function requiredIf($inputs, $name, $ruleValue)
+    public static function requiredIf($inputs, $name, $ruleValue): bool
     {
         $anotherProperty = $ruleValue[0];
         $operator = $ruleValue[1];
@@ -144,19 +145,20 @@ class Rules
     }
 
     /**
-     * Same value not exists in table
+     * The Same value doesn't exist in the table
      *
      * @param $inputs
      * @param $name
      * @param $ruleValue
      * @return bool
+     * @throws ReflectionException
      */
-    public static function notExistsInTable($inputs, $name, $ruleValue)
+    public static function notExistsInTable($inputs, $name, $ruleValue): bool
     {
         $value = self::getValue($inputs, $name);
         try {
             $reflectionClass = new ReflectionClass($ruleValue);
-        } catch (\ReflectionException $e) {
+        } catch (ReflectionException $e) {
             $reflectionClass = null;
         }
 
@@ -182,7 +184,7 @@ class Rules
      * @param $ruleValue
      * @return bool
      */
-    public static function url($inputs, $name, $ruleValue)
+    public static function url($inputs, $name, $ruleValue): bool
     {
         $value = self::getValue($inputs, $name);
 
@@ -197,7 +199,7 @@ class Rules
      * @param $ruleValue
      * @return bool
      */
-    public static function numeric($inputs, $name, $ruleValue)
+    public static function numeric($inputs, $name, $ruleValue): bool
     {
         $value = self::getValue($inputs, $name);
 

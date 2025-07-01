@@ -5,6 +5,7 @@ namespace App\Core;
 use App\Core\Interfaces\FileInterface;
 use App\Core\Interfaces\RequestInterface;
 use App\Utils\_;
+use JetBrains\PhpStorm\NoReturn;
 
 class Request implements RequestInterface
 {
@@ -36,11 +37,11 @@ class Request implements RequestInterface
      * @param $name
      * @return false|mixed
      */
-    protected static function steamInput($name)
+    protected static function steamInput($name): mixed
     {
         $var = self::steamInputs();
 
-        return isset($var[$name]) ? $var[$name] : false;
+        return $var[$name] ?? false;
     }
 
     /**
@@ -48,7 +49,7 @@ class Request implements RequestInterface
      *
      * @return array
      */
-    protected static function steamInputs()
+    protected static function steamInputs(): array
     {
         parse_str(file_get_contents("php://input"), $var);
 
@@ -58,7 +59,7 @@ class Request implements RequestInterface
     /**
      * @inheritDoc
      */
-    public static function has($name)
+    public static function has($name): bool
     {
         $steamInput = self::steamInput($name);
 
@@ -68,7 +69,7 @@ class Request implements RequestInterface
     /**
      * @inheritDoc
      */
-    public static function all()
+    public static function all(): iterable
     {
         if (self::isMethod('POST')) {
             return Sanitize::items($_POST);
@@ -86,7 +87,7 @@ class Request implements RequestInterface
     /**
      * @inheritDoc
      */
-    public static function only($name)
+    public static function only($name): array
     {
         $inputs = self::all();
 
@@ -96,7 +97,7 @@ class Request implements RequestInterface
     /**
      * @inheritDoc
      */
-    public static function except($name)
+    public static function except($name): array
     {
         $inputs = self::all();
 
@@ -106,7 +107,7 @@ class Request implements RequestInterface
     /**
      * @inheritDoc
      */
-    public static function redirect($url)
+    public static function redirect($url): void
     {
         header('Location: '. $url);
         exit();
@@ -117,13 +118,13 @@ class Request implements RequestInterface
      */
     public static function cookie($name)
     {
-        return isset($_COOKIE[$name]) ? $_COOKIE[$name] : null;
+        return $_COOKIE[$name] ?? null;
     }
 
     /**
      * @inheritDoc
      */
-    public static function file($name)
+    public static function file($name): bool|FileInterface
     {
         if (self::hasFile($name)) {
             $fileInstance = new File();
@@ -137,7 +138,7 @@ class Request implements RequestInterface
     /**
      * @inheritDoc
      */
-    public static function hasFile($name)
+    public static function hasFile($name): bool
     {
         return isset($_FILES[$name]);
     }
@@ -145,7 +146,7 @@ class Request implements RequestInterface
     /**
      * @inheritDoc
      */
-    public static function ajax()
+    public static function ajax(): bool
     {
         return !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest';
     }
@@ -153,7 +154,7 @@ class Request implements RequestInterface
     /**
      * @inheritDoc
      */
-    public static function url()
+    public static function url(): bool|string
     {
         return strtok(self::fullUrl(), '?');
     }
@@ -161,7 +162,7 @@ class Request implements RequestInterface
     /**
      * @inheritDoc
      */
-    public static function fullUrl()
+    public static function fullUrl(): string
     {
         return (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
     }
@@ -169,7 +170,7 @@ class Request implements RequestInterface
     /**
      * @inheritDoc
      */
-    public static function method()
+    public static function method(): string
     {
         return $_SERVER['REQUEST_METHOD'];
     }
@@ -177,7 +178,7 @@ class Request implements RequestInterface
     /**
      * @inheritDoc
      */
-    public static function isMethod($methodName)
+    public static function isMethod($methodName): bool
     {
         return self::method() === $methodName;
     }

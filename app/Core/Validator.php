@@ -1,7 +1,6 @@
 <?php
 namespace App\Core;
 
-
 use App\Core\Interfaces\ValidatorInterface;
 use App\Core\Interfaces\ValidatorRulesInterface;
 
@@ -29,7 +28,7 @@ use App\Core\Interfaces\ValidatorRulesInterface;
 
 class Validator implements ValidatorInterface
 {
-    protected $errors;
+    protected array $errors;
 
     public function __construct()
     {
@@ -37,29 +36,29 @@ class Validator implements ValidatorInterface
     }
 
     /**
-     * @inheritDoc
+     * Validate user input based on rules
+     *
+     * @param array $inputs
+     * @param array $rules
+     * @return $this
      */
-    public function check($inputs, $rules)
+    public function check(array $inputs, array $rules): static
     {
-        foreach ($inputs as $inputKey => $inputValue) {
-            if (isset($rules[$inputKey])) {
-                /* @var $rulesInstance ValidatorRulesInterface */
-                $rulesInstance = $rules[$inputKey];
-                $ruleArray = $rulesInstance->rules();
+        foreach ($rules as $inputKey => $rulesInstance) {
+            $ruleArray = $rulesInstance->rules();
 
-                foreach ($ruleArray as $ruleItem => $ruleValue) {
-                    if (method_exists(Rules::class, $ruleItem)) {
-                        $isValid = call_user_func([Rules::class, $ruleItem], $inputs, $inputKey, $ruleValue);
+            foreach ($ruleArray as $ruleItem => $ruleValue) {
+                if (method_exists(Rules::class, $ruleItem)) {
+                    $isValid = call_user_func([Rules::class, $ruleItem], $inputs, $inputKey, $ruleValue);
 
-                        if (!$isValid) {
-                            if (is_array($ruleValue)) {
-                                $this->errors[$inputKey][] = [
-                                    $ruleItem,
-                                    $ruleValue
-                                ];
-                            } else {
-                                $this->errors[$inputKey][] = $ruleItem;
-                            }
+                    if (!$isValid) {
+                        if (is_array($ruleValue)) {
+                            $this->errors[$inputKey][] = [
+                                $ruleItem,
+                                $ruleValue
+                            ];
+                        } else {
+                            $this->errors[$inputKey][] = $ruleItem;
                         }
                     }
                 }
@@ -72,7 +71,7 @@ class Validator implements ValidatorInterface
     /**
      * @inheritDoc
      */
-    public function success()
+    public function success(): bool
     {
         return count($this->errors) === 0;
     }
@@ -80,7 +79,7 @@ class Validator implements ValidatorInterface
     /**
      * @inheritDoc
      */
-    public function fails()
+    public function fails(): bool
     {
         return count($this->errors) > 0;
     }
@@ -88,7 +87,7 @@ class Validator implements ValidatorInterface
     /**
      * @inheritDoc
      */
-    public function errors()
+    public function errors(): iterable
     {
         return $this->errors;
     }

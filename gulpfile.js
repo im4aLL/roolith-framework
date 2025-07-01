@@ -1,14 +1,19 @@
-const gulp = require("gulp");
-const browserSync = require("browser-sync").create();
-const sass = require("gulp-sass")(require("sass"));
-const autoprefixer = require("gulp-autoprefixer");
-const babelify = require("babelify");
-const source = require("vinyl-source-stream");
-const browserify = require("browserify");
-const uglify = require("gulp-uglify");
-const rename = require("gulp-rename");
-const cssnano = require("gulp-cssnano");
-const plumber = require("gulp-plumber");
+import gulp from "gulp";
+import browserSyncPkg from "browser-sync";
+const browserSync = browserSyncPkg.create();
+
+import gulpSass from "gulp-sass";
+import sassCompiler from "sass";
+const sass = gulpSass(sassCompiler);
+
+import autoprefixer from "gulp-autoprefixer";
+import babelify from "babelify";
+import source from "vinyl-source-stream";
+import browserify from "browserify";
+import uglify from "gulp-uglify";
+import rename from "gulp-rename";
+import cssnano from "gulp-cssnano";
+import plumber from "gulp-plumber";
 
 function sassTask() {
     return gulp
