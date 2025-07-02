@@ -13,19 +13,19 @@ class _
      * @param $array
      * @return bool
      */
-    public static function isAssociativeArray($array)
+    public static function isAssociativeArray($array): bool
     {
         return count(array_filter(array_keys($array), 'is_string')) > 0;
     }
 
     /**
-     * Get only selected array
+     * Get only a selected array
      *
      * @param $items
      * @param $only
      * @return array
      */
-    public static function only($items, $only)
+    public static function only($items, $only): array
     {
         $resultArray = [];
 
@@ -53,13 +53,13 @@ class _
     }
 
     /**
-     * Exclude items from array
+     * Exclude items from an array
      *
      * @param $items
      * @param $except
      * @return array
      */
-    public static function except($items, $except)
+    public static function except($items, $except): array
     {
         $resultArray = [];
 
@@ -97,29 +97,21 @@ class _
      * @param bool $preserveKey
      * @return array
      */
-    public static function chunk($array, $amount, $preserveKey = false)
+    public static function chunk($array, $amount, bool $preserveKey = false): array
     {
         return array_chunk($array, $amount, $preserveKey);
     }
 
     /**
      * Compact
-     * Creates an array with all falsey values removed. The values false, null, 0, "", undefined, and NaN are falsey.
+     * Creates an array with all false values removed. The values are false, null, 0, "", undefined, and NaN are false.
      *
      * @param $array
      * @return array
      */
-    public static function compact($array)
+    public static function compact($array): array
     {
-        $resultArray = [];
-
-        foreach ($array as $item) {
-            if ($item !== null || !$item || empty($item) || ($item && strlen($item) === 0)) {
-                $resultArray[] = $item;
-            }
-        }
-
-        return $resultArray;
+        return array_filter($array, fn($value) => (bool) $value);
     }
 
     /**
@@ -128,7 +120,7 @@ class _
      *
      * @return array
      */
-    public static function concat()
+    public static function concat(): array
     {
         $arguments = func_get_args();
         $result = [];
@@ -151,7 +143,7 @@ class _
      *
      * @return array
      */
-    public static function difference()
+    public static function difference(): array
     {
         $arguments = func_get_args();
 
@@ -166,7 +158,7 @@ class _
      * @param int $n
      * @return array
      */
-    public static function drop($array, $n = 1)
+    public static function drop($array, int $n = 1): array
     {
         return array_slice($array, $n);
     }
@@ -179,7 +171,7 @@ class _
      * @param int $n
      * @return array
      */
-    public static function dropRight($array, $n = 1)
+    public static function dropRight($array, int $n = 1): array
     {
         return array_slice($array, 0, (count($array) - $n));
     }
@@ -193,7 +185,7 @@ class _
      * @param $callback
      * @return array
      */
-    public static function dropWhile($array, $callback)
+    public static function dropWhile($array, $callback): array
     {
         $result = [];
 
@@ -215,7 +207,7 @@ class _
      * @param $callback
      * @return array
      */
-    public static function filter($array, $callback)
+    public static function filter($array, $callback): array
     {
         $result = [];
 
@@ -238,7 +230,7 @@ class _
      * @param $callback
      * @return array
      */
-    public static function remove($array, $callback)
+    public static function remove($array, $callback): array
     {
         return self::dropWhile($array, $callback);
     }
@@ -250,7 +242,7 @@ class _
      * @param $callback
      * @return int
      */
-    public static function findIndex($array, $callback)
+    public static function findIndex($array, $callback): int
     {
         if (is_callable($callback)) {
             foreach ($array as $n) {
@@ -275,20 +267,20 @@ class _
      * @param $n
      * @return int
      */
-    public static function indexOf($array, $n)
+    public static function indexOf($array, $n): int
     {
         return array_search($n, $array);
     }
 
     /**
      * Join
-     * Converts all elements in array into a string separated by separator.
+     * Converts all elements in an array into a string separated by separator.
      *
      * @param $array
      * @param string $separator
      * @return string
      */
-    public static function join($array, $separator = ',')
+    public static function join($array, string $separator = ','): string
     {
         return implode($separator, $array);
     }
@@ -300,7 +292,7 @@ class _
      * @param $array
      * @return int
      */
-    public static function last($array)
+    public static function last($array): int
     {
         return $array[count($array) - 1];
     }
@@ -311,7 +303,7 @@ class _
      * @param $array
      * @return mixed
      */
-    public static function first($array)
+    public static function first($array): mixed
     {
         return array_values($array)[0];
     }
@@ -322,7 +314,7 @@ class _
      * @param $array
      * @return array
      */
-    public static function reverse($array)
+    public static function reverse($array): array
     {
         return array_reverse($array);
     }
@@ -335,7 +327,7 @@ class _
      * @param $n
      * @return array
      */
-    public static function take($array, $n)
+    public static function take($array, $n): array
     {
         return array_slice($array, 0, $n);
     }
@@ -348,7 +340,7 @@ class _
      * @param $n
      * @return array
      */
-    public static function takeRight($array, $n)
+    public static function takeRight($array, $n): array
     {
         $length = count($array);
 
@@ -361,7 +353,7 @@ class _
      * @param $array
      * @return array
      */
-    public static function uniq($array)
+    public static function uniq($array): array
     {
         return array_unique($array);
     }
@@ -398,7 +390,7 @@ class _
      * @param $array
      * @param $callback
      */
-    public static function each($array, $callback)
+    public static function each($array, $callback): void
     {
         if (is_callable($callback)) {
             foreach ($array as $itemKey => $item) {
@@ -414,7 +406,7 @@ class _
      * @param $n
      * @return bool
      */
-    public static function contains($array, $n)
+    public static function contains($array, $n): bool
     {
         foreach ($array as $key => $value) {
             if ($value === $n) {
@@ -432,7 +424,7 @@ class _
      * @param $callback
      * @return array
      */
-    public static function map($array, $callback)
+    public static function map($array, $callback): array
     {
         $result = [];
 
@@ -453,7 +445,7 @@ class _
      * @param $array
      * @return bool
      */
-    public static function isMultidimensional($array)
+    public static function isMultidimensional($array): bool
     {
         return is_array(self::first($array));
     }
@@ -464,7 +456,7 @@ class _
      * @param $array
      * @return array
      */
-    public static function resetKeys($array)
+    public static function resetKeys($array): array
     {
         if (self::isMultidimensional($array)) {
             return array_map('array_values', $array);
@@ -479,7 +471,7 @@ class _
      * @param $array
      * @return array
      */
-    public static function order($array)
+    public static function order($array): array
     {
         sort($array);
 
@@ -493,7 +485,7 @@ class _
      * @param $by
      * @return array
      */
-    public static function orderBy($array, $by)
+    public static function orderBy($array, $by): array
     {
         usort($array, function($a, $b) use ($by) {
             return $a[$by] - $b[$by];
@@ -509,7 +501,7 @@ class _
      * @param $by
      * @return array
      */
-    public static function orderByString($array, $by)
+    public static function orderByString($array, $by): array
     {
         usort($array, function($a, $b) use ($by) {
             return strcasecmp($a[$by], $b[$by]);
@@ -524,7 +516,7 @@ class _
      * @param $array
      * @return array
      */
-    public static function random($array)
+    public static function random($array): array
     {
         if (self::isMultidimensional($array)) {
             $newArray = [];
@@ -553,7 +545,7 @@ class _
      * @param $value null
      * @return array
      */
-    public static function add($array, $key, $value = null)
+    public static function add($array, $key, $value = null): array
     {
         $result = $array;
 
@@ -573,7 +565,7 @@ class _
      * @param $array
      * @return array
      */
-    public static function flat($array)
+    public static function flat($array): array
     {
         $result = [];
 
@@ -594,7 +586,7 @@ class _
      * @param $array
      * @return array
      */
-    public static function dot($array)
+    public static function dot($array): array
     {
         $recursiveIterator = new RecursiveIteratorIterator(new RecursiveArrayIterator($array));
         $result = [];
@@ -619,7 +611,7 @@ class _
      * @param $name
      * @return bool
      */
-    public static function exists($array, $name)
+    public static function exists($array, $name): bool
     {
         return isset($array[$name]);
     }
@@ -631,21 +623,21 @@ class _
      * @param $name
      * @return mixed|null
      */
-    public static function get($array, $name)
+    public static function get($array, $name): mixed
     {
         $newArray = self::dot($array);
 
-        return isset($newArray[$name]) ? $newArray[$name] : null;
+        return $newArray[$name] ?? null;
     }
 
     /**
-     * Has array key
+     * Has an array key
      *
      * @param $array
      * @param $name
      * @return bool
      */
-    public static function has($array, $name)
+    public static function has($array, $name): bool
     {
         return (bool) self::get($array, $name);
     }
@@ -657,7 +649,7 @@ class _
      * @param $name
      * @return array
      */
-    public static function pluck($array, $name)
+    public static function pluck($array, $name): array
     {
         $result = [];
 
@@ -680,7 +672,7 @@ class _
      * @param $value null
      * @return array
      */
-    public static function prepend($array, $key, $value = null)
+    public static function prepend($array, $key, $value = null): array
     {
         if ($value) {
             $array = [$key => $value] + $array;
@@ -697,7 +689,7 @@ class _
      * @param $array
      * @return string
      */
-    public static function query($array)
+    public static function query($array): string
     {
         $string = http_build_query($array, '', '&');
 
@@ -712,9 +704,9 @@ class _
      * @param $value
      * @return mixed
      */
-    public static function set($array, $key, $value)
+    public static function set($array, $key, $value): mixed
     {
-        if (strstr($key, '.')) {
+        if (str_contains($key, '.')) {
             $keys = explode('.', $key);
             $result = $array;
 
@@ -728,5 +720,20 @@ class _
         $array[$key] = $value;
 
         return $array;
+    }
+
+    /**
+     * Title to slug
+     *
+     * @param string $title
+     * @return string
+     */
+    public static function slug(string $title): string {
+        $slug = strtolower($title);
+
+        $slug = preg_replace('/[^a-z0-9\s]/', '', $slug);
+        $slug = preg_replace('/\s+/', '-', $slug);
+
+        return trim($slug, '-');
     }
 }

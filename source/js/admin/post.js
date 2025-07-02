@@ -76,10 +76,10 @@ export class Post {
     }
 
     _errorResponseHandler(response) {
-        const { message, items } = response.error;
+        const { payload, message } = response;
 
         this._injectGeneralErrorMessage(message);
-        this._injectErrorClassToFields(items);
+        this._injectErrorClassToFields(payload);
     }
 
     _injectGeneralErrorMessage(message) {
@@ -92,17 +92,13 @@ export class Post {
         );
     }
 
-    _injectErrorClassToFields(items) {
-        if (!items) {
+    _injectErrorClassToFields(payload) {
+        if (!payload) {
             return;
         }
 
-        if (items.length === 0) {
-            return;
-        }
-
-        $.each(items, (i, item) => {
-            const fieldSelector = `[name="${item.name}"]`;
+        $.each(payload, (inputName, errorArray) => {
+            const fieldSelector = `[name="${inputName}"], [data-input-name="${inputName}"]`;
             const field = $(fieldSelector);
 
             if (field.length > 0) {

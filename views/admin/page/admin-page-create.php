@@ -45,6 +45,17 @@
                 <div id="editor-value" data-input-name="body" style="display: none"></div>
             </div>
 
+            <div class="form__field">
+                <label for="category_id" class="form__label">Category</label>
+                <select name="category_id[]" id="category_id" class="form__input form--select" multiple>
+                    <option value="" selected>None</option>
+                    <?php foreach ($categories as $category): ?>
+                    <option value="<?= $category->id ?>"><?= $category->name ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <span class="form__hint">You can select multiple category</span>
+            </div>
+
             <button class="button" type="submit">Add page</button>
         </form>
     </section>

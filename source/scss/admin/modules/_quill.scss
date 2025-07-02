@@ -1,8 +1,12 @@
 @mixin roolith-admin-quill() {
     .ql-container.ql-snow,
     .ql-toolbar.ql-snow {
-        border: 1px solid var(--color-border);
+        border: .0625rem solid var(--color-border);
         background-color: var(--color-dark-bg);
+
+        .form__field--error & {
+            border-color: var(--color-danger);
+        }
     }
 
     .ql-editor.ql-blank::before {

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 29, 2025 at 02:35 AM
+-- Generation Time: Jul 02, 2025 at 06:54 AM
 -- Server version: 10.4.22-MariaDB
 -- PHP Version: 8.1.2
 
@@ -41,7 +41,9 @@ CREATE TABLE `categories` (
 --
 
 INSERT INTO `categories` (`id`, `name`, `slug`, `body`, `created_at`, `updated_at`) VALUES
-(1, 'test', 'test', NULL, '2025-06-28 22:19:28', '2025-06-28 22:19:28');
+(1, 'Test', 'test', NULL, '2025-06-28 22:19:28', '2025-07-02 04:09:01'),
+(2, 'Sample', 'sample', NULL, '2025-07-02 04:08:36', '2025-07-02 04:08:36'),
+(3, 'News', 'news', NULL, '2025-07-02 04:08:49', '2025-07-02 04:08:49');
 
 -- --------------------------------------------------------
 
@@ -56,7 +58,6 @@ CREATE TABLE `pages` (
   `body` text DEFAULT NULL,
   `type` enum('page','blog') NOT NULL,
   `user_id` int(11) DEFAULT NULL,
-  `category_id` int(11) DEFAULT NULL,
   `status` enum('published','draft') DEFAULT 'draft',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -66,13 +67,36 @@ CREATE TABLE `pages` (
 -- Dumping data for table `pages`
 --
 
-INSERT INTO `pages` (`id`, `title`, `slug`, `body`, `type`, `user_id`, `category_id`, `status`, `created_at`, `updated_at`) VALUES
-(1, 'Sample page 1', 'sample-page-1', NULL, 'page', NULL, NULL, 'draft', '2025-06-28 22:19:56', '2025-06-28 22:19:56'),
-(2, 'Sample page 2', 'sample-page-2', NULL, 'page', 1, NULL, 'draft', '2025-06-28 22:20:05', '2025-06-28 23:08:20'),
-(3, 'Sample page 3', 'sample-page-3', NULL, 'page', 1, NULL, 'draft', '2025-06-28 22:20:13', '2025-06-28 23:08:22'),
-(4, 'Blog page 1', 'blog-page-1', NULL, 'page', NULL, 1, 'draft', '2025-06-28 22:20:28', '2025-06-28 23:08:34'),
-(5, 'Blog page 2', 'blog-page-2', NULL, 'page', NULL, 1, 'draft', '2025-06-28 22:20:34', '2025-06-28 23:08:26'),
-(6, 'Blog page 3', 'blog-page-3', NULL, 'page', NULL, NULL, 'draft', '2025-06-28 22:20:41', '2025-06-28 22:20:41');
+INSERT INTO `pages` (`id`, `title`, `slug`, `body`, `type`, `user_id`, `status`, `created_at`, `updated_at`) VALUES
+(1, 'Sample page 1', 'sample-page-1', 'test', 'page', NULL, 'draft', '2025-06-28 22:19:56', '2025-06-29 19:59:45'),
+(2, 'Sample page 2', 'sample-page-2', NULL, 'page', 1, 'draft', '2025-06-28 22:20:05', '2025-06-28 23:08:20'),
+(3, 'Sample page 3', 'sample-page-3', NULL, 'page', 1, 'draft', '2025-06-28 22:20:13', '2025-06-28 23:08:22'),
+(4, 'Blog page 1', 'blog-page-1', NULL, 'blog', NULL, 'draft', '2025-06-28 22:20:28', '2025-07-02 04:45:49'),
+(5, 'Blog page 2', 'blog-page-2', NULL, 'blog', NULL, 'draft', '2025-06-28 22:20:34', '2025-07-02 04:45:52'),
+(6, 'Blog page 3', 'blog-page-3', NULL, 'blog', NULL, 'draft', '2025-06-28 22:20:41', '2025-06-29 20:18:42');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `page_category`
+--
+
+CREATE TABLE `page_category` (
+  `id` int(11) NOT NULL,
+  `page_id` int(11) NOT NULL,
+  `category_id` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `page_category`
+--
+
+INSERT INTO `page_category` (`id`, `page_id`, `category_id`, `created_at`, `updated_at`) VALUES
+(1, 1, 2, '2025-07-02 04:53:17', '2025-07-02 04:53:17'),
+(2, 2, 1, '2025-07-02 04:53:30', '2025-07-02 04:53:30'),
+(3, 1, 1, '2025-07-02 04:53:38', '2025-07-02 04:53:38');
 
 -- --------------------------------------------------------
 
@@ -131,8 +155,15 @@ ALTER TABLE `categories`
 ALTER TABLE `pages`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `slug` (`slug`),
-  ADD KEY `user_id` (`user_id`),
-  ADD KEY `category_id` (`category_id`);
+  ADD KEY `user_id` (`user_id`);
+
+--
+-- Indexes for table `page_category`
+--
+ALTER TABLE `page_category`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `page_category_ibfk_1` (`category_id`),
+  ADD KEY `page_category_ibfk_2` (`page_id`);
 
 --
 -- Indexes for table `page_meta`
@@ -156,13 +187,19 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `pages`
 --
 ALTER TABLE `pages`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `page_category`
+--
+ALTER TABLE `page_category`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `page_meta`
@@ -184,8 +221,14 @@ ALTER TABLE `users`
 -- Constraints for table `pages`
 --
 ALTER TABLE `pages`
-  ADD CONSTRAINT `pages_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL,
-  ADD CONSTRAINT `pages_ibfk_2` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE SET NULL;
+  ADD CONSTRAINT `pages_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL;
+
+--
+-- Constraints for table `page_category`
+--
+ALTER TABLE `page_category`
+  ADD CONSTRAINT `page_category_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `page_category_ibfk_2` FOREIGN KEY (`page_id`) REFERENCES `pages` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `page_meta`

@@ -8,12 +8,12 @@ use App\Core\Settings;
 class Str
 {
     /**
-     * Get message
+     * Get a message
      *
      * @param $name
      * @return mixed|null
      */
-    public static function getMessage($name)
+    public static function getMessage($name): mixed
     {
         $lang = Settings::getLang();
         $languageInstance = Lang::getInstance();

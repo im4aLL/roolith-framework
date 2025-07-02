@@ -10,7 +10,7 @@ interface SanitizeInterface
      * @param $string
      * @return string
      */
-    public static function param($string);
+    public static function param($string): string;
 
     /**
      * Sanitize email string
@@ -18,7 +18,7 @@ interface SanitizeInterface
      * @param $string
      * @return string
      */
-    public static function email($string);
+    public static function email($string): string;
 
     /**
      * Sanitize any string
@@ -26,7 +26,7 @@ interface SanitizeInterface
      * @param $str
      * @return string
      */
-    public static function any($str);
+    public static function any($str): string;
 
     /**
      * Sanitize string
@@ -34,13 +34,13 @@ interface SanitizeInterface
      * @param $string
      * @return string
      */
-    public static function string($string);
+    public static function string($string): string;
 
     /**
      * Sanitize multiple items at once
      *
      * @param $items array
-     * @return iterable
+     * @return array
      */
-    public static function items($items);
+    public static function items(array $items): array;
 }

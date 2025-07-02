@@ -2,6 +2,7 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\Controller;
+use App\Core\ApiResponseTransformer;
 use App\Core\LazyLoad;
 use App\Core\Request;
 use App\Core\Rules;
@@ -9,6 +10,8 @@ use App\Core\Validator;
 use App\Models\Admin\AdminCategory;
 use App\Models\Admin\AdminPage;
 use App\Models\Admin\AdminUser;
+use App\Utils\_;
+use App\Utils\Str;
 
 class AdminPageController extends Controller
 {
@@ -26,7 +29,7 @@ class AdminPageController extends Controller
         $paginationData = $pagination->getDetails();
 
         $lazyLoad = new LazyLoad($paginationData->data);
-        $lazyLoad->with(AdminCategory::class, 'category_id')->with(AdminUser::class, 'user_id')->get();
+        $lazyLoad->with(AdminUser::class, 'user_id')->get();
 
         $data = [
             'title' => 'Pages',
@@ -42,9 +45,12 @@ class AdminPageController extends Controller
 
     public function create()
     {
+        $categories = AdminCategory::all();
+
         $data = [
             'title' => 'Create Page',
             'loadEditor' => true,
+            'categories' => $categories,
         ];
 
         return $this->view('admin/page/admin-page-create', $data);
@@ -52,21 +58,27 @@ class AdminPageController extends Controller
 
     public function store()
     {
-        $values = Request::only(['title', 'type', 'status', 'body']);
+        $formData = Request::only(['title', 'type', 'status', 'body', 'category_id']);
 
         $validator = new Validator();
-        $validator->check($values, [
+        $validator->check($formData, [
             'title' => Rules::set()->isRequired(),
             'type' => Rules::set()->isRequired(),
             'status' => Rules::set()->isRequired(),
             'body' => Rules::set()->isRequired(),
+            'category_id' => Rules::set()->isArray(),
         ]);
 
         if ($validator->fails()) {
-            return $validator->errors();
+            return ApiResponseTransformer::error($validator->errors());
         }
 
-        return $values;
+        $formData['slug'] = _::slug($formData['title']);
+        $formData['user_id'] = AdminUser::getUserId();
+        $categories = $formData['category_id'];
+        unset($formData['category_id']);
+
+        return $formData;
     }
 
     public function show($id)

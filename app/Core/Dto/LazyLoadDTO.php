@@ -1,5 +1,5 @@
 <?php
-namespace  App\Core\Dto;
+namespace App\Core\Dto;
 
 class LazyLoadDTO {
     private function __construct(public string $model, public string $foreignKey, public string $localKey) {}
