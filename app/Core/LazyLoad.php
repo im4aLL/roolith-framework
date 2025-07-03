@@ -10,11 +10,17 @@ class LazyLoad
     private iterable $data = [];
     private iterable $result = [];
     private array $loadArray;
+    private bool $isAddArrayResult = false;
+    private array $settings = [];
 
-    public function __construct(iterable $data)
+    public function __construct(iterable $data, $settings = [])
     {
         $this->data = $data;
         $this->result = $data;
+
+        if (isset($settings['add_array'])) {
+            $this->isAddArrayResult = $settings['add_array'];
+        }
     }
 
     /**
@@ -59,6 +65,10 @@ class LazyLoad
 
         foreach ($this->result as $item) {
             $item->{$key} = null;
+            if ($this->isAddArrayResult) {
+                $item->{$key . '_array'} = null;
+            }
+
 
             if ($item->{$dto->foreignKey}) {
                 $ids[] = $item->{$dto->foreignKey};
@@ -80,12 +90,17 @@ class LazyLoad
         }
 
         foreach ($this->result as $item) {
-            $modelData = _::find($data, function ($modelDataItem) use ($dto, $item) {
+            $modelData = _::filter($data, function ($modelDataItem) use ($dto, $item) {
                 return $modelDataItem->{$dto->localKey} === $item->{$dto->foreignKey};
             });
 
-            if ($modelData) {
-                $item->{$key} = $modelData;
+            if (!$modelData) {
+                continue;
+            }
+
+            $item->{$key} = count($modelData) == 1 ? _::first($modelData) : $modelData;
+            if ($this->isAddArrayResult) {
+                $item->{$key . '_array'} = $modelData;
             }
         }
     }

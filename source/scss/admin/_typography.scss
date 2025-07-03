@@ -1,5 +1,4 @@
 @mixin roolith-admin-typography() {
-
     h1,
     h2,
     h3,
@@ -37,5 +36,13 @@
 
     h3 {
         font-size: 1rem;
+    }
+
+    small {
+        font-size: .75rem;
+    }
+
+    .is--dimmed {
+        color: var(--color-dimmed-text);
     }
 }

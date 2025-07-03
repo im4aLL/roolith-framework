@@ -3,15 +3,16 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\Controller;
 use App\Core\ApiResponseTransformer;
+use App\Core\Dto\ApiResponseDTO;
 use App\Core\LazyLoad;
 use App\Core\Request;
 use App\Core\Rules;
 use App\Core\Validator;
 use App\Models\Admin\AdminCategory;
 use App\Models\Admin\AdminPage;
+use App\Models\Admin\AdminPageCategory;
 use App\Models\Admin\AdminUser;
 use App\Utils\_;
-use App\Utils\Str;
 
 class AdminPageController extends Controller
 {
@@ -21,29 +22,33 @@ class AdminPageController extends Controller
             'field' => ['id']
         ])->count();
 
-        $pagination = AdminPage::orm()->query('SELECT * FROM ' . AdminPage::tableName())->paginate([
+        $pagination = AdminPage::orm()->query('SELECT * FROM ' . AdminPage::tableName() . ' ORDER by id DESC')->paginate([
             'perPage' => APP_ADMIN_PAGINATION_PER_PAGE,
             'total' => $total,
             'pageUrl' => route('admin.pages.index')
         ]);
         $paginationData = $pagination->getDetails();
 
-        $lazyLoad = new LazyLoad($paginationData->data);
-        $lazyLoad->with(AdminUser::class, 'user_id')->get();
+        $lazyLoad = new LazyLoad($paginationData->data, ['add_array' => true]);
+        $lazyLoad->with(AdminUser::class, 'user_id')->with(AdminPageCategory::class, 'id', 'page_id')->get();
+
+        $this->attachCategoryNames($paginationData->data);
 
         $data = [
             'title' => 'Pages',
             'pages' => $paginationData,
             'pageNumbers' => $pagination->pageNumbers(),
-            'total' => $total,
+            'total' => $total
         ];
 
         $data['isShowPagination'] = $paginationData->total > $paginationData->perPage;
 
+//        p($data, true);
+
         return $this->view('admin/page/admin-page', $data);
     }
 
-    public function create()
+    public function create(): bool|string
     {
         $categories = AdminCategory::all();
 
@@ -56,7 +61,7 @@ class AdminPageController extends Controller
         return $this->view('admin/page/admin-page-create', $data);
     }
 
-    public function store()
+    public function store(): ApiResponseDTO
     {
         $formData = Request::only(['title', 'type', 'status', 'body', 'category_id']);
 
@@ -78,10 +83,36 @@ class AdminPageController extends Controller
         $categories = $formData['category_id'];
         unset($formData['category_id']);
 
-        return $formData;
+        $insert = AdminPage::orm()->insert($formData, ['slug']);
+        if ($insert->success()) {
+            $this->storeCategories($categories, $insert->insertedId());
+
+            return ApiResponseTransformer::success(['redirect' => route('admin.pages.index')]);
+        } elseif ($insert->isDuplicate()) {
+            return ApiResponseTransformer::error([], 'A page exists with the same name');
+        }
+
+        return ApiResponseTransformer::error([], 'Unable to create page');
     }
 
-    public function show($id)
+    private function storeCategories(array $categories, int $pageId): void
+    {
+        $categories = _::compact($categories);
+
+        if (count($categories) === 0) {
+            return;
+        }
+
+        foreach ($categories as $categoryId) {
+            $data = [];
+            $data['page_id'] = $pageId;
+            $data['category_id'] = $categoryId;
+
+            AdminPageCategory::orm()->insert($data);
+        }
+    }
+
+    public function show($id): bool|string
     {
         $page = AdminPage::orm()->find($id);
 
@@ -105,5 +136,47 @@ class AdminPageController extends Controller
 
     public function destroy($id)
     {
+    }
+
+    private function attachCategoryNames(array $paginatedData): void
+    {
+        $categoryIds = [];
+        foreach ($paginatedData as $data) {
+            if (!$data->id_data_array) {
+                continue;
+            }
+
+            $ids = _::pluck($data->id_data_array, 'category_id');
+            $categoryIds = array_merge($categoryIds, $ids);
+        }
+
+        if (count($categoryIds) === 0) {
+            return;
+        }
+
+        $categories = AdminCategory::orm()->select([
+            'field' => ['id', 'name'],
+            'condition' => 'WHERE id IN (' . implode(',', $categoryIds) . ')'
+        ])->get();
+
+        foreach ($paginatedData as $data) {
+            if (!$data->id_data_array) {
+                continue;
+            }
+
+            foreach ($data->id_data_array as $category) {
+                $matchedCategory = _::find($categories, function ($cat) use ($category) {
+                    return $cat->id == $category->category_id;
+                });
+
+                if (!$matchedCategory) {
+                    continue;
+                }
+
+                $category->name = $matchedCategory->name;
+            }
+
+            $data->categoryNames = implode(', ', _::pluck($data->id_data_array, 'name'));
+        }
     }
 }

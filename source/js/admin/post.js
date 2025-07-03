@@ -70,8 +70,10 @@ export class Post {
     }
 
     _successResponseHandler(response) {
-        if (response.redirect) {
-            window.location.href = response.redirect;
+        const { payload } = response;
+
+        if (payload.redirect) {
+            window.location.href = payload.redirect;
         }
     }
 
@@ -93,7 +95,7 @@ export class Post {
     }
 
     _injectErrorClassToFields(payload) {
-        if (!payload) {
+        if (!payload || (payload && this._getLength(payload) === 0)) {
             return;
         }
 
@@ -109,5 +111,15 @@ export class Post {
 
     _resetFormError() {
         $(".form__field").removeClass("form__field--error");
+    }
+
+    _getLength(value) {
+        if (Array.isArray(value)) {
+            return value.length;
+        } else if (typeof value === "object" && value !== null) {
+            return Object.keys(value).length;
+        }
+
+        return 0;
     }
 }

@@ -53,10 +53,11 @@
                     <option value="<?= $category->id ?>"><?= $category->name ?></option>
                     <?php endforeach; ?>
                 </select>
-                <span class="form__hint">You can select multiple category</span>
             </div>
 
             <button class="button" type="submit">Add page</button>
+
+            <div id="error-container"></div>
         </form>
     </section>
 </main>
