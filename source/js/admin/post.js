@@ -89,9 +89,7 @@ export class Post {
             return;
         }
 
-        $("#error-container").html(
-            `<div class="message message--danger">${message}</div>`
-        );
+        $("#error-container").html(message);
     }
 
     _injectErrorClassToFields(payload) {

@@ -11,17 +11,17 @@
                 <a href="<?= route('admin.pages.index') ?>" class="breadcrumb__link">Pages</a>
             </li>
             <li class="breadcrumb__item">
-                <a href="<?= route('admin.pages.create') ?>" class="breadcrumb__link">Add new</a>
+                <a href="<?= route('admin.pages.show', ['param' => $page->id]) ?>" class="breadcrumb__link"><?= $page->title ?></a>
             </li>
         </ul>
 
         <?php
             $this->inject('admin/page/admin-page-form', [
-                'form_action_url' => route('admin.pages.store'),
-                'form_action_url_method' => 'post',
-                'form_button_text' => 'Add page',
-                'form_header' => 'Add new page',
-                'form_data' => null,
+                'form_action_url' => route('admin.pages.update', ['param' => $page->id]),
+                'form_action_url_method' => 'put',
+                'form_button_text' => 'Save changes',
+                'form_header' => 'Edit page - ' .$page->title,
+                'form_data' => $page,
                 'form_data_categories' => $categories,
             ]);
         ?>

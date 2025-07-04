@@ -47,4 +47,14 @@
             color: var(--color-danger);
         }
     }
+
+    .form__button {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+    }
+
+    .form__general-error {
+        color: var(--color-danger);
+    }
 }

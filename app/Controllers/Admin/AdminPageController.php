@@ -80,6 +80,7 @@ class AdminPageController extends Controller
 
         $formData['slug'] = _::slug($formData['title']);
         $formData['user_id'] = AdminUser::getUserId();
+        $formData['body'] = $_POST['body']; // trusting in the name of admin :D
         $categories = $formData['category_id'];
         unset($formData['category_id']);
 
@@ -89,10 +90,10 @@ class AdminPageController extends Controller
 
             return ApiResponseTransformer::success(['redirect' => route('admin.pages.index')]);
         } elseif ($insert->isDuplicate()) {
-            return ApiResponseTransformer::error([], 'A page exists with the same name');
+            return ApiResponseTransformer::error([], 'Oops! Looks like that page name is already taken—just like all the good usernames on the internet.');
         }
 
-        return ApiResponseTransformer::error([], 'Unable to create page');
+        return ApiResponseTransformer::error([], 'Uh-oh! Our page-maker just took a coffee break. Try again in a bit.');
     }
 
     private function storeCategories(array $categories, int $pageId): void
@@ -112,26 +113,31 @@ class AdminPageController extends Controller
         }
     }
 
-    public function show($id): bool|string
-    {
-        $page = AdminPage::orm()->find($id);
-
-        $data = [
-            'title' => 'Edit Page',
-            'page' => $page,
-            'loadEditor' => true,
-        ];
-
-        return $this->view('admin/page/admin-page-show', $data);
-    }
-
-    public function edit($id)
+    public function show($id): int
     {
         return $id;
     }
 
+    public function edit($id): bool|string
+    {
+        $page = AdminPage::orm()->find($id);
+        $pageCategories = AdminPageCategory::orm()->where('page_id', $id)->get();
+        $page->category_ids = _::pluck($pageCategories, 'category_id');
+        $categories = AdminCategory::all();
+
+        $data = [
+            'title' => 'Edit Page - ' . $page->title,
+            'page' => $page,
+            'loadEditor' => true,
+            'categories' => $categories,
+        ];
+
+        return $this->view('admin/page/admin-page-edit', $data);
+    }
+
     public function update($id)
     {
+        return Request::all();
     }
 
     public function destroy($id)

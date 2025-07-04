@@ -1,0 +1,74 @@
+<div class="layout__header">
+    <h3><?= $form_header ?></h3>
+
+    <?php if ($form_data) : ?>
+        <p><?= url($form_data->slug) ?></p>
+    <?php endif; ?>
+</div>
+
+<form action="<?= $form_action_url ?>" method="<?= $form_action_url_method ?>" class="form" data-ajax="true">
+    <div class="form__field">
+        <label for="title" class="form__label">Title</label>
+        <input type="text" name="title" id="title" class="form__input" value="<?= !is_null($form_data) ? $form_data->title : '' ?>">
+    </div>
+
+    <?php if ($form_data) : ?>
+    <div class="form__field">
+        <label for="slug" class="form__label">Slug</label>
+        <input type="text" name="slug" id="slug" class="form__input" value="<?= $form_data->slug ?>">
+    </div>
+    <?php endif; ?>
+
+    <div class="form__field">
+        <label class="form__label">Type</label>
+
+        <?php if ($form_data) : ?>
+            <label><input type="radio" name="type" class="form__input form--radio" value="page" <?php if ($form_data->type == 'page') echo 'checked' ?>> Page</label>
+            <label><input type="radio" name="type" class="form__input form--radio" value="blog" <?php if ($form_data->type == 'blog') echo 'checked' ?>> Blog</label>
+        <?php else: ?>
+            <label><input type="radio" name="type" class="form__input form--radio" value="page" checked> Page</label>
+            <label><input type="radio" name="type" class="form__input form--radio" value="blog"> Blog</label>
+        <?php endif; ?>
+    </div>
+
+    <div class="form__field">
+        <label for="status" class="form__label">Status</label>
+        <select name="status" id="status" class="form__input form--select">
+            <?php if ($form_data) : ?>
+                <option value="draft"<?= $form_data->status == 'draft' ?? ' selected' ?>>Draft</option>
+                <option value="published"<?= $form_data->status == 'published' ?? ' selected' ?>>Publish</option>
+            <?php else: ?>
+                <option value="draft" selected>Draft</option>
+                <option value="published">Publish</option>
+            <?php endif; ?>
+        </select>
+    </div>
+
+    <div class="form__field">
+        <label for="editor" class="form__label">Body</label>
+        <div id="editor"></div>
+        <div id="editor-value" data-input-name="body" style="display: none"><?= !is_null($form_data) ? $form_data->body : '' ?></div>
+    </div>
+
+    <div class="form__field">
+        <label for="category_id" class="form__label">Category</label>
+        <select name="category_id[]" id="category_id" class="form__input form--select" multiple>
+            <?php if ($form_data) : ?>
+                <option value="">None</option>
+                <?php foreach ($form_data_categories as $category): ?>
+                    <option value="<?= $category->id ?>"<?= \App\Utils\_::contains($form_data->category_ids, $category->id) ? ' selected' : '' ?>><?= $category->name ?></option>
+                <?php endforeach; ?>
+            <?php else : ?>
+                <option value="" selected>None</option>
+                <?php foreach ($form_data_categories as $category): ?>
+                    <option value="<?= $category->id ?>"><?= $category->name ?></option>
+                <?php endforeach; ?>
+            <?php endif; ?>
+        </select>
+    </div>
+
+    <div class="form__button">
+        <button class="button" type="submit"><?= $form_button_text ?></button>
+        <div id="error-container" class="form__general-error"></div>
+    </div>
+</form>

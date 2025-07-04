@@ -32,7 +32,7 @@
             <tbody>
                 <?php foreach ($pages->data as $page): ?>
                 <tr>
-                    <td><a href="<?= route('admin.pages.show', ['param' => $page->id]) ?>"><?= $page->title ?></a></td>
+                    <td><a href="<?= route('admin.pages.edit', ['param' => $page->id]) ?>"><?= $page->title ?></a></td>
                     <td>/<?= $page->slug ?></td>
                     <td><?= $page->type ?></td>
                     <td><?= $page->status ?></td>
