@@ -23,12 +23,31 @@ class Request implements RequestInterface
             return Sanitize::param($_GET[$name]);
         }
 
-        $steamInput = self::steamInput($name);
-        if ($steamInput) {
-            return $steamInput;
+        $streamInput = self::streamInput($name);
+        if ($streamInput) {
+            return $streamInput;
         }
 
         return $default;
+    }
+
+    public static function unsafeInput($name): mixed
+    {
+        if (isset($_POST[$name])) {
+            return $_POST[$name];
+        }
+
+        if (isset($_GET[$name])) {
+            return $_GET[$name];
+        }
+
+        $streamInput = self::streamInput($name);
+
+        if ($streamInput) {
+            return $streamInput;
+        }
+
+        return null;
     }
 
     /**
@@ -37,9 +56,9 @@ class Request implements RequestInterface
      * @param $name
      * @return false|mixed
      */
-    protected static function steamInput($name): mixed
+    protected static function streamInput($name): mixed
     {
-        $var = self::steamInputs();
+        $var = self::streamInputs();
 
         return $var[$name] ?? false;
     }
@@ -49,7 +68,7 @@ class Request implements RequestInterface
      *
      * @return array
      */
-    protected static function steamInputs(): array
+    protected static function streamInputs(): array
     {
         parse_str(file_get_contents("php://input"), $var);
 
@@ -61,7 +80,7 @@ class Request implements RequestInterface
      */
     public static function has($name): bool
     {
-        $steamInput = self::steamInput($name);
+        $steamInput = self::streamInput($name);
 
         return isset($_POST[$name]) || isset($_GET[$name]) || $steamInput;
     }
@@ -79,7 +98,7 @@ class Request implements RequestInterface
             return Sanitize::items($_GET);
         }
 
-        $inputs = self::steamInputs();
+        $inputs = self::streamInputs();
 
         return Sanitize::items($inputs);
     }

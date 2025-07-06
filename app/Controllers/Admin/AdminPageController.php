@@ -4,6 +4,7 @@ namespace App\Controllers\Admin;
 use App\Controllers\Controller;
 use App\Core\ApiResponseTransformer;
 use App\Core\Dto\ApiResponseDTO;
+use App\Core\Exceptions\Exception;
 use App\Core\LazyLoad;
 use App\Core\Request;
 use App\Core\Rules;
@@ -80,13 +81,13 @@ class AdminPageController extends Controller
 
         $formData['slug'] = _::slug($formData['title']);
         $formData['user_id'] = AdminUser::getUserId();
-        $formData['body'] = $_POST['body']; // trusting in the name of admin :D
-        $categories = $formData['category_id'];
+        $formData['body'] = Request::unsafeInput('body');
+        $categoryIds = $formData['category_id'];
         unset($formData['category_id']);
 
         $insert = AdminPage::orm()->insert($formData, ['slug']);
         if ($insert->success()) {
-            $this->storeCategories($categories, $insert->insertedId());
+            $this->addCategoryToPage($categoryIds, $insert->insertedId());
 
             return ApiResponseTransformer::success(['redirect' => route('admin.pages.index')]);
         } elseif ($insert->isDuplicate()) {
@@ -96,9 +97,9 @@ class AdminPageController extends Controller
         return ApiResponseTransformer::error([], 'Uh-oh! Our page-maker just took a coffee break. Try again in a bit.');
     }
 
-    private function storeCategories(array $categories, int $pageId): void
+    private function addCategoryToPage(array $categoryIds, int $pageId): void
     {
-        $categories = _::compact($categories);
+        $categories = _::compact($categoryIds);
 
         if (count($categories) === 0) {
             return;
@@ -113,9 +114,12 @@ class AdminPageController extends Controller
         }
     }
 
+    /**
+     * @throws Exception
+     */
     public function show($id): int
     {
-        return $id;
+        throw new Exception("Nothing here for page id $id");
     }
 
     public function edit($id): bool|string
@@ -137,6 +141,34 @@ class AdminPageController extends Controller
 
     public function update($id)
     {
+        $page = AdminPage::orm()->find($id);
+        $pageCategories = AdminPageCategory::orm()->where('page_id', $id)->get();
+        $oldCategoryIds = _::pluck($pageCategories, 'category_id');
+
+        $formData = Request::all();
+
+        $validator = new Validator();
+        $validator->check($formData, [
+            'title' => Rules::set()->isRequired(),
+            'type' => Rules::set()->isRequired(),
+            'status' => Rules::set()->isRequired(),
+            'body' => Rules::set()->isRequired(),
+            'category_id' => Rules::set()->isArray(),
+            'slug' => Rules::set()->isRequired(),
+        ]);
+
+        if ($validator->fails()) {
+            return ApiResponseTransformer::error($validator->errors());
+        }
+
+        $formData['body'] = Request::unsafeInput('body');
+        $newCategoryIds = $formData['category_id'];
+        unset($formData['category_id']);
+
+        $categoryChangeResult = _::compareArrays($oldCategoryIds, $newCategoryIds);
+        print_r($categoryChangeResult);
+
+
         return Request::all();
     }
 

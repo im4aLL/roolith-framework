@@ -2,6 +2,7 @@
 namespace App\Utils;
 
 
+use App\Core\Dto\CompareArrayDTO;
 use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
 
@@ -735,5 +736,50 @@ class _
         $slug = preg_replace('/\s+/', '-', $slug);
 
         return trim($slug, '-');
+    }
+
+    /**
+     * Check if both arrays have same values
+     *
+     * @param array $array1
+     * @param array $array2
+     * @return bool
+     */
+    public static function isSameArray(array $array1, array $array2): bool
+    {
+        return empty(array_diff($array1, $array2)) && empty(array_diff($array2, $array1));
+    }
+
+    /**
+     * Compare arrays
+     *
+     * @param array $oldArray
+     * @param array $newArray
+     * @return CompareArrayDTO
+     */
+    public static function compareArrays(array $oldArray, array $newArray): CompareArrayDTO {
+        $result = self::arrayToObject([
+            'added' => array_values(array_diff($newArray, $oldArray)),
+            'removed' => array_values(array_diff($oldArray, $newArray)),
+            'unchanged' => array_values(array_intersect($oldArray, $newArray)),
+            'summary' => [
+                'addedCount' => count(array_diff($newArray, $oldArray)),
+                'removedCount' => count(array_diff($oldArray, $newArray)),
+                'unchangedCount' => count(array_intersect($oldArray, $newArray))
+            ]
+        ]);
+
+        return CompareArrayDTO::create($result);
+    }
+
+    /**
+     * Convert an array to object
+     *
+     * @param array $array
+     * @return object
+     */
+    public static function arrayToObject(array $array): object
+    {
+        return json_decode(json_encode($array));
     }
 }
