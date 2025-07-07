@@ -1,8 +1,6 @@
 <?php
 namespace App\Core;
 
-use App\Core\Dto\ApiResponseDTO;
-
 class ApiResponseTransformer
 {
     const STATUS_SUCCESS = 'success';
@@ -14,11 +12,19 @@ class ApiResponseTransformer
      * @param mixed $payload
      * @param string $status
      * @param string $message
-     * @return ApiResponseDTO
+     * @return array{
+     *     status: string,
+     *     payload: mixed,
+     *     message: string,
+     * }
      */
-    protected static function core(mixed $payload, string $status, string $message): ApiResponseDTO
+    protected static function core(mixed $payload, string $status, string $message): array
     {
-        return ApiResponseDTO::create($status, $payload, $message);
+        return [
+            'status' => $status,
+            'payload' => $payload,
+            'message' => $message
+        ];
     }
 
     /**
@@ -26,9 +32,13 @@ class ApiResponseTransformer
      *
      * @param mixed $payload
      * @param string $message
-     * @return ApiResponseDTO
+     * @return array{
+     *      status: string,
+     *      payload: mixed,
+     *      message: string,
+     *  }
      */
-    public static function success(mixed $payload, string $message = ''): ApiResponseDTO
+    public static function success(mixed $payload, string $message = ''): array
     {
         return self::core($payload, self::STATUS_SUCCESS, $message);
     }
@@ -38,9 +48,13 @@ class ApiResponseTransformer
      *
      * @param mixed $payload
      * @param string $message
-     * @return ApiResponseDTO
+     * @return array{
+     *      status: string,
+     *      payload: mixed,
+     *      message: string,
+     *  }
      */
-    public static function error(mixed $payload, string $message = ''): ApiResponseDTO
+    public static function error(mixed $payload, string $message = ''): array
     {
         return self::core($payload, self::STATUS_ERROR, $message);
     }

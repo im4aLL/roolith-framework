@@ -1,8 +1,14 @@
 <div class="layout__header">
-    <h3><?= $form_header ?></h3>
+    <div>
+        <h3><?= $form_header ?></h3>
+
+        <?php if ($form_data) : ?>
+            <p><?= url($form_data->slug) ?></p>
+        <?php endif; ?>
+    </div>
 
     <?php if ($form_data) : ?>
-        <p><?= url($form_data->slug) ?></p>
+        <button data-url="<?= route('admin.pages.destroy', ['param' => $form_data->id]) ?>" class="button button--danger button--text" id="delete-button">Delete permanently</button>
     <?php endif; ?>
 </div>
 
@@ -35,11 +41,11 @@
         <label for="status" class="form__label">Status</label>
         <select name="status" id="status" class="form__input form--select">
             <?php if ($form_data) : ?>
-                <option value="draft"<?= $form_data->status == 'draft' ?? ' selected' ?>>Draft</option>
-                <option value="published"<?= $form_data->status == 'published' ?? ' selected' ?>>Publish</option>
+                <option value="draft"<?= $form_data->status == 'draft' ? ' selected' : '' ?>>Draft</option>
+                <option value="published"<?= $form_data->status == 'published' ? ' selected' : '' ?>>Published</option>
             <?php else: ?>
                 <option value="draft" selected>Draft</option>
-                <option value="published">Publish</option>
+                <option value="published">Published</option>
             <?php endif; ?>
         </select>
     </div>
@@ -54,7 +60,7 @@
         <label for="category_id" class="form__label">Category</label>
         <select name="category_id[]" id="category_id" class="form__input form--select" multiple>
             <?php if ($form_data) : ?>
-                <option value="">None</option>
+                <option value=""<?= count($form_data->category_ids) === 0 ? ' selected' : '' ?>>None</option>
                 <?php foreach ($form_data_categories as $category): ?>
                     <option value="<?= $category->id ?>"<?= \App\Utils\_::contains($form_data->category_ids, $category->id) ? ' selected' : '' ?>><?= $category->name ?></option>
                 <?php endforeach; ?>

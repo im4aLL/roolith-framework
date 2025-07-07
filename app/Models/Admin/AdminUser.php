@@ -3,6 +3,7 @@ namespace App\Models\Admin;
 
 use App\Core\Storage;
 use App\Models\Model;
+use Carbon\Carbon;
 
 class AdminUser extends Model
 {
@@ -35,6 +36,8 @@ class AdminUser extends Model
      */
     public function startSession(string $email): bool
     {
+        $this->recordLastActivity($email);
+
         return Storage::setSession(self::$sessionKey, $email);
     }
 
@@ -45,6 +48,8 @@ class AdminUser extends Model
      */
     public function destroySession(): bool
     {
+        $this->recordLastActivity(Storage::getSession(self::$sessionKey));
+
         return Storage::deleteSession(self::$sessionKey);
     }
 
@@ -77,5 +82,14 @@ class AdminUser extends Model
         }
 
         return AdminUser::orm()->where('email', $loggedInEmail, '=')->first();
+    }
+
+    private function recordLastActivity(string $email): void
+    {
+        $this->orm()->update([
+            'last_logged_in' => Carbon::now()->toDateTimeString(),
+        ], [
+            'email' => $email,
+        ]);
     }
 }

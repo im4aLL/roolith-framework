@@ -755,10 +755,19 @@ class _
      *
      * @param array $oldArray
      * @param array $newArray
-     * @return CompareArrayDTO
+     * @return array{
+     *     added: int[],
+     *     removed: int[],
+     *     unchanged: int[],
+     *     summary: array{
+     *         addedCount: int,
+     *         removedCount: int,
+     *         unchangedCount: int,
+     *     }
+     * }
      */
-    public static function compareArrays(array $oldArray, array $newArray): CompareArrayDTO {
-        $result = self::arrayToObject([
+    public static function compareArrays(array $oldArray, array $newArray): array {
+        return [
             'added' => array_values(array_diff($newArray, $oldArray)),
             'removed' => array_values(array_diff($oldArray, $newArray)),
             'unchanged' => array_values(array_intersect($oldArray, $newArray)),
@@ -767,9 +776,7 @@ class _
                 'removedCount' => count(array_diff($oldArray, $newArray)),
                 'unchangedCount' => count(array_intersect($oldArray, $newArray))
             ]
-        ]);
-
-        return CompareArrayDTO::create($result);
+        ];
     }
 
     /**

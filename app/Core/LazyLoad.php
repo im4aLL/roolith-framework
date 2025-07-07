@@ -1,7 +1,6 @@
 <?php
 namespace App\Core;
 
-use App\Core\Dto\LazyLoadDTO;
 use App\Models\Model;
 use App\Utils\_;
 
@@ -33,7 +32,11 @@ class LazyLoad
      */
     public function with(string $model, string $foreignKey, string $localKey = 'id'): static
     {
-        $this->loadArray[] = LazyLoadDTO::create($model, $foreignKey, $localKey);
+        $this->loadArray[] = _::arrayToObject([
+            'model' => $model,
+            'foreignKey' => $foreignKey,
+            'localKey' => $localKey,
+        ]);
 
         return $this;
     }
@@ -55,10 +58,10 @@ class LazyLoad
     /**
      * Load additional data and inject into result
      *
-     * @param LazyLoadDTO $dto
+     * @param object $dto
      * @return void
      */
-    private function attachModelData(LazyLoadDTO $dto): void
+    private function attachModelData(object $dto): void
     {
         $key = $dto->foreignKey . '_data';
         $ids = [];

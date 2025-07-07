@@ -33,4 +33,19 @@
     .button--small {
         padding: .3125rem .5rem;
     }
+
+    .button--danger {
+        color: var(--color-danger);
+    }
+
+    .button--text {
+        background-color: transparent;
+        border: none;
+        padding: 0;
+        text-decoration: underline;
+
+        &:hover {
+            background-color: transparent;
+        }
+    }
 }

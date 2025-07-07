@@ -8,13 +8,13 @@
     <section class="layout__body">
         <h3><?= $this->escape('content') ?></h3>
 
-        <p>You have last logged in at <time datetime="2021-01-01T00:00:00+00:00">6:08 p.m. Saturday, June 21, 2025 Coordinated Universal Time (UTC)</time></p>
+        <p>You have last logged in at <time datetime="2021-01-01T00:00:00+00:00"><?= $lastLoggedIn ?></time></p>
 
         <ul class="card">
-            <li class="card__item"><a href="" class="card__link"><span class="card__info">17</span> Published Pages</a></li>
-            <li class="card__item"><a href="" class="card__link"><span class="card__info">3</span> Unpublished Pages</a></li>
-            <li class="card__item"><a href="" class="card__link"><span class="card__info">20</span> Published Modules</a></li>
-            <li class="card__item"><a href="" class="card__link"><span class="card__info">2</span> Unpublished Modules</a></li>
+            <li class="card__item"><span class="card__info"><?= $pageCount->published_count ?></span> Published Pages</li>
+            <li class="card__item"><span class="card__info"><?= $pageCount->draft_count ?></span> Unpublished Pages</li>
+            <li class="card__item"><span class="card__info">20</span> Published Modules</li>
+            <li class="card__item"><span class="card__info">2</span> Unpublished Modules</li>
         </ul>
 
         <p>Lorem ipsum dolor sit, amet consectetur adipisicing elit. Mollitia veniam accusamus deserunt ratione odit rerum quaerat a molestiae corporis, tempore molestias officia ut corrupti dolore vero? Beatae quas <a href="">laboriosam</a> fuga.</p>

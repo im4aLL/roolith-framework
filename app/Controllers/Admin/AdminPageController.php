@@ -3,7 +3,6 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\Controller;
 use App\Core\ApiResponseTransformer;
-use App\Core\Dto\ApiResponseDTO;
 use App\Core\Exceptions\Exception;
 use App\Core\LazyLoad;
 use App\Core\Request;
@@ -17,6 +16,11 @@ use App\Utils\_;
 
 class AdminPageController extends Controller
 {
+    /**
+     * Show a list of pages with pagination
+     *
+     * @return string|bool
+     */
     public function index(): string|bool
     {
         $total = AdminPage::orm()->select([
@@ -44,11 +48,14 @@ class AdminPageController extends Controller
 
         $data['isShowPagination'] = $paginationData->total > $paginationData->perPage;
 
-//        p($data, true);
-
         return $this->view('admin/page/admin-page', $data);
     }
 
+    /**
+     * Show add a new page form
+     *
+     * @return bool|string
+     */
     public function create(): bool|string
     {
         $categories = AdminCategory::all();
@@ -62,7 +69,12 @@ class AdminPageController extends Controller
         return $this->view('admin/page/admin-page-create', $data);
     }
 
-    public function store(): ApiResponseDTO
+    /**
+     * Save new page
+     *
+     * @return array
+     */
+    public function store(): array
     {
         $formData = Request::only(['title', 'type', 'status', 'body', 'category_id']);
 
@@ -91,12 +103,19 @@ class AdminPageController extends Controller
 
             return ApiResponseTransformer::success(['redirect' => route('admin.pages.index')]);
         } elseif ($insert->isDuplicate()) {
-            return ApiResponseTransformer::error([], 'Oops! Looks like that page name is already taken—just like all the good usernames on the internet.');
+            return ApiResponseTransformer::error(null, 'Oops! Looks like that page name is already taken—just like all the good usernames on the internet.');
         }
 
-        return ApiResponseTransformer::error([], 'Uh-oh! Our page-maker just took a coffee break. Try again in a bit.');
+        return ApiResponseTransformer::error(null, 'Uh-oh! Our page-maker just took a coffee break. Try again in a bit.');
     }
 
+    /**
+     * Add categories to a page
+     *
+     * @param array $categoryIds
+     * @param int $pageId
+     * @return void
+     */
     private function addCategoryToPage(array $categoryIds, int $pageId): void
     {
         $categories = _::compact($categoryIds);
@@ -115,6 +134,30 @@ class AdminPageController extends Controller
     }
 
     /**
+     * Remove categories from a page
+     *
+     * @param array $categoryIds
+     * @param int $pageId
+     * @return void
+     */
+    private function removeCategoryFromPage(array $categoryIds, int $pageId): void
+    {
+        $categories = _::compact($categoryIds);
+
+        if (count($categories) === 0) {
+            return;
+        }
+
+        foreach ($categories as $categoryId) {
+            $data = [];
+            $data['page_id'] = $pageId;
+            $data['category_id'] = $categoryId;
+
+            AdminPageCategory::orm()->delete($data);
+        }
+    }
+
+    /**
      * @throws Exception
      */
     public function show($id): int
@@ -122,6 +165,12 @@ class AdminPageController extends Controller
         throw new Exception("Nothing here for page id $id");
     }
 
+    /**
+     * Show an edit form for a page
+     *
+     * @param $id
+     * @return bool|string
+     */
     public function edit($id): bool|string
     {
         $page = AdminPage::orm()->find($id);
@@ -139,9 +188,20 @@ class AdminPageController extends Controller
         return $this->view('admin/page/admin-page-edit', $data);
     }
 
-    public function update($id)
+    /**
+     * Update a page
+     *
+     * @param $id
+     * @return array
+     */
+    public function update($id): array
     {
         $page = AdminPage::orm()->find($id);
+
+        if (!$page) {
+            return ApiResponseTransformer::error(null, 'Well, this is awkward. Looks like the page you\'re looking for went on a coffee break and forgot to tell anyone.');
+        }
+
         $pageCategories = AdminPageCategory::orm()->where('page_id', $id)->get();
         $oldCategoryIds = _::pluck($pageCategories, 'category_id');
 
@@ -165,17 +225,56 @@ class AdminPageController extends Controller
         $newCategoryIds = $formData['category_id'];
         unset($formData['category_id']);
 
-        $categoryChangeResult = _::compareArrays($oldCategoryIds, $newCategoryIds);
-        print_r($categoryChangeResult);
+        $update = AdminPage::orm()->update($formData, ['id' => $page->id], ['slug']);
 
+        if ($update->isDuplicate()) {
+            return ApiResponseTransformer::error(null, 'Oops! That slug\'s taken. Try a new one!');
+        }
 
-        return Request::all();
+        if ($update->success()) {
+            $categoryChangeResult = _::compareArrays($oldCategoryIds, $newCategoryIds);
+            $this->removeCategoryFromPage($categoryChangeResult['removed'], $page->id);
+            $this->addCategoryToPage($categoryChangeResult['added'], $page->id);
+
+            return ApiResponseTransformer::success(['redirect' => route('admin.pages.edit', ['param' => $page->id])]);
+        }
+
+        return ApiResponseTransformer::error(null, 'We checked. It\'s perfect. Nothing to update here!');
     }
 
-    public function destroy($id)
+    /**
+     * Delete a page
+     *
+     * @param $id
+     * @return array
+     */
+    public function destroy($id): array
     {
+        $page = AdminPage::orm()->find($id);
+
+        if (!$page) {
+            return ApiResponseTransformer::error(null, 'Well, this is awkward. You\'re trying to delete a page that\'s already living its best ghost life.');
+        }
+
+        $pageCategories = AdminPageCategory::orm()->where('page_id', $id)->get();
+        $categoryIds = _::pluck($pageCategories, 'category_id');
+
+        $this->removeCategoryFromPage($categoryIds, $page->id);
+        $delete = AdminPage::orm()->delete(['id' => $id]);
+
+        if (!$delete->success()) {
+            return ApiResponseTransformer::error(null, 'Error! This item seems to have developed an unhealthy attachment to us. We just can\'t seem to get rid of it!');
+        }
+
+        return ApiResponseTransformer::success(['redirect' => route('admin.pages.index')]);
     }
 
+    /**
+     * Attach category names to a paginated result
+     *
+     * @param array $paginatedData
+     * @return void
+     */
     private function attachCategoryNames(array $paginatedData): void
     {
         $categoryIds = [];
