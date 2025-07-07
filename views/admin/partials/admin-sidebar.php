@@ -14,6 +14,10 @@
             <a href="<?= route('admin.modules.index') ?>" class="nav__link">Modules</a>
         </li>
         <li class="nav__item">
+            <a href="<?= route('admin.module-settings.index') ?>" class="nav__link">Module Settings</a>
+        </li>
+
+        <li class="nav__item">
             <a href="<?= route('admin.users.index') ?>" class="nav__link">Settings</a>
 
             <ul class="nav__list nav__list--sub">
