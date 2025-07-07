@@ -11,7 +11,7 @@
             <a href="<?= route('admin.pages.index') ?>" class="nav__link">Pages</a>
         </li>
         <li class="nav__item">
-            <a href="<?= route('admin.posts.index') ?>" class="nav__link">Modules</a>
+            <a href="<?= route('admin.modules.index') ?>" class="nav__link">Modules</a>
         </li>
         <li class="nav__item">
             <a href="<?= route('admin.users.index') ?>" class="nav__link">Settings</a>
@@ -24,6 +24,9 @@
                     <a href="<?= route('admin.users.create') ?>" class="nav__link">Site Settings</a>
                 </li>
             </ul>
+        </li>
+        <li class="nav__item">
+            <a href="<?= route('admin.file.manager') ?>" class="nav__link">File Manager</a>
         </li>
         <li class="nav__item">
             <a href="<?= route('admin.auth.logout') ?>" class="nav__link">Sign Out</a>

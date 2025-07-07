@@ -13,6 +13,7 @@
 @use "./modules/pagination";
 @use "./modules/breadcrumb";
 @use "./modules/quill";
+@use "./modules/fm";
 
 @include reset.roolith-admin-reset();
 @include settings.roolith-admin-settings();
@@ -29,3 +30,4 @@
 @include pagination.roolith-admin-pagination();
 @include breadcrumb.roolith-admin-breadcrumb();
 @include quill.roolith-admin-quill();
+@include fm.roolith-admin-fm();

@@ -2,11 +2,13 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\Controller;
+use App\Core\Request;
 
 class AdminModuleController extends Controller
 {
     public function index()
     {
+
     }
 
     public function create()

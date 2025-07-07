@@ -61,4 +61,19 @@
     .form__delete {
         padding: 1.25rem 0 0;
     }
+
+    .form--inline {
+        display: flex;
+        gap: .3125rem;
+
+        .form__input {
+            width: auto;
+        }
+    }
+
+    .form__actions {
+        display: flex;
+        gap: 1.25rem;
+        margin-bottom: 1.25rem;
+    }
 }

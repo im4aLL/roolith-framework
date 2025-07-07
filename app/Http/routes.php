@@ -1,4 +1,6 @@
 <?php
+
+use App\Controllers\Admin\AdminMiscController;
 use App\Controllers\WelcomeController;
 use App\Core\RouterFactory;
 use Roolith\Configuration\Config;
@@ -36,6 +38,7 @@ $router->group(['middleware' => AdminAuthMiddleware::class, 'urlPrefix' => '/adm
     $router->get('/', AdminController::class . '@index')->name('home');
     $router->crud('/pages', AdminPageController::class);
     $router->crud('/modules', AdminModuleController::class);
+    $router->match(['GET', 'POST'], '/file-manager', AdminMiscController::class . '@fileManager')->name('file.manager');
 
     $router->get('/logout', AdminAuthController::class . '@logout')->name('auth.logout');
 });
