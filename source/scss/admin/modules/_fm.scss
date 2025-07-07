@@ -7,12 +7,14 @@
     .fm__folder-icon {
         &::before {
             content: "📁 ";
+            filter: brightness(0.7);
         }
     }
 
     .fm__file-icon {
         &::before {
             content: "📄 ";
+            filter: brightness(0.7);
         }
     }
 

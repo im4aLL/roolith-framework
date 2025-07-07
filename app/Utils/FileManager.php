@@ -5,30 +5,44 @@ class FileManager {
     private string $basePath;
     private array $allowedExtensions = ['txt', 'pdf', 'jpg', 'jpeg', 'png', 'gif', 'doc', 'docx', 'zip', 'ppt', 'pptx', 'xls', 'xlsx'];
     private int $maxFileSize = 5 * 1024 * 1024; // 5MB
+    private string $baseUrl;
 
-    public function __construct(string $basePath = './files') {
+    public function __construct(string $basePath = './files')
+    {
         $this->basePath = rtrim($basePath, '/');
+
         if (!is_dir($this->basePath)) {
             mkdir($this->basePath, 0755, true);
         }
     }
 
-    public function getCurrentPath(): string {
+    public function setBaseUrl(string $baseUrl): static
+    {
+        $this->baseUrl = $baseUrl;
+
+        return $this;
+    }
+
+    public function getCurrentPath(): string
+    {
         return $_GET['path'] ?? '';
     }
 
-    public function getFullPath(string $relativePath = ''): string {
+    public function getFullPath(string $relativePath = ''): string
+    {
         $fullPath = $this->basePath . '/' . ltrim($relativePath, '/');
         return realpath($fullPath) ?: $fullPath;
     }
 
-    public function isPathValid(string $path): bool {
+    public function isPathValid(string $path): bool
+    {
         $realPath = realpath($path);
         $realBasePath = realpath($this->basePath);
         return $realPath && str_starts_with($realPath, $realBasePath);
     }
 
-    public function scanDirectory(string $path = ''): array {
+    public function scanDirectory(string $path = ''): array
+    {
         $fullPath = $this->getFullPath($path);
         if (!$this->isPathValid($fullPath) || !is_dir($fullPath)) {
             return [];
@@ -64,15 +78,19 @@ class FileManager {
         return $result;
     }
 
-    public function createDirectory(string $path, string $name): bool {
+    public function createDirectory(string $path, string $name): bool
+    {
         $fullPath = $this->getFullPath($path . '/' . $name);
+
         if (!$this->isPathValid(dirname($fullPath))) {
             return false;
         }
+
         return mkdir($fullPath, 0755);
     }
 
-    public function uploadFile(string $path, array $file): array {
+    public function uploadFile(string $path, array $file): array
+    {
         $result = ['success' => false, 'message' => ''];
 
         if ($file['error'] !== UPLOAD_ERR_OK) {
@@ -107,8 +125,10 @@ class FileManager {
         return $result;
     }
 
-    public function deleteItem(string $path): bool {
+    public function deleteItem(string $path): bool
+    {
         $fullPath = $this->getFullPath($path);
+
         if (!$this->isPathValid($fullPath)) {
             return false;
         }
@@ -120,7 +140,8 @@ class FileManager {
         }
     }
 
-    private function deleteDirectory(string $path): bool {
+    private function deleteDirectory(string $path): bool
+    {
         $files = array_diff(scandir($path), ['.', '..']);
         foreach ($files as $file) {
             $filePath = $path . '/' . $file;
@@ -133,15 +154,19 @@ class FileManager {
         return rmdir($path);
     }
 
-    private function getDirectorySize(string $path): int {
+    private function getDirectorySize(string $path): int
+    {
         $size = 0;
+
         foreach (glob($path . '/*') as $file) {
             $size += is_dir($file) ? $this->getDirectorySize($file) : filesize($file);
         }
+
         return $size;
     }
 
-    public function formatBytes(int $bytes): string {
+    public function formatBytes(int $bytes): string
+    {
         $units = ['B', 'KB', 'MB', 'GB'];
         for ($i = 0; $bytes > 1024 && $i < count($units) - 1; $i++) {
             $bytes /= 1024;
@@ -149,8 +174,8 @@ class FileManager {
         return round($bytes, 2) . ' ' . $units[$i];
     }
 
-    public function getDirectFileUrl(string $path): string {
-        // Create direct file URL relative to web root
-        return 'http://local.roolith-framework.me/files/' . ltrim($path, '/');
+    public function getDirectFileUrl(string $path): string
+    {
+        return $this->baseUrl . ltrim($path, '/');
     }
 }

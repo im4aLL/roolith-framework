@@ -19,4 +19,11 @@
         font-size: .875rem;
         min-height: 25rem;
     }
+
+    .ql-image-url {
+        &::after {
+            content: "🖼️";
+            filter: brightness(0.7);
+        }
+    }
 }

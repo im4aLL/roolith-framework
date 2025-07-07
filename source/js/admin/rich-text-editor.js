@@ -14,15 +14,15 @@ export class RichTextEditor {
         this.initQuill();
         this.addValueToQuill();
         this.watchForChanges();
-        // this.imageUrlHandler();
         // this.imageUploadHandler();
+        this.registerImageUrlToolbar();
     }
 
     getToolbar() {
         return [
             ["bold", "italic", "underline", "strike"], // toggled buttons
             ["blockquote", "code-block"],
-            ["link", "image", "video", "formula"],
+            ["link", "image", "image-url", "video", "formula"],
 
             [{ header: 1 }, { header: 2 }], // custom button values
             [{ list: "ordered" }, { list: "bullet" }, { list: "check" }],
@@ -59,19 +59,6 @@ export class RichTextEditor {
         this.editor.on("text-change", () => {
             const html = this.editor.getSemanticHTML();
             $("#editor-value").html(html);
-        });
-    }
-
-    imageUrlHandler() {
-        this.editor.getModule("toolbar").addHandler("image", () => {
-            const range = this.editor.getSelection();
-            const value = prompt("What is the image URL");
-            this.editor.insertEmbed(
-                range.index,
-                "image",
-                value,
-                Quill.sources.USER
-            );
         });
     }
 
@@ -133,5 +120,21 @@ export class RichTextEditor {
         const delta = this.editor.clipboard.convert({ html: value });
 
         this.editor.setContents(delta, "silent");
+    }
+
+    registerImageUrlToolbar() {
+        const imageUrlButton = document.querySelector(".ql-image-url");
+
+        imageUrlButton.addEventListener("click", () => {
+            const range = this.editor.getSelection();
+            const value = prompt("What is the image URL");
+
+            this.editor.insertEmbed(
+                range.index,
+                "image",
+                value,
+                Quill.sources.USER
+            );
+        });
     }
 }

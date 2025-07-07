@@ -10,6 +10,7 @@ class AdminMiscController extends Controller
     {
         // Initialize file manager
         $fm = new FileManager();
+        $fm->setBaseUrl(url('files/'));
         $currentPath = $fm->getCurrentPath();
         $message = '';
 
