@@ -29,11 +29,11 @@
         <label class="form__label">Type</label>
 
         <?php if ($form_data) : ?>
-            <label><input type="radio" name="type" class="form__input form--radio" value="page" <?php if ($form_data->type == 'page') echo 'checked' ?>> Page</label>
-            <label><input type="radio" name="type" class="form__input form--radio" value="blog" <?php if ($form_data->type == 'blog') echo 'checked' ?>> Blog</label>
+            <label><input type="radio" name="type" class="form__input form__input--radio" value="page" <?php if ($form_data->type == 'page') echo 'checked' ?>> Page</label>
+            <label><input type="radio" name="type" class="form__input form__input--radio" value="blog" <?php if ($form_data->type == 'blog') echo 'checked' ?>> Blog</label>
         <?php else: ?>
-            <label><input type="radio" name="type" class="form__input form--radio" value="page" checked> Page</label>
-            <label><input type="radio" name="type" class="form__input form--radio" value="blog"> Blog</label>
+            <label><input type="radio" name="type" class="form__input form__input--radio" value="page" checked> Page</label>
+            <label><input type="radio" name="type" class="form__input form__input--radio" value="blog"> Blog</label>
         <?php endif; ?>
     </div>
 

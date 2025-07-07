@@ -13,8 +13,8 @@
         }
     }
 
-    .form--radio,
-    .form--checkbox {
+    .form__input--radio,
+    .form__input--checkbox {
         width: auto;
     }
 
@@ -75,5 +75,13 @@
         display: flex;
         gap: 1.25rem;
         margin-bottom: 1.25rem;
+    }
+
+    .form__field-checkbox-list {
+        display: flex;
+        flex-direction: column;
+        gap: .0313rem;
+        max-height: 18.75rem;
+        overflow-y: auto;
     }
 }

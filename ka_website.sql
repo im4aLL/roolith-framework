@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 02, 2025 at 06:54 AM
+-- Generation Time: Jul 07, 2025 at 09:16 AM
 -- Server version: 10.4.22-MariaDB
 -- PHP Version: 8.1.2
 
@@ -43,7 +43,48 @@ CREATE TABLE `categories` (
 INSERT INTO `categories` (`id`, `name`, `slug`, `body`, `created_at`, `updated_at`) VALUES
 (1, 'Test', 'test', NULL, '2025-06-28 22:19:28', '2025-07-02 04:09:01'),
 (2, 'Sample', 'sample', NULL, '2025-07-02 04:08:36', '2025-07-02 04:08:36'),
-(3, 'News', 'news', NULL, '2025-07-02 04:08:49', '2025-07-02 04:08:49');
+(3, 'News', 'news', NULL, '2025-07-02 04:08:49', '2025-07-02 04:08:49'),
+(4, 'Service', 'service', NULL, '2025-07-06 23:00:29', '2025-07-06 23:00:29');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `modules`
+--
+
+CREATE TABLE `modules` (
+  `id` int(11) NOT NULL,
+  `title` varchar(255) DEFAULT NULL,
+  `body` text DEFAULT NULL,
+  `status` enum('published','draft') DEFAULT 'draft',
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `module_page`
+--
+
+CREATE TABLE `module_page` (
+  `id` int(11) NOT NULL,
+  `page_id` int(11) NOT NULL,
+  `module_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `module_settings`
+--
+
+CREATE TABLE `module_settings` (
+  `id` int(11) NOT NULL,
+  `settings` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`settings`)),
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -73,7 +114,11 @@ INSERT INTO `pages` (`id`, `title`, `slug`, `body`, `type`, `user_id`, `status`,
 (3, 'Sample page 3', 'sample-page-3', NULL, 'page', 1, 'draft', '2025-06-28 22:20:13', '2025-06-28 23:08:22'),
 (4, 'Blog page 1', 'blog-page-1', NULL, 'blog', NULL, 'draft', '2025-06-28 22:20:28', '2025-07-02 04:45:49'),
 (5, 'Blog page 2', 'blog-page-2', NULL, 'blog', NULL, 'draft', '2025-06-28 22:20:34', '2025-07-02 04:45:52'),
-(6, 'Blog page 3', 'blog-page-3', NULL, 'blog', NULL, 'draft', '2025-06-28 22:20:41', '2025-06-29 20:18:42');
+(6, 'Blog page 3', 'blog-page-3', NULL, 'blog', NULL, 'draft', '2025-06-28 22:20:41', '2025-06-29 20:18:42'),
+(12, 'About x', 'about-x', '<p>ffdfdfere&nbsp;x</p>', 'page', 1, 'published', '2025-07-03 06:01:18', '2025-07-06 23:03:02'),
+(13, 'Service', 'service', 'asdsdsd', 'page', 1, 'published', '2025-07-03 06:03:55', '2025-07-04 06:24:44'),
+(20, 'Contact', 'contact', 'contact&nbsp;page', 'page', 1, 'published', '2025-07-03 06:11:17', '2025-07-04 05:58:55'),
+(21, 'Allow html', 'allow-html', '<p>html&nbsp;</p><p>content&nbsp;</p><p></p><p><strong>here</strong></p>', 'page', 1, 'published', '2025-07-04 06:07:34', '2025-07-07 01:55:43');
 
 -- --------------------------------------------------------
 
@@ -96,21 +141,22 @@ CREATE TABLE `page_category` (
 INSERT INTO `page_category` (`id`, `page_id`, `category_id`, `created_at`, `updated_at`) VALUES
 (1, 1, 2, '2025-07-02 04:53:17', '2025-07-02 04:53:17'),
 (2, 2, 1, '2025-07-02 04:53:30', '2025-07-02 04:53:30'),
-(3, 1, 1, '2025-07-02 04:53:38', '2025-07-02 04:53:38');
+(3, 1, 1, '2025-07-02 04:53:38', '2025-07-02 04:53:38'),
+(7, 13, 1, '2025-07-03 06:03:55', '2025-07-03 06:03:55'),
+(10, 12, 4, '2025-07-06 23:01:11', '2025-07-06 23:01:11'),
+(11, 12, 3, '2025-07-06 23:02:32', '2025-07-06 23:02:32');
 
 -- --------------------------------------------------------
 
 --
--- Table structure for table `page_meta`
+-- Table structure for table `settings`
 --
 
-CREATE TABLE `page_meta` (
-  `id` int(11) NOT NULL,
-  `page_id` int(11) NOT NULL,
-  `title` varchar(255) DEFAULT NULL,
-  `body` text DEFAULT NULL,
-  `status` enum('published','draft') DEFAULT 'draft',
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+CREATE TABLE `settings` (
+  `key` varchar(100) NOT NULL,
+  `value` text NOT NULL,
+  `type` enum('string','int','bool','json','float') NOT NULL DEFAULT 'string',
+  `group` varchar(50) DEFAULT NULL,
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -136,7 +182,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `last_logged_in`, `created_at`, `updated_at`) VALUES
-(1, 'Admin', 'admin@website.com', '$2y$10$4KVrVzLxkpTsSCP2O3EZPeBwKUV0dn93ZJvk0tx4oHXaenz2sX1ry', 'admin', '2025-06-26 07:01:22', '2025-06-26 05:01:42', '2025-06-28 23:21:04');
+(1, 'Admin', 'admin@website.com', '$2y$10$4KVrVzLxkpTsSCP2O3EZPeBwKUV0dn93ZJvk0tx4oHXaenz2sX1ry', 'admin', '2025-07-07 03:34:51', '2025-06-26 05:01:42', '2025-07-07 01:34:51');
 
 --
 -- Indexes for dumped tables
@@ -148,6 +194,26 @@ INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `last_logged_in`
 ALTER TABLE `categories`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `slug` (`slug`);
+
+--
+-- Indexes for table `modules`
+--
+ALTER TABLE `modules`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Indexes for table `module_page`
+--
+ALTER TABLE `module_page`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `page_id` (`page_id`),
+  ADD KEY `module_id` (`module_id`);
+
+--
+-- Indexes for table `module_settings`
+--
+ALTER TABLE `module_settings`
+  ADD PRIMARY KEY (`id`);
 
 --
 -- Indexes for table `pages`
@@ -166,11 +232,10 @@ ALTER TABLE `page_category`
   ADD KEY `page_category_ibfk_2` (`page_id`);
 
 --
--- Indexes for table `page_meta`
+-- Indexes for table `settings`
 --
-ALTER TABLE `page_meta`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `page_id` (`page_id`);
+ALTER TABLE `settings`
+  ADD PRIMARY KEY (`key`);
 
 --
 -- Indexes for table `users`
@@ -187,25 +252,37 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
+-- AUTO_INCREMENT for table `modules`
+--
+ALTER TABLE `modules`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `module_page`
+--
+ALTER TABLE `module_page`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `module_settings`
+--
+ALTER TABLE `module_settings`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `pages`
 --
 ALTER TABLE `pages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
 
 --
 -- AUTO_INCREMENT for table `page_category`
 --
 ALTER TABLE `page_category`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
-
---
--- AUTO_INCREMENT for table `page_meta`
---
-ALTER TABLE `page_meta`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `users`
@@ -216,6 +293,13 @@ ALTER TABLE `users`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `module_page`
+--
+ALTER TABLE `module_page`
+  ADD CONSTRAINT `module_page_ibfk_1` FOREIGN KEY (`page_id`) REFERENCES `pages` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `module_page_ibfk_2` FOREIGN KEY (`module_id`) REFERENCES `modules` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `pages`
@@ -229,12 +313,6 @@ ALTER TABLE `pages`
 ALTER TABLE `page_category`
   ADD CONSTRAINT `page_category_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `page_category_ibfk_2` FOREIGN KEY (`page_id`) REFERENCES `pages` (`id`) ON DELETE CASCADE;
-
---
--- Constraints for table `page_meta`
---
-ALTER TABLE `page_meta`
-  ADD CONSTRAINT `page_meta_ibfk_1` FOREIGN KEY (`page_id`) REFERENCES `pages` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

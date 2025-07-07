@@ -93,13 +93,13 @@
 
             <div class="form__field">
                 <label for="" class="form__label">Label</label>
-                <input type="radio" name="aa" id="" class="form__input form--radio">
-                <input type="radio" name="aa" id="" class="form__input form--radio">
+                <input type="radio" name="aa" id="" class="form__input form__input--radio">
+                <input type="radio" name="aa" id="" class="form__input form__input--radio">
             </div>
 
             <div class="form__field">
-                <label><input type="checkbox" id="" class="form__input form--checkbox"> Male</label>
-                <label><input type="checkbox" id="" class="form__input form--checkbox"> Female</label>
+                <label><input type="checkbox" id="" class="form__input form__input--checkbox"> Male</label>
+                <label><input type="checkbox" id="" class="form__input form__input--checkbox"> Female</label>
             </div>
 
             <div class="form__field">
