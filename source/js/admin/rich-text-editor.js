@@ -1,16 +1,15 @@
 export class RichTextEditor {
-    constructor() {
+    constructor(editorElement) {
+        if (!editorElement) {
+            throw new Error("editorElement is required");
+        }
+
         this.editor = null;
+        this.editorElement = editorElement;
         this.init();
     }
 
     init() {
-        const editorElement = document.getElementById("editor");
-
-        if (!editorElement) {
-            return;
-        }
-
         this.initQuill();
         this.addValueToQuill();
         this.watchForChanges();
@@ -42,7 +41,8 @@ export class RichTextEditor {
 
     initQuill() {
         const toolbarOptions = this.getToolbar();
-        this.editor = new Quill("#editor", {
+
+        this.editor = new Quill(this.editorElement, {
             modules: {
                 syntax: true,
                 toolbar: {
@@ -54,10 +54,18 @@ export class RichTextEditor {
         });
     }
 
+    _getValueElement() {
+        return $(this.editorElement)
+            .closest(".form__field")
+            .find(".form__editor-value");
+    }
+
     watchForChanges() {
         this.editor.on("text-change", () => {
             const html = this.editor.getSemanticHTML();
-            $("#editor-value").html(html);
+            const valueInputElement = this._getValueElement();
+
+            valueInputElement.html(html);
         });
     }
 
@@ -110,7 +118,7 @@ export class RichTextEditor {
     }
 
     addValueToQuill() {
-        const value = $("#editor-value").html();
+        const value = this._getValueElement().html();
 
         if (!value) {
             return;

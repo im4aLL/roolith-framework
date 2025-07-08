@@ -21,7 +21,9 @@ export class Post {
             const editorData = this._getEditorData();
 
             if (editorData) {
-                formData[editorData.name] = editorData.value;
+                $.each(editorData, (index, data) => {
+                    formData[data.name] = data.value;
+                });
             }
 
             const url = form.attr("action");
@@ -32,18 +34,22 @@ export class Post {
     }
 
     _getEditorData() {
-        const editorData = $("#editor-value").html();
+        const editorValueElements = $(".form__editor-value");
 
-        if (!editorData) {
+        if (editorValueElements.length === 0) {
             return null;
         }
 
-        const inputName = $("#editor-value").attr("data-input-name");
+        const result = [];
 
-        return {
-            name: inputName,
-            value: editorData,
-        };
+        $.each(editorValueElements, (index, element) => {
+            result.push({
+                name: $(element).attr("data-input-name"),
+                value: $(element).html(),
+            });
+        });
+
+        return result;
     }
 
     _submitForm(url, method, formData) {

@@ -1,4 +1,8 @@
 @mixin roolith-admin-form() {
+    ::placeholder {
+        font-family: monospace;
+    }
+
     .form__input {
         background-color: var(--color-dark-bg);
         border: .0625rem solid var(--color-border);
@@ -7,6 +11,7 @@
         outline: none;
         width: 100%;
         border-radius: var(--border-radius);
+        font-family: monospace;
 
         &:focus {
             border: .0625rem solid var(--color-link);
@@ -83,5 +88,29 @@
         gap: .0313rem;
         max-height: 18.75rem;
         overflow-y: auto;
+    }
+
+    .form__list {
+        padding: .3125rem 0;
+        display: flex;
+        flex-direction: column;
+        gap: .3125rem;
+    }
+
+    .form__list-item {
+        display: grid;
+        grid-template-columns: 18.75rem 18.75rem auto;
+        gap: .3125rem;
+
+        &:first-child {
+            .form__list-item-action {
+                display: none;
+            }
+        }
+    }
+
+    .form__list-item-action {
+        display: flex;
+        align-items: center;
     }
 }

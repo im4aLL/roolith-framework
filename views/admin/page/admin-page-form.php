@@ -50,10 +50,10 @@
         </select>
     </div>
 
-    <div class="form__field">
-        <label for="editor" class="form__label">Body</label>
-        <div id="editor"></div>
-        <div id="editor-value" data-input-name="body" style="display: none"><?= !is_null($form_data) ? $form_data->body : '' ?></div>
+    <div class="form__field form__field--editor">
+        <label class="form__label">Body</label>
+        <div class="form__editor"></div>
+        <div class="form__editor-value" data-input-name="body" style="display: none;"><?= !is_null($form_data) ? $form_data->body : '' ?></div>
     </div>
 
     <div class="form__field">
