@@ -48,6 +48,40 @@ class Rules
     }
 
     /**
+     * Required array
+     *
+     * @param $inputs
+     * @param $name
+     * @param $ruleValue
+     * @return bool
+     */
+    public static function requiredArray($inputs, $name, $ruleValue): bool
+    {
+        $value = self::getValue($inputs, $name);
+
+        if (count($ruleValue) == 0) {
+            return count($value) > 0;
+        }
+
+        $isEveryFieldHasValue = true;
+
+        for ($i = 0; $i < count($ruleValue); $i++) {
+            $fieldData = $value[$ruleValue[$i]];
+
+            for ($j = 0; $j < count($fieldData); $j++) {
+                $isEveryFieldHasValue = !empty($fieldData[$j]) && strlen(trim($fieldData[$j])) > 0;
+
+                if (!$isEveryFieldHasValue) {
+                    break 2;
+                }
+            }
+
+        }
+
+        return $isEveryFieldHasValue;
+    }
+
+    /**
      * Email
      *
      * @param $inputs

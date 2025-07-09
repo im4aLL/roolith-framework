@@ -3,13 +3,20 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\Controller;
 use App\Core\LazyLoad;
+use App\Core\Request;
+use App\Core\Rules;
+use App\Core\Storage;
+use App\Core\Validator;
 use App\Models\Admin\AdminModuleSetting;
 use App\Models\Admin\AdminPage;
 use App\Models\Admin\AdminPageCategory;
 use App\Models\Admin\AdminUser;
+use App\Utils\_;
 
 class AdminModuleSettingController extends Controller
 {
+    private string $formErrorKey = 'module_settings_error';
+
     /**
      * Show a list of pages with pagination
      *
@@ -42,15 +49,43 @@ class AdminModuleSettingController extends Controller
 
     public function create()
     {
+        $errors = Storage::getTemp($this->formErrorKey);
+
         $data = [
             'title' => 'Create Module Setting',
         ];
+
+        if ($errors) {
+            $data['error_message'] = "This isn't a buffet — you don’t get to skip the fields you don't like.";
+        }
 
         return $this->view('admin/module-setting/admin-module-setting-create', $data);
     }
 
     public function store()
     {
+        $data = Request::all();
+
+        $validator = new Validator();
+        $validator->check($data, [
+            'name' => Rules::set()->isRequired(),
+            'settings' => Rules::set()->isRequiredArray(['name', 'type']),
+        ]);
+
+        if ($validator->fails()) {
+            Storage::temp($this->formErrorKey, $validator->errors());
+            redirectToRoute('admin.module-settings.create');
+        }
+
+        $data['settings'] = json_encode($data['settings']);
+
+        $insert = AdminModuleSetting::orm()->insert($data);
+
+        if ($insert->success()) {
+            redirectToRoute('admin.module-settings.index');
+        }
+
+        return 'We tried really hard... and still failed. Classic us!';
     }
 
     public function show($id)

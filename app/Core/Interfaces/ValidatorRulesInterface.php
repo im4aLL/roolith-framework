@@ -10,6 +10,12 @@ interface ValidatorRulesInterface
     public function isRequired(): static;
 
     /**
+     * @param array $fields
+     * @return $this
+     */
+    public function isRequiredArray(array $fields): static;
+
+    /**
      * @return $this
      */
     public function isEmail(): static;

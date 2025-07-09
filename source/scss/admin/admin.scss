@@ -14,6 +14,7 @@
 @use "./modules/breadcrumb";
 @use "./modules/quill";
 @use "./modules/fm";
+@use "./modules/message";
 
 @include reset.roolith-admin-reset();
 @include settings.roolith-admin-settings();
@@ -31,3 +32,4 @@
 @include breadcrumb.roolith-admin-breadcrumb();
 @include quill.roolith-admin-quill();
 @include fm.roolith-admin-fm();
+@include message.roolith-admin-message();

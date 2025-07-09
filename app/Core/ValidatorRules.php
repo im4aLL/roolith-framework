@@ -32,6 +32,19 @@ class ValidatorRules implements ValidatorRulesInterface
     }
 
     /**
+     * Is required array
+     *
+     * @param array $fields
+     * @return $this
+     */
+    public function isRequiredArray(array $fields = []): static
+    {
+        $this->rules['requiredArray'] = $fields;
+
+        return $this;
+    }
+
+    /**
      * @inheritDoc
      */
     public function isEmail(): static

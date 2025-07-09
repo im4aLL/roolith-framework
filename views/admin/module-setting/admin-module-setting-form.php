@@ -12,7 +12,11 @@
     <?php endif; ?>
 </div>
 
-<form action="<?= $form_action_url ?>" method="<?= $form_action_url_method ?>" class="form" data-ajax="true">
+<form action="<?= $form_action_url ?>" method="<?= $form_action_url_method ?>" class="form">
+    <?php if (isset($error_message)) : ?>
+        <div class="message message--danger"><?= $error_message ?></div>
+    <?php endif; ?>
+
     <div class="form__field">
         <label for="name" class="form__label">Name</label>
         <input type="text" name="name" id="name" class="form__input" value="<?= !is_null($form_data) ? $form_data->name : '' ?>">
