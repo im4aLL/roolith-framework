@@ -15,13 +15,17 @@ use App\Core\Interfaces\ValidatorRulesInterface;
             'company' => '',
             'age' => 18,
             'url' => 'something!',
+            'data' => [],
+            'associative_array' => ["name" => "", "type" => ""],
         ],
         [
-            'name' => Rules::set()->isRequired()->minLength(10)->isArray()->maxLength(20)->notExists(\App\Models\User::class),
+            'name' => Rules::set()->isRequired()->minLength(10)->maxLength(20)->notExists(\App\Models\User::class),
             'email' => Rules::set()->isEmail()->isRequired(),
             'company' => Rules::set()->isRequiredIf('age:greater_than:10'),
             'url' => Rules::set()->isUrl(),
             'age' => Rules::set()->isNumeric(),
+            'data' => Rules::set()->isArray(),
+            'associative_array' => Rules::set()->isRequiredArray(['name', 'type']),
         ]
     );
 */
