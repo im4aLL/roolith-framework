@@ -94,10 +94,48 @@ class AdminModuleSettingController extends Controller
 
     public function edit($id)
     {
+        $moduleSetting = AdminModuleSetting::orm()->find($id);
+        $moduleSetting->settings = json_decode($moduleSetting->settings);
+        $errors = Storage::getTemp($this->formErrorKey);
+
+        $data = [
+            'title' => 'Edit Module Setting - '.$moduleSetting->name,
+            'moduleSetting' => $moduleSetting,
+        ];
+
+        if ($errors) {
+            $data['error_message'] = "This isn't a buffet — you don’t get to skip the fields you don't like.";
+        }
+
+        return $this->view('admin/module-setting/admin-module-setting-edit', $data);
     }
 
     public function update($id)
     {
+        $moduleSetting = AdminModuleSetting::orm()->find($id);
+
+        $data = Request::all();
+
+        $validator = new Validator();
+        $validator->check($data, [
+            'name' => Rules::set()->isRequired(),
+            'settings' => Rules::set()->isRequiredArray(['name', 'type']),
+        ]);
+
+        if ($validator->fails()) {
+            Storage::temp($this->formErrorKey, $validator->errors());
+            redirectToRoute('admin.module-settings.edit', ['param' => $moduleSetting->id]);
+        }
+
+        $data['settings'] = json_encode($data['settings']);
+
+        $insert = AdminModuleSetting::orm()->update($data, ['id' => $moduleSetting->id]);
+
+        if ($insert->success()) {
+            redirectToRoute('admin.module-settings.index');
+        }
+
+        return 'We tried really hard... and still failed. Classic us!';
     }
 
     public function destroy($id)

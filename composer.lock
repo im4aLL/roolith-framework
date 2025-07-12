@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "77846c08277ca8436a9e1e4aaed41236",
+    "content-hash": "b9267df1081b15b3b7a5dac573eb789b",
     "packages": [
         {
             "name": "filp/whoops",
@@ -786,16 +786,16 @@
         },
         {
             "name": "roolith/router",
-            "version": "1.0.14",
+            "version": "1.0.15",
             "source": {
                 "type": "git",
                 "url": "https://github.com/im4aLL/roolith-router.git",
-                "reference": "b4a413ab68da6afe5864c0a6fabe25cefd846683"
+                "reference": "cea45203d51166c45fbebfdefa44884233a3a9c5"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/im4aLL/roolith-router/zipball/b4a413ab68da6afe5864c0a6fabe25cefd846683",
-                "reference": "b4a413ab68da6afe5864c0a6fabe25cefd846683",
+                "url": "https://api.github.com/repos/im4aLL/roolith-router/zipball/cea45203d51166c45fbebfdefa44884233a3a9c5",
+                "reference": "cea45203d51166c45fbebfdefa44884233a3a9c5",
                 "shasum": ""
             },
             "require": {
@@ -825,9 +825,9 @@
             "description": "Simple PHP router",
             "support": {
                 "issues": "https://github.com/im4aLL/roolith-router/issues",
-                "source": "https://github.com/im4aLL/roolith-router/tree/1.0.14"
+                "source": "https://github.com/im4aLL/roolith-router/tree/1.0.15"
             },
-            "time": "2025-06-29T19:28:56+00:00"
+            "time": "2025-07-12T08:07:03+00:00"
         },
         {
             "name": "roolith/template-engine",

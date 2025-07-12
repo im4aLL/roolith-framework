@@ -1,10 +1,6 @@
 <div class="layout__header">
     <div>
         <h3><?= $form_header ?></h3>
-
-        <?php if ($form_data) : ?>
-            <p><?= url($form_data->slug) ?></p>
-        <?php endif; ?>
     </div>
 
     <?php if ($form_data) : ?>
@@ -26,22 +22,25 @@
         <label for="first-field">Custom Fields</label>
 
         <ul class="form__list">
-            <li class="form__list-item">
-                <input type="text" name="settings[name][]" id="first-field" class="form__input" placeholder="Field name">
-                <select name="settings[type][]" class="form__input form--select">
-                    <option value="">Select field type</option>
-                    <option value="text">Text</option>
-                    <option value="textarea">Textarea</option>
-                    <option value="rich-text">Rich text editor</option>
-                    <option value="image">Image upload</option>
-                    <option value="image-multiple">Multiple image upload</option>
-                    <option value="file">File upload</option>
-                    <option value="file-multiple">Multiple file upload</option>
-                </select>
-                <div class="form__list-item-action">
-                    <button class="button button--text button--danger" type="button">Remove</button>
-                </div>
-            </li>
+            <?php if ($form_data) : ?>
+                <?php foreach ($form_data->settings->name as $index => $name) : ?>
+                    <li class="form__list-item">
+                        <input type="text" name="settings[name][]" id="first-field" class="form__input" placeholder="Field name" value="<?= $name ?>">
+                        <select name="settings[type][]" class="form__input form--select">
+                            <option value="text" <?= $form_data->settings->type[$index] == 'text' ? 'selected' : '' ?>>Text</option>
+                            <option value="textarea" <?= $form_data->settings->type[$index] == 'textarea' ? 'selected' : '' ?>>Textarea</option>
+                            <option value="rich-text" <?= $form_data->settings->type[$index] == 'rich-text' ? 'selected' : '' ?>>Rich text editor</option>
+                            <option value="image" <?= $form_data->settings->type[$index] == 'image' ? 'selected' : '' ?>>Image upload</option>
+                            <option value="image-multiple" <?= $form_data->settings->type[$index] == 'image-multiple' ? 'selected' : '' ?>>Multiple image upload</option>
+                            <option value="file" <?= $form_data->settings->type[$index] == 'file' ? 'selected' : '' ?>>File upload</option>
+                            <option value="file-multiple" <?= $form_data->settings->type[$index] == 'file-multiple' ? 'selected' : '' ?>>Multiple file upload</option>
+                        </select>
+                        <div class="form__list-item-action">
+                            <button class="button button--text button--danger" type="button">Remove</button>
+                        </div>
+                    </li>
+                <?php endforeach; ?>
+            <?php endif; ?>
         </ul>
         <button class="button button--text" type="button" id="add-field">Add new field</button>
     </div>
