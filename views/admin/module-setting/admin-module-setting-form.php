@@ -40,6 +40,23 @@
                         </div>
                     </li>
                 <?php endforeach; ?>
+            <?php else : ?>
+                <li class="form__list-item">
+                    <input type="text" name="settings[name][]" id="first-field" class="form__input" placeholder="Field name">
+                    <select name="settings[type][]" class="form__input form--select">
+                        <option value="">Select field type</option>
+                        <option value="text">Text</option>
+                        <option value="textarea">Textarea</option>
+                        <option value="rich-text">Rich text editor</option>
+                        <option value="image">Image upload</option>
+                        <option value="image-multiple">Multiple image upload</option>
+                        <option value="file">File upload</option>
+                        <option value="file-multiple">Multiple file upload</option>
+                    </select>
+                    <div class="form__list-item-action">
+                        <button class="button button--text button--danger" type="button">Remove</button>
+                    </div>
+                </li>
             <?php endif; ?>
         </ul>
         <button class="button button--text" type="button" id="add-field">Add new field</button>

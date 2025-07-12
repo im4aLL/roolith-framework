@@ -2,6 +2,7 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\Controller;
+use App\Core\ApiResponseTransformer;
 use App\Core\LazyLoad;
 use App\Core\Request;
 use App\Core\Rules;
@@ -140,5 +141,18 @@ class AdminModuleSettingController extends Controller
 
     public function destroy($id)
     {
+        $moduleSetting = AdminModuleSetting::orm()->find($id);
+
+        if (!$moduleSetting) {
+            return ApiResponseTransformer::error(null, 'Well, this is awkward. You\'re trying to delete a page that\'s already living its best ghost life.');
+        }
+
+        $delete = AdminModuleSetting::orm()->delete(['id' => $id]);
+
+        if (!$delete->success()) {
+            return ApiResponseTransformer::error(null, 'Error! This item seems to have developed an unhealthy attachment to us. We just can\'t seem to get rid of it!');
+        }
+
+        return ApiResponseTransformer::success(['redirect' => route('admin.module-settings.index')]);
     }
 }
