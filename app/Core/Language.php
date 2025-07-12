@@ -6,7 +6,7 @@ use App\Utils\FS;
 
 class Language
 {
-    protected $messages;
+    protected array $messages;
 
     public function __construct()
     {
@@ -19,7 +19,7 @@ class Language
      * @param $lang
      * @return $this
      */
-    public function loadMessageByLang($lang)
+    public function loadMessageByLang($lang): static
     {
         $filePath = APP_ROOT . '/lang/' . $lang . '/message.php';
 
@@ -31,12 +31,12 @@ class Language
     }
 
     /**
-     * Get message array
+     * Get a message array
      *
      * @param $lang null
      * @return array
      */
-    public function getMessages($lang = null)
+    public function getMessages($lang = null): array
     {
         $defaultLang = Settings::LANG_DEFAULT;
         $selectedLang = $lang ? $lang : $defaultLang;

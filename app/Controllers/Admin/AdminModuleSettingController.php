@@ -3,16 +3,12 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\Controller;
 use App\Core\ApiResponseTransformer;
-use App\Core\LazyLoad;
+use App\Core\Exceptions\Exception;
 use App\Core\Request;
 use App\Core\Rules;
 use App\Core\Storage;
 use App\Core\Validator;
 use App\Models\Admin\AdminModuleSetting;
-use App\Models\Admin\AdminPage;
-use App\Models\Admin\AdminPageCategory;
-use App\Models\Admin\AdminUser;
-use App\Utils\_;
 
 class AdminModuleSettingController extends Controller
 {
@@ -48,7 +44,7 @@ class AdminModuleSettingController extends Controller
         return $this->view('admin/module-setting/admin-module-setting', $data);
     }
 
-    public function create()
+    public function create(): bool|string
     {
         $errors = Storage::getTemp($this->formErrorKey);
 
@@ -63,7 +59,7 @@ class AdminModuleSettingController extends Controller
         return $this->view('admin/module-setting/admin-module-setting-create', $data);
     }
 
-    public function store()
+    public function store(): string
     {
         $data = Request::all();
 
@@ -91,9 +87,10 @@ class AdminModuleSettingController extends Controller
 
     public function show($id)
     {
+        throw new Exception("Nothing here for module settings id $id");
     }
 
-    public function edit($id)
+    public function edit($id): bool|string
     {
         $moduleSetting = AdminModuleSetting::orm()->find($id);
         $moduleSetting->settings = json_decode($moduleSetting->settings);
@@ -111,7 +108,7 @@ class AdminModuleSettingController extends Controller
         return $this->view('admin/module-setting/admin-module-setting-edit', $data);
     }
 
-    public function update($id)
+    public function update($id): string
     {
         $moduleSetting = AdminModuleSetting::orm()->find($id);
 
@@ -139,7 +136,7 @@ class AdminModuleSettingController extends Controller
         return 'We tried really hard... and still failed. Classic us!';
     }
 
-    public function destroy($id)
+    public function destroy($id): array
     {
         $moduleSetting = AdminModuleSetting::orm()->find($id);
 

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 07, 2025 at 09:16 AM
+-- Generation Time: Jul 12, 2025 at 10:28 AM
 -- Server version: 10.4.22-MariaDB
 -- PHP Version: 8.1.2
 
@@ -55,10 +55,23 @@ INSERT INTO `categories` (`id`, `name`, `slug`, `body`, `created_at`, `updated_a
 CREATE TABLE `modules` (
   `id` int(11) NOT NULL,
   `title` varchar(255) DEFAULT NULL,
-  `body` text DEFAULT NULL,
+  `hook` varchar(255) NOT NULL,
   `status` enum('published','draft') DEFAULT 'draft',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `module_data`
+--
+
+CREATE TABLE `module_data` (
+  `id` int(11) NOT NULL,
+  `module_id` int(11) NOT NULL,
+  `field_name` varchar(255) NOT NULL,
+  `field_data` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -81,10 +94,18 @@ CREATE TABLE `module_page` (
 
 CREATE TABLE `module_settings` (
   `id` int(11) NOT NULL,
+  `name` varchar(255) NOT NULL,
   `settings` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`settings`)),
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `module_settings`
+--
+
+INSERT INTO `module_settings` (`id`, `name`, `settings`, `created_at`, `updated_at`) VALUES
+(1, 'Hero', '{\"name\":[\"title\",\"body\",\"image\",\"another\"],\"type\":[\"text\",\"textarea\",\"image\",\"text\"]}', '2025-07-09 06:34:13', '2025-07-12 08:09:49');
 
 -- --------------------------------------------------------
 
@@ -118,7 +139,8 @@ INSERT INTO `pages` (`id`, `title`, `slug`, `body`, `type`, `user_id`, `status`,
 (12, 'About x', 'about-x', '<p>ffdfdfere&nbsp;x</p>', 'page', 1, 'published', '2025-07-03 06:01:18', '2025-07-06 23:03:02'),
 (13, 'Service', 'service', 'asdsdsd', 'page', 1, 'published', '2025-07-03 06:03:55', '2025-07-04 06:24:44'),
 (20, 'Contact', 'contact', 'contact&nbsp;page', 'page', 1, 'published', '2025-07-03 06:11:17', '2025-07-04 05:58:55'),
-(21, 'Allow html', 'allow-html', '<p>html&nbsp;</p><p>content&nbsp;</p><p></p><p><strong>here</strong></p>', 'page', 1, 'published', '2025-07-04 06:07:34', '2025-07-07 01:55:43');
+(21, 'Allow html', 'allow-html', '<p>html&nbsp;</p><p>content&nbsp;</p><p></p><p><strong>here</strong></p>', 'page', 1, 'published', '2025-07-04 06:07:34', '2025-07-07 01:55:43'),
+(24, 'Another page', 'another-page', '<p>Another&nbsp;page&nbsp;here</p><p></p><p>hola</p><p>hadi</p>', 'page', 1, 'draft', '2025-07-08 06:14:45', '2025-07-08 06:14:45');
 
 -- --------------------------------------------------------
 
@@ -199,7 +221,15 @@ ALTER TABLE `categories`
 -- Indexes for table `modules`
 --
 ALTER TABLE `modules`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `hook` (`hook`);
+
+--
+-- Indexes for table `module_data`
+--
+ALTER TABLE `module_data`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `module_id` (`module_id`);
 
 --
 -- Indexes for table `module_page`
@@ -213,7 +243,8 @@ ALTER TABLE `module_page`
 -- Indexes for table `module_settings`
 --
 ALTER TABLE `module_settings`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `name` (`name`);
 
 --
 -- Indexes for table `pages`
@@ -261,6 +292,12 @@ ALTER TABLE `modules`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `module_data`
+--
+ALTER TABLE `module_data`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `module_page`
 --
 ALTER TABLE `module_page`
@@ -270,13 +307,13 @@ ALTER TABLE `module_page`
 -- AUTO_INCREMENT for table `module_settings`
 --
 ALTER TABLE `module_settings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `pages`
 --
 ALTER TABLE `pages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 
 --
 -- AUTO_INCREMENT for table `page_category`
@@ -293,6 +330,12 @@ ALTER TABLE `users`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `module_data`
+--
+ALTER TABLE `module_data`
+  ADD CONSTRAINT `module_data_ibfk_1` FOREIGN KEY (`module_id`) REFERENCES `modules` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `module_page`
