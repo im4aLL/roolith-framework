@@ -1,10 +1,6 @@
 <div class="layout__header">
     <div>
         <h3><?= $form_header ?></h3>
-
-        <?php if ($form_data) : ?>
-            <p><?= url($form_data->slug) ?></p>
-        <?php endif; ?>
     </div>
 
     <?php if ($form_data) : ?>
@@ -31,19 +27,10 @@
         </select>
     </div>
 
-    <div class="form__field">
-        <label for="editor" class="form__label">Body</label>
-        <div id="editor"></div>
-        <div id="editor-value" data-input-name="body" style="display: none"><?= !is_null($form_data) ? $form_data->body : '' ?></div>
-    </div>
-
-    <div class="form__field">
-        <label class="form__label">Pages</label>
-        <ul class="form__field-checkbox-list">
-            <?php foreach ($form_data_pages as $page) : ?>
-                <li><label><input type="checkbox" name="page_id[]" value="<?= $page->id ?>" class="form__input--checkbox"> <?= $page->title ?></label></li>
-            <?php endforeach; ?>
-        </ul>
+    <div class="form__field form__field--editor">
+        <label class="form__label">Body</label>
+        <div class="form__editor"></div>
+        <div class="form__editor-value" data-input-name="body" style="display: none;"><?= !is_null($form_data) ? $form_data->body : '' ?></div>
     </div>
 
     <div class="form__button">

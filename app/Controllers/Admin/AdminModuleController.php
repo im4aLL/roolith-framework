@@ -2,11 +2,16 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\Controller;
+use App\Core\Request;
+use App\Core\Storage;
+use App\Models\Admin\AdminModuleSetting;
 use App\Models\Admin\AdminPage;
 use App\Models\Admin\AdminModule;
 
 class AdminModuleController extends Controller
 {
+    private string $formErrorKey = 'module_error';
+
     /**
      * Show a list of modules with pagination
      *
@@ -44,17 +49,31 @@ class AdminModuleController extends Controller
      */
     public function create(): bool|string
     {
-        $pages = AdminPage::orm()->select([
-            'field' => ['id', 'title'],
-            'condition' => "WHERE type='page'",
-            'orderBy' => 'title',
+        // load all module settings for select input
+        $moduleSettings = AdminModuleSetting::orm()->select([
+            'field' => ['id', 'name'],
         ])->get();
 
+        // generic data for template
         $data = [
             'title' => 'Create Module',
             'loadEditor' => true,
-            'pages' => $pages,
+            'moduleSettings' => $moduleSettings,
         ];
+
+        // load selected module setting
+        $moduleSettingId = Request::input('module_setting_id');
+
+        if ($moduleSettingId) {
+            $moduleSetting = AdminModuleSetting::orm()->find($moduleSettingId);
+
+            if  (!$moduleSetting) {
+                $data['setting_load_error_message'] = "Unable to load module setting";
+            } else {
+                $moduleSetting->settings = json_decode($moduleSetting->settings);
+                $data['moduleSettingData'] = $moduleSetting;
+            }
+        }
 
         return $this->view('admin/module/admin-module-create', $data);
     }

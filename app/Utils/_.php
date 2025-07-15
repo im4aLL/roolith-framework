@@ -1,8 +1,6 @@
 <?php
 namespace App\Utils;
 
-
-use App\Core\Dto\CompareArrayDTO;
 use RecursiveArrayIterator;
 use RecursiveIteratorIterator;
 
@@ -789,4 +787,33 @@ class _
     {
         return json_decode(json_encode($array));
     }
+
+    /**
+     * String to camel case
+     *
+     * @param string $text
+     * @return string
+     */
+    public static function toCamelCase(string $text): string
+    {
+        $text = ucwords(str_replace(['-', '_'], ' ', strtolower($text)));
+        $text = str_replace(' ', '', $text);
+
+        return lcfirst($text);
+    }
+
+    /**
+     * String to titlecase
+     *
+     * @param string $text
+     * @return string
+     */
+    public static function toTitleCase(string $text): string
+    {
+        $text = str_replace(['-', '_'], ' ', strtolower(trim($text)));
+        $text = preg_replace('/\s+/', ' ', $text);
+
+        return ucfirst($text);
+    }
+
 }

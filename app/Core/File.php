@@ -21,7 +21,7 @@ class File implements FileInterface
     /**
      * @inheritDoc
      */
-    public function setFile($name)
+    public function setFile($name): File|FileInterface|static
     {
         $this->file = $name;
 
@@ -31,7 +31,7 @@ class File implements FileInterface
     /**
      * @inheritDoc
      */
-    public function isValid()
+    public function isValid(): bool
     {
         return $this->isValidExtension() &&
             $this->isValidFile() &&
@@ -43,7 +43,7 @@ class File implements FileInterface
      *
      * @return bool
      */
-    protected function isValidExtension()
+    protected function isValidExtension(): bool
     {
         $extension = FS::getFileExtension($this->file['name']);
 
@@ -55,17 +55,17 @@ class File implements FileInterface
      *
      * @return bool
      */
-    protected function isValidUploadSize()
+    protected function isValidUploadSize(): bool
     {
         return $this->uploadSize >= $this->file['size'];
     }
 
     /**
-     * Is valid file
+     * Is a valid file
      *
      * @return bool
      */
-    protected function isValidFile()
+    protected function isValidFile(): bool
     {
         if (isset($this->file['error'])) {
             return $this->file['error'] === 0;
@@ -102,7 +102,7 @@ class File implements FileInterface
      *
      * @return string
      */
-    protected function generateFileName()
+    protected function generateFileName(): string
     {
         return time().'_'.preg_replace("/[^a-zA-Z0-9-_.]+/", "", $this->file['name']);
     }
@@ -110,7 +110,7 @@ class File implements FileInterface
     /**
      * @inheritDoc
      */
-    public function setAllowedFileTypes($types)
+    public function setAllowedFileTypes($types): File|FileInterface|static
     {
         $this->allowedFileTypes = $types;
 
@@ -120,7 +120,7 @@ class File implements FileInterface
     /**
      * @inheritDoc
      */
-    public function setMaxUploadSize($size)
+    public function setMaxUploadSize($size): File|FileInterface|static
     {
         $this->uploadSize = $size * 1024 * 1024;
 
