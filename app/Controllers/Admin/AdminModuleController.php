@@ -2,6 +2,7 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\Controller;
+use App\Core\Interfaces\FileInterface;
 use App\Core\Request;
 use App\Core\Storage;
 use App\Models\Admin\AdminModuleSetting;
@@ -80,6 +81,24 @@ class AdminModuleController extends Controller
 
     public function store()
     {
+        $formData = Request::all();
+
+        $uploaded = [];
+        if (isset($formData['_files'])) {
+            foreach ($formData['_files'] as $key => $file) {
+                if (is_array($file)) {
+                    foreach ($file as $fileData) {
+                        $uploaded[$key][] = $fileData->upload(APP_ADMIN_FILE_MANAGER_DIR . 'uploads/');
+                    }
+                } else {
+                    $uploaded[$key] = $file->upload(APP_ADMIN_FILE_MANAGER_DIR. 'uploads/');
+                }
+            }
+        }
+
+        p($uploaded);
+
+        return $formData;
     }
 
     public function show($id)

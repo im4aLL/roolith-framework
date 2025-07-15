@@ -11,7 +11,7 @@ class FS
      * @param $destination
      * @return bool
      */
-    public static function upload($file, $destination)
+    public static function upload($file, $destination): bool
     {
         return move_uploaded_file($file, $destination);
     }
@@ -22,7 +22,7 @@ class FS
      * @param $filename
      * @return string
      */
-    public static function getFileExtension($filename)
+    public static function getFileExtension($filename): string
     {
         return strtolower(pathinfo($filename, PATHINFO_EXTENSION));
     }
@@ -34,13 +34,13 @@ class FS
      * @param int $permission
      * @return bool
      */
-    public static function makeDirectory($path, $permission = 0777)
+    public static function makeDirectory($path, int $permission = 0777): bool
     {
         if (!is_dir($path)) {
             return mkdir($path, $permission, true);
         }
 
-        return false;
+        return true;
     }
 
     /**
@@ -49,9 +49,9 @@ class FS
      * @param $path
      * @return bool
      */
-    public static function removeDirectory($path)
+    public static function removeDirectory($path): bool
     {
-        if (substr($path, strlen($path) - 1, 1) !== '/') {
+        if (!str_ends_with($path, '/')) {
             $path .= '/';
         }
 
@@ -74,7 +74,7 @@ class FS
      * @param $path
      * @return bool
      */
-    public static function removeFile($path)
+    public static function removeFile($path): bool
     {
         if (self::exists($path)) {
             return unlink($path);
@@ -89,7 +89,7 @@ class FS
      * @param $path
      * @return bool
      */
-    public static function removeFilesInDirectory($path)
+    public static function removeFilesInDirectory($path): bool
     {
         $result = true;
         $files = glob($path.'/*');
@@ -97,7 +97,7 @@ class FS
         foreach ($files as $file) {
             try {
                 unlink($file);
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 $result = false;
             }
         }
@@ -106,12 +106,12 @@ class FS
     }
 
     /**
-     * If file exists
+     * If a file exists
      *
      * @param $path
      * @return bool
      */
-    public static function exists($path)
+    public static function exists($path): bool
     {
         return file_exists($path);
     }

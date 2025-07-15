@@ -26,11 +26,33 @@ export class Post {
                 });
             }
 
+            const jsFormData = this._getFormFiles(form);
+
             const url = form.attr("action");
             const method = form.attr("method");
 
-            this._submitForm(url, method, formData);
+            this._submitForm(url, method, formData, jsFormData);
         });
+    }
+
+    _getFormFiles(form) {
+        const fileFields = form.find('input[type="file"]');
+        const jsFormData = new FormData();
+
+        $.each(fileFields, (index, field) => {
+            const count = field.files.length;
+            if (count > 0) {
+                if (count === 1) {
+                    jsFormData.append(field.name, field.files[0]);
+                } else {
+                    for (let i = 0; i < count; i++) {
+                        jsFormData.append(field.name, field.files[i]);
+                    }
+                }
+            }
+        });
+
+        return jsFormData;
     }
 
     _getEditorData() {
@@ -52,27 +74,61 @@ export class Post {
         return result;
     }
 
-    _submitForm(url, method, formData) {
-        $.ajax({
-            url: url,
-            type: method,
-            data: formData,
-            dataType: "json",
-            success: (response) => {
-                this._resetFormError();
+    _submitForm(url, method, formData, jsFormData) {
+        const fileCount = this._getFormDataCount(jsFormData);
 
-                if (response.status === "error") {
-                    this._errorResponseHandler(response);
-                } else if (response.status === "success") {
-                    this._successResponseHandler(response);
-                } else {
-                    console.log(response);
-                }
-            },
-            error: (error) => {
-                console.log(error);
-            },
-        });
+        if (fileCount > 0) {
+            $.each(formData, (key, value) => {
+                jsFormData.append(key, value);
+            });
+
+            $.ajax({
+                url: url,
+                type: method,
+                data: jsFormData,
+                processData: false,
+                contentType: false,
+                success: (response) => {
+                    this._resetFormError();
+
+                    if (response.status === "error") {
+                        this._errorResponseHandler(response);
+                    } else if (response.status === "success") {
+                        this._successResponseHandler(response);
+                    } else {
+                        console.log(response);
+                    }
+                },
+                error: (error) => {
+                    console.log(error);
+                },
+            });
+        } else {
+            $.ajax({
+                url: url,
+                type: method,
+                data: formData,
+                dataType: "json",
+                success: (response) => {
+                    this._resetFormError();
+
+                    if (response.status === "error") {
+                        this._errorResponseHandler(response);
+                    } else if (response.status === "success") {
+                        this._successResponseHandler(response);
+                    } else {
+                        console.log(response);
+                    }
+                },
+                error: (error) => {
+                    console.log(error);
+                },
+            });
+        }
+    }
+
+    _getFormDataCount(formData) {
+        return Array.from(formData.entries()).length;
     }
 
     _successResponseHandler(response) {

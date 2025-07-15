@@ -16,7 +16,7 @@ class AdminMiscController extends Controller
     {
         // Initialize file manager
         $fm = new FileManager();
-        $fm->setBaseUrl(url('files/'));
+        $fm->setBaseUrl(url(APP_ADMIN_FILE_MANAGER_DIR));
         $currentPath = $fm->getCurrentPath();
 
         // Handle form submissions

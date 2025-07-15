@@ -91,7 +91,14 @@ class Request implements RequestInterface
     public static function all(): iterable
     {
         if (self::isMethod('POST')) {
-            return Sanitize::items($_POST);
+            $items = Sanitize::items($_POST);
+            $files = self::allFiles();
+
+            if (count($files) > 0) {
+                $items['_files'] = $files;
+            }
+
+            return $items;
         }
 
         if (self::isMethod('GET')) {
@@ -101,6 +108,62 @@ class Request implements RequestInterface
         $inputs = self::streamInputs();
 
         return Sanitize::items($inputs);
+    }
+
+    /**
+     * Get all files
+     *
+     * @return array
+     */
+    public static function allFiles(): array
+    {
+        $files = $_FILES;
+        $result = [];
+
+        if (count($files) == 0) {
+            return $result;
+        }
+
+        foreach ($files as $key => $value) {
+            if (is_array($value['name'])) {
+                $multipleFiles = self::splitMultipleFiles($value);
+
+                $result[$key] = [];
+                foreach ($multipleFiles as $index => $file) {
+                    $result[$key][] = self::file($key, $file);
+                }
+            } else {
+                $result[$key] = self::file($key);
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Split multiple uploaded files into a single chuck array
+     *
+     * @param array $files
+     * @return array
+     */
+    public static function splitMultipleFiles(array $files): array
+    {
+        $result = [];
+
+        $fileCount = count($files['name']);
+
+        for ($i = 0; $i < $fileCount; $i++) {
+            $result[] = [
+                'name'     => $files['name'][$i],
+                'full_path'=> $files['full_path'][$i] ?? '',
+                'type'     => $files['type'][$i],
+                'tmp_name' => $files['tmp_name'][$i],
+                'error'    => $files['error'][$i],
+                'size'     => $files['size'][$i],
+            ];
+        }
+
+        return $result;
     }
 
     /**
@@ -143,12 +206,12 @@ class Request implements RequestInterface
     /**
      * @inheritDoc
      */
-    public static function file($name): bool|FileInterface
+    public static function file($name, $fileData = null): bool|FileInterface
     {
         if (self::hasFile($name)) {
             $fileInstance = new File();
 
-            return $fileInstance->setFile($_FILES[$name]);
+            return $fileInstance->setFile($fileData ?? $_FILES[$name]);
         }
 
         return false;

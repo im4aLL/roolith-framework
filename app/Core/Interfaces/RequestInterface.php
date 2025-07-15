@@ -65,9 +65,10 @@ interface RequestInterface
      * Get file in request
      *
      * @param $name
+     * @param $fileData
      * @return false|FileInterface
      */
-    public static function file($name);
+    public static function file($name, $fileData);
 
     /**
      * If request has file by name

@@ -72,7 +72,7 @@
                     <?php elseif ($fieldType == 'image-multiple') : ?>
                         <div class="form__field">
                             <label for="<?= $fieldKey ?>" class="form__label"><?= $fieldLabel ?></label>
-                            <input type="file" name="<?= $name ?>" id="<?= $fieldKey ?>" class="form__input" accept=".jpg,.jpeg,.png" multiple>
+                            <input type="file" name="<?= $name ?>[]" id="<?= $fieldKey ?>" class="form__input" accept=".jpg,.jpeg,.png" multiple>
                         </div>
                     <?php elseif ($fieldType == 'file') : ?>
                         <div class="form__field">
@@ -82,7 +82,7 @@
                     <?php elseif ($fieldType == 'file-multiple') : ?>
                         <div class="form__field">
                             <label for="<?= $fieldKey ?>" class="form__label"><?= $fieldLabel ?></label>
-                            <input type="file" name="<?= $name ?>" id="<?= $fieldKey ?>" class="form__input" accept=".pdf,.doc,.docx,.zip,.xls,.xlsx,.csv,.ppt,.pptx" multiple>
+                            <input type="file" name="<?= $name ?>[]" id="<?= $fieldKey ?>" class="form__input" accept=".pdf,.doc,.docx,.zip,.xls,.xlsx,.csv,.ppt,.pptx" multiple>
                         </div>
                     <?php endif; ?>
 

@@ -1,27 +1,27 @@
 <?php
 namespace App\Core;
 
-
 use App\Core\Interfaces\FileInterface;
 use App\Utils\FS;
+use Random\RandomException;
 
 class File implements FileInterface
 {
     protected $file;
-    protected $allowedFileTypes;
-    protected $uploadSize;
+    protected array $allowedFileTypes;
+    protected int|float $uploadSize;
 
     public function __construct()
     {
         $this->file = null;
-        $this->allowedFileTypes = ['jpg', 'jpeg', 'png'];
-        $this->uploadSize = 2097152; // 2 * 1024 * 1024 = 2 MB
+        $this->allowedFileTypes = ['jpg', 'jpeg', 'png', 'pdf', 'doc', 'docx', 'zip', 'xls', 'xlsx', 'csv', 'ppt', 'pptx'];
+        $this->uploadSize = 5 * 1024 * 1024; // 5mb
     }
 
     /**
      * @inheritDoc
      */
-    public function setFile($name): File|FileInterface|static
+    public function setFile($name): static
     {
         $this->file = $name;
 
@@ -79,19 +79,21 @@ class File implements FileInterface
      */
     public function upload($destinationPath, $name = null)
     {
-        if (FS::makeDirectory($destinationPath)) {
-            if ($this->isValid()) {
-                $filename = $name ? $name : $this->generateFileName();
-                $destination = $destinationPath . '/' . $filename;
+        if (!FS::makeDirectory($destinationPath)) {
+            return false;
+        }
 
-                $isUploaded = FS::upload($this->file['tmp_name'], $destination);
+        if (!$this->isValid()) {
+            return false;
+        }
 
-                if ($isUploaded) {
-                    return $filename;
-                } else {
-                    return false;
-                }
-            }
+        $filename = $name ?: $this->generateFileName();
+        $destination = $destinationPath . '/' . $filename;
+
+        $isUploaded = FS::upload($this->file['tmp_name'], $destination);
+
+        if ($isUploaded) {
+            return $filename;
         }
 
         return false;
@@ -101,10 +103,11 @@ class File implements FileInterface
      * Generate file name
      *
      * @return string
+     * @throws RandomException
      */
     protected function generateFileName(): string
     {
-        return time().'_'.preg_replace("/[^a-zA-Z0-9-_.]+/", "", $this->file['name']);
+        return time().'_'.random_int(100000, 999999).'_'.preg_replace("/[^a-zA-Z0-9-_.]+/", "", $this->file['name']);
     }
 
     /**
