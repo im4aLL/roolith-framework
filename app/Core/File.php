@@ -3,7 +3,6 @@ namespace App\Core;
 
 use App\Core\Interfaces\FileInterface;
 use App\Utils\FS;
-use Random\RandomException;
 
 class File implements FileInterface
 {
@@ -103,7 +102,6 @@ class File implements FileInterface
      * Generate file name
      *
      * @return string
-     * @throws RandomException
      */
     protected function generateFileName(): string
     {
