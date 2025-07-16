@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controllers\Admin;
 
 use App\Controllers\Controller;
@@ -12,6 +13,7 @@ use App\Models\Admin\AdminModule;
 class AdminModuleController extends Controller
 {
     private string $formErrorKey = 'module_error';
+    private string $uploadDir = APP_ADMIN_FILE_MANAGER_DIR . 'uploads/';
 
     /**
      * Show a list of modules with pagination
@@ -68,7 +70,7 @@ class AdminModuleController extends Controller
         if ($moduleSettingId) {
             $moduleSetting = AdminModuleSetting::orm()->find($moduleSettingId);
 
-            if  (!$moduleSetting) {
+            if (!$moduleSetting) {
                 $data['setting_load_error_message'] = "Unable to load module setting";
             } else {
                 $moduleSetting->settings = json_decode($moduleSetting->settings);
@@ -82,38 +84,53 @@ class AdminModuleController extends Controller
     public function store()
     {
         $formData = Request::all();
+        $uploadedFiles = $this->uploadFormDataFiles($formData);
 
-        $uploaded = [];
-        if (isset($formData['_files'])) {
-            foreach ($formData['_files'] as $key => $file) {
-                if (is_array($file)) {
-                    foreach ($file as $fileData) {
-                        $uploaded[$key][] = $fileData->upload(APP_ADMIN_FILE_MANAGER_DIR . 'uploads/');
-                    }
-                } else {
-                    $uploaded[$key] = $file->upload(APP_ADMIN_FILE_MANAGER_DIR. 'uploads/');
-                }
+        if (count($uploadedFiles) > 0) {
+            foreach ($uploadedFiles as $key => $file) {
+                $formData[$key] = is_array($file) ? json_encode($file) : $file;
             }
         }
 
-        p($uploaded);
+        if (isset($formData['_files'])) {
+            unset($formData['_files']);
+        }
 
         return $formData;
     }
 
-    public function show($id)
+    /**
+     * Upload files from form data
+     *
+     * @param array $formData
+     * @return array
+     */
+    private function uploadFormDataFiles(array $formData): array
     {
+        $uploaded = [];
+
+        if (!isset($formData['_files'])) {
+            return $uploaded;
+        }
+
+        foreach ($formData['_files'] as $key => $file) {
+            if (is_array($file)) {
+                foreach ($file as $fileData) {
+                    $uploaded[$key][] = $fileData->upload($this->uploadDir);
+                }
+            } else {
+                $uploaded[$key] = $file->upload($this->uploadDir);
+            }
+        }
+
+        return $uploaded;
     }
 
-    public function edit($id)
-    {
-    }
+    public function show($id) {}
 
-    public function update($id)
-    {
-    }
+    public function edit($id) {}
 
-    public function destroy($id)
-    {
-    }
+    public function update($id) {}
+
+    public function destroy($id) {}
 }

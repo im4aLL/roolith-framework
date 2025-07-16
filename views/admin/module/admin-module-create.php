@@ -41,11 +41,34 @@
 
         <?php if (isset($moduleSettingData)) : ?>
             <form action="<?= route('admin.modules.store') ?>" method="post" class="form" enctype="multipart/form-data" data-ajax="true">
+                <!-- base -->
+                <div class="form__col">
+                    <div class="form__field">
+                        <label for="title" class="form__label">Title</label>
+                        <input type="text" name="title" id="title" class="form__input">
+                    </div>
+
+                    <div class="form__field">
+                        <label for="hook" class="form__label">Hook</label>
+                        <input type="text" name="hook" id="hook" class="form__input" value="<?= uniqid('mod-') ?>">
+                    </div>
+                </div>
+
+                <div class="form__field">
+                    <label for="status" class="form__label">Status</label>
+                    <select name="status" id="status" class="form__input form--select">
+                        <option value="draft" selected>Draft</option>
+                        <option value="published">Published</option>
+                    </select>
+                </div>
+                <!-- base -->
+
+                <!-- generated fields -->
                 <?php foreach ($moduleSettingData->settings->name as $index => $name) : ?>
                     <?php
-                        $fieldKey = \App\Utils\_::toCamelCase($name);
-                        $fieldType = $moduleSettingData->settings->type[$index];
-                        $fieldLabel = \App\Utils\_::toTitleCase($name);
+                    $fieldKey = \App\Utils\_::toCamelCase($name);
+                    $fieldType = $moduleSettingData->settings->type[$index];
+                    $fieldLabel = \App\Utils\_::toTitleCase($name);
                     ?>
 
                     <?php if ($fieldType == 'text') : ?>
@@ -87,6 +110,7 @@
                     <?php endif; ?>
 
                 <?php endforeach; ?>
+                <!-- generated fields -->
 
                 <div class="form__button">
                     <button class="button" type="submit">Save</button>
