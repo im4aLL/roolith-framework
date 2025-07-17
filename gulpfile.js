@@ -3,7 +3,7 @@ import browserSyncPkg from "browser-sync";
 const browserSync = browserSyncPkg.create();
 
 import gulpSass from "gulp-sass";
-import * as sassCompiler from "sass";
+import sassCompiler from "sass";
 const sass = gulpSass(sassCompiler);
 
 import autoprefixer from "gulp-autoprefixer";

@@ -19,8 +19,6 @@
             <div>
                 <h3>Add new module</h3>
             </div>
-
-            <button data-url="<?= route('admin.modules.destroy', ['param' => 1]) ?>" class="button button--danger button--text" id="delete-button">Delete permanently</button>
         </div>
 
         <?php if (isset($setting_load_error_message)) : ?>

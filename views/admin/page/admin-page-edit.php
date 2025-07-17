@@ -11,7 +11,7 @@
                 <a href="<?= route('admin.pages.index') ?>" class="breadcrumb__link">Pages</a>
             </li>
             <li class="breadcrumb__item">
-                <a href="<?= route('admin.pages.show', ['param' => $page->id]) ?>" class="breadcrumb__link"><?= $page->title ?></a>
+                <a href="<?= route('admin.pages.edit', ['param' => $page->id]) ?>" class="breadcrumb__link"><?= $page->title ?></a>
             </li>
         </ul>
 

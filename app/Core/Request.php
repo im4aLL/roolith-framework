@@ -88,10 +88,12 @@ class Request implements RequestInterface
     /**
      * @inheritDoc
      */
-    public static function all(): iterable
+    public static function all($settings = []): iterable
     {
+        $isSkipSanitization = isset($settings['skipSanitization']) && $settings['skipSanitization'];
+
         if (self::isMethod('POST')) {
-            $items = Sanitize::items($_POST);
+            $items = $isSkipSanitization ? $_POST : Sanitize::items($_POST);
             $files = self::allFiles();
 
             if (count($files) > 0) {
@@ -102,12 +104,12 @@ class Request implements RequestInterface
         }
 
         if (self::isMethod('GET')) {
-            return Sanitize::items($_GET);
+            return $isSkipSanitization ? $_GET : Sanitize::items($_GET);
         }
 
         $inputs = self::streamInputs();
 
-        return Sanitize::items($inputs);
+        return $isSkipSanitization ? $inputs : Sanitize::items($inputs);
     }
 
     /**

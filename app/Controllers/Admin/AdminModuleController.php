@@ -50,7 +50,7 @@ class AdminModuleController extends Controller
 
             if (_::isJson($jsonString)) {
                 $row->module_setting_id_data->settings = json_decode($jsonString);
-                $row->module_setting_id_data->settings_count = _::countObject($row->module_setting_id_data->settings);
+                $row->module_setting_id_data->settings_count = count($row->module_setting_id_data->settings->name);
             }
         }
 
@@ -102,7 +102,7 @@ class AdminModuleController extends Controller
 
     public function store(): array
     {
-        $formData = Request::all();
+        $formData = Request::all(['skipSanitization' => true]);
 
         // Validation
         $validator = $this->_validateStore($formData);
@@ -206,7 +206,24 @@ class AdminModuleController extends Controller
 
     public function show($id) {}
 
-    public function edit($id) {}
+    public function edit($id)
+    {
+        $module = AdminModule::orm()->find($id);
+        $moduleSetting = AdminModuleSetting::getById($module->module_setting_id);
+        $moduleData = AdminModuleData::getAllByModuleId($module->id);
+
+        $data = [
+            'module' => $module,
+            'moduleSettingData' => $moduleSetting,
+            'moduleData' => $moduleData,
+            'title' => 'Edit module - '. $module->title,
+            'loadEditor' => true,
+        ];
+
+//        p($moduleData);
+
+        return $this->view('admin/module/admin-module-edit', $data);
+    }
 
     public function update($id) {}
 
