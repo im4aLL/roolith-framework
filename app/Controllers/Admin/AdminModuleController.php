@@ -3,12 +3,17 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\Controller;
+use App\Core\ApiResponseTransformer;
 use App\Core\Interfaces\FileInterface;
 use App\Core\Request;
+use App\Core\Rules;
 use App\Core\Storage;
+use App\Core\Validator;
 use App\Models\Admin\AdminModuleSetting;
 use App\Models\Admin\AdminPage;
 use App\Models\Admin\AdminModule;
+use App\Models\Admin\AdminModuleData;
+use App\Utils\_;
 
 class AdminModuleController extends Controller
 {
@@ -84,6 +89,19 @@ class AdminModuleController extends Controller
     public function store()
     {
         $formData = Request::all();
+
+        $validator = new Validator();
+        $validator->check($formData, [
+            'title' => Rules::set()->isRequired(),
+            'hook' => Rules::set()->isRequired()->notExists(AdminModule::class),
+            'status' => Rules::set()->isRequired(),
+            'module_setting_id' => Rules::set()->isRequired(),
+        ]);
+
+        if ($validator->fails()) {
+            return ApiResponseTransformer::error($validator->errors(), 'Some fields are invalid');
+        }
+
         $uploadedFiles = $this->uploadFormDataFiles($formData);
 
         if (count($uploadedFiles) > 0) {
@@ -96,7 +114,40 @@ class AdminModuleController extends Controller
             unset($formData['_files']);
         }
 
-        return $formData;
+        $moduleDataFields = ['title', 'hook', 'status', 'module_setting_id'];
+
+        $moduleData = _::only($formData, $moduleDataFields);
+        $otherFields = _::except($formData, $moduleDataFields);
+
+        return [
+            'moduleData' => $moduleData,
+            'otherFields' => $otherFields,
+            'uploadedFiles' => $uploadedFiles,
+        ];
+
+        // insert module data
+        $module = AdminModule::orm()->insert($moduleData, ['hook']);
+
+        if (!$module->success()) {
+            return ApiResponseTransformer::error(null, 'Error while creating module');
+        }
+
+        // insert other fields data
+        foreach ($otherFields as $key => $value) {
+            $moduleData = AdminModuleData::orm()->insert([
+                'module_id' => $module->id,
+                'field_name' => $key,
+                'field_data' => is_array($value) ? json_encode($value) : $value,
+            ]);
+
+            if (!$moduleData->success()) {
+                AdminModuleData::orm()->delete(['module_id' => $module->id]);
+
+                return ApiResponseTransformer::error(null, 'Error while saving module data');
+            }
+        }
+
+        return ApiResponseTransformer::success(['redirect' => route('admin.modules.index')]);
     }
 
     /**

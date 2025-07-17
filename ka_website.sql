@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.1
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 12, 2025 at 10:28 AM
--- Server version: 10.4.22-MariaDB
--- PHP Version: 8.1.2
+-- Generation Time: Jul 17, 2025 at 04:04 AM
+-- Server version: 10.4.32-MariaDB
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -34,7 +34,7 @@ CREATE TABLE `categories` (
   `body` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `categories`
@@ -54,12 +54,13 @@ INSERT INTO `categories` (`id`, `name`, `slug`, `body`, `created_at`, `updated_a
 
 CREATE TABLE `modules` (
   `id` int(11) NOT NULL,
+  `module_setting_id` int(11) NOT NULL,
   `title` varchar(255) DEFAULT NULL,
   `hook` varchar(255) NOT NULL,
   `status` enum('published','draft') DEFAULT 'draft',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -72,7 +73,7 @@ CREATE TABLE `module_data` (
   `module_id` int(11) NOT NULL,
   `field_name` varchar(255) NOT NULL,
   `field_data` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -84,7 +85,7 @@ CREATE TABLE `module_page` (
   `id` int(11) NOT NULL,
   `page_id` int(11) NOT NULL,
   `module_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -98,14 +99,14 @@ CREATE TABLE `module_settings` (
   `settings` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`settings`)),
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `module_settings`
 --
 
 INSERT INTO `module_settings` (`id`, `name`, `settings`, `created_at`, `updated_at`) VALUES
-(1, 'Hero', '{\"name\":[\"title\",\"body\",\"image\",\"another\"],\"type\":[\"text\",\"textarea\",\"image\",\"text\"]}', '2025-07-09 06:34:13', '2025-07-12 08:09:49');
+(1, 'Hero', '{\"name\":[\"headline\",\"body\",\"image\",\"another\",\"rich-text\",\"image-multiple\"],\"type\":[\"text\",\"textarea\",\"image\",\"text\",\"rich-text\",\"image-multiple\"]}', '2025-07-09 06:34:13', '2025-07-16 07:24:24');
 
 -- --------------------------------------------------------
 
@@ -123,7 +124,7 @@ CREATE TABLE `pages` (
   `status` enum('published','draft') DEFAULT 'draft',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `pages`
@@ -154,7 +155,7 @@ CREATE TABLE `page_category` (
   `category_id` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `page_category`
@@ -180,7 +181,7 @@ CREATE TABLE `settings` (
   `type` enum('string','int','bool','json','float') NOT NULL DEFAULT 'string',
   `group` varchar(50) DEFAULT NULL,
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -197,14 +198,14 @@ CREATE TABLE `users` (
   `last_logged_in` datetime DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `users`
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `last_logged_in`, `created_at`, `updated_at`) VALUES
-(1, 'Admin', 'admin@website.com', '$2y$10$4KVrVzLxkpTsSCP2O3EZPeBwKUV0dn93ZJvk0tx4oHXaenz2sX1ry', 'admin', '2025-07-07 03:34:51', '2025-06-26 05:01:42', '2025-07-07 01:34:51');
+(1, 'Admin', 'admin@website.com', '$2y$10$4KVrVzLxkpTsSCP2O3EZPeBwKUV0dn93ZJvk0tx4oHXaenz2sX1ry', 'admin', '2025-07-16 06:22:55', '2025-06-26 05:01:42', '2025-07-16 04:22:55');
 
 --
 -- Indexes for dumped tables
@@ -222,7 +223,8 @@ ALTER TABLE `categories`
 --
 ALTER TABLE `modules`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `hook` (`hook`);
+  ADD UNIQUE KEY `hook` (`hook`),
+  ADD KEY `module_setting_id` (`module_setting_id`);
 
 --
 -- Indexes for table `module_data`
@@ -330,6 +332,12 @@ ALTER TABLE `users`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `modules`
+--
+ALTER TABLE `modules`
+  ADD CONSTRAINT `modules_ibfk_1` FOREIGN KEY (`module_setting_id`) REFERENCES `module_settings` (`id`);
 
 --
 -- Constraints for table `module_data`

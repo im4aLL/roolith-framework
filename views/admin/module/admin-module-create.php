@@ -41,6 +41,7 @@
 
         <?php if (isset($moduleSettingData)) : ?>
             <form action="<?= route('admin.modules.store') ?>" method="post" class="form" enctype="multipart/form-data" data-ajax="true">
+                <input type="hidden" name="module_setting_id" value="<?= $moduleSettingData->id ?>">
                 <!-- base -->
                 <div class="form__col">
                     <div class="form__field">

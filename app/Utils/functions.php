@@ -1,6 +1,10 @@
 <?php
+
+use App\Utils\Str;
 use Carbon\Carbon;
+use App\Core\RouterFactory;
 use Roolith\Configuration\Config;
+use Roolith\Configuration\Exception\InvalidArgumentException;
 
 /**
  * Print anything
@@ -29,7 +33,7 @@ function url($path): string
 {
     try {
         return Config::get('baseUrl') . $path;
-    } catch (\Roolith\Configuration\Exception\InvalidArgumentException $e) {
+    } catch (InvalidArgumentException $e) {
         return $path;
     }
 }
@@ -43,7 +47,7 @@ function url($path): string
  */
 function route($name, array $settings = []): string
 {
-    $routerInstance = \App\Core\RouterFactory::getInstance();
+    $routerInstance = RouterFactory::getInstance();
 
     return $routerInstance->getUrlByName($name, $settings);
 }
@@ -55,7 +59,7 @@ function route($name, array $settings = []): string
  */
 function getActiveRoute(): array
 {
-    $routerInstance = \App\Core\RouterFactory::getInstance();
+    $routerInstance = RouterFactory::getInstance();
 
     return $routerInstance->activeRoute();
 }
@@ -68,7 +72,7 @@ function getActiveRoute(): array
  */
 function __($name): mixed
 {
-    return \App\Utils\Str::getMessage($name);
+    return Str::getMessage($name);
 }
 
 /**
@@ -78,7 +82,8 @@ function __($name): mixed
  * @param integer $statusCode
  * @return void
  */
-function redirect(string $url, int $statusCode = 303): void {
+function redirect(string $url, int $statusCode = 303): void
+{
     header('Location: ' . $url, true, $statusCode);
 
     die();
@@ -106,10 +111,10 @@ function redirectToRoute(string $routeName, array $settings = [], int $statusCod
  */
 function generateUniqueAlphaNumericNumber(): string
 {
-    $prefix  = substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZ',4)),0,4);
+    $prefix  = substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 4)), 0, 4);
     $postfix = time();
 
-    return $prefix.'-'.$postfix;
+    return $prefix . '-' . $postfix;
 }
 
 /**
@@ -119,7 +124,7 @@ function generateUniqueAlphaNumericNumber(): string
  */
 function generateUniqueNumber(): string
 {
-    return substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZ',4)),0,2).'-'.mt_rand(100000,999999).time();
+    return substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 4)), 0, 2) . '-' . mt_rand(100000, 999999) . time();
 }
 
 /**
@@ -181,15 +186,15 @@ function getIpAddress(): mixed
 
     if (isset($_SERVER['HTTP_CLIENT_IP'])) {
         $ipAddress = $_SERVER['HTTP_CLIENT_IP'];
-    } else if(isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+    } else if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
         $ipAddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
-    } else if(isset($_SERVER['HTTP_X_FORWARDED'])) {
+    } else if (isset($_SERVER['HTTP_X_FORWARDED'])) {
         $ipAddress = $_SERVER['HTTP_X_FORWARDED'];
-    } else if(isset($_SERVER['HTTP_FORWARDED_FOR'])) {
+    } else if (isset($_SERVER['HTTP_FORWARDED_FOR'])) {
         $ipAddress = $_SERVER['HTTP_FORWARDED_FOR'];
-    } else if(isset($_SERVER['HTTP_FORWARDED'])) {
+    } else if (isset($_SERVER['HTTP_FORWARDED'])) {
         $ipAddress = $_SERVER['HTTP_FORWARDED'];
-    } else if(isset($_SERVER['REMOTE_ADDR'])) {
+    } else if (isset($_SERVER['REMOTE_ADDR'])) {
         $ipAddress = $_SERVER['REMOTE_ADDR'];
     }
 
@@ -209,7 +214,7 @@ function parseBasicTemplate($string, array $data = []): array|string|null
     $replaceArray = [];
 
     foreach ($data as $key => $value) {
-        $findArray[] = '/{'.$key.'}/';
+        $findArray[] = '/{' . $key . '}/';
         $replaceArray[] = $value;
     }
 
@@ -220,7 +225,7 @@ function parseBasicTemplate($string, array $data = []): array|string|null
  * Get a version
  *
  * @return string
- * @throws \Roolith\Configuration\Exception\InvalidArgumentException
+ * @throws InvalidArgumentException
  */
 function getVersion(): string
 {
@@ -235,5 +240,5 @@ function getVersion(): string
  */
 function diffForHumans(string $dateString): string
 {
-    return \Carbon\Carbon::parse($dateString)->diffForHumans();
+    return Carbon::parse($dateString)->diffForHumans();
 }
