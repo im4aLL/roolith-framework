@@ -6,6 +6,7 @@ export class Repeater {
     init() {
         this.addNewFieldButtonClickHandler();
         this.removeFieldButtonClickHandler();
+        this.watchNoSpaceInput();
     }
 
     addNewFieldButtonClickHandler() {
@@ -35,5 +36,25 @@ export class Repeater {
                 }
             }
         );
+    }
+
+    toSnakeCase(str) {
+        return str
+            .replace(/\s+/g, "_") // Replace spaces with underscores
+            .replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`) // Handle camelCase
+            .replace(/-+/g, "_") // Convert hyphens to underscores
+            .replace(/__+/g, "_") // Remove double underscores
+            .replace(/^_+|_+$/g, "") // Trim underscores at start/end
+            .toLowerCase();
+    }
+
+    watchNoSpaceInput() {
+        const _this = this;
+
+        $(".form__list").on("blur", ".form__input--no-space", function () {
+            const snakeCase = _this.toSnakeCase($(this).val());
+
+            $(this).val(snakeCase);
+        });
     }
 }

@@ -19,13 +19,13 @@
     </div>
 
     <div class="form__field">
-        <label for="first-field">Custom Fields</label>
+        <label>Custom Fields</label>
 
         <ul class="form__list">
             <?php if ($form_data) : ?>
                 <?php foreach ($form_data->settings->name as $index => $name) : ?>
                     <li class="form__list-item">
-                        <input type="text" name="settings[name][]" id="first-field" class="form__input" placeholder="Field name" value="<?= $name ?>">
+                        <input type="text" name="settings[name][]" class="form__input form__input--no-space" placeholder="Field name" value="<?= $name ?>">
                         <select name="settings[type][]" class="form__input form--select">
                             <option value="text" <?= $form_data->settings->type[$index] == 'text' ? 'selected' : '' ?>>Text</option>
                             <option value="textarea" <?= $form_data->settings->type[$index] == 'textarea' ? 'selected' : '' ?>>Textarea</option>
@@ -42,7 +42,7 @@
                 <?php endforeach; ?>
             <?php else : ?>
                 <li class="form__list-item">
-                    <input type="text" name="settings[name][]" id="first-field" class="form__input" placeholder="Field name">
+                    <input type="text" name="settings[name][]" class="form__input form__input--no-space" placeholder="Field name">
                     <select name="settings[type][]" class="form__input form--select">
                         <option value="">Select field type</option>
                         <option value="text">Text</option>
