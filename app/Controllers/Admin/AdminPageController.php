@@ -46,8 +46,6 @@ class AdminPageController extends Controller
             'total' => $total
         ];
 
-        $data['isShowPagination'] = $paginationData->total > $paginationData->perPage;
-
         return $this->view('admin/page/admin-page', $data);
     }
 

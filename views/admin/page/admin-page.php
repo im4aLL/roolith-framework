@@ -51,23 +51,7 @@
             </tbody>
         </table>
 
-        <?php if ($isShowPagination) : ?>
-            <ul class="pagination">
-                <li class="pagination__item"><a href="<?= $pages->prevPageUrl ?>">Previous</a></li>
-                <li class="pagination__item"><a href="<?= $pages->firstPageUrl ?>">First</a></li>
-                <?php foreach ($pageNumbers as $pageNumber) : ?>
-                    <li class="pagination__item <?= $pageNumber == $pages->currentPage ? 'pagination__item--active' : '' ?>">
-                        <a href="<?= $pages->path ?>?page=<?= $pageNumber ?>">
-                            <?= $pageNumber ?>
-                        </a>
-                    </li>
-                <?php endforeach; ?>
-                <li class="pagination__item"><a href="<?= $pages->lastPageUrl ?>">Last</a></li>
-                <li class="pagination__item"><a href="<?= $pages->nextPageUrl ?>">Next</a></li>
-            </ul>
-
-            <small class="is--dimmed">Total row(s) <?= $pages->total ?>. Showing page <?= $pages->currentPage ?> out of <?= $pages->lastPage ?></small>
-        <?php endif; ?>
+        <?php $this->inject('admin/partials/admin-pagination', ['p_data' => $pages, 'p_page_numbers' => $pageNumbers ]) ?>
 
     </section>
 </main>

@@ -211,6 +211,39 @@ class Rules
     }
 
     /**
+     * Check if the value exists in the supplied model class and local key field
+     *
+     * @param array $inputs
+     * @param string $name
+     * @param array $ruleValue
+     * @return bool
+     * @throws ReflectionException
+     */
+    public static function existsInTable(array $inputs, string $name, array $ruleValue): bool
+    {
+        $value = self::getValue($inputs, $name);
+
+        try {
+            $reflectionClass = new ReflectionClass($ruleValue['condition']);
+        } catch (ReflectionException $e) {
+            $reflectionClass = null;
+        }
+
+        if (!$reflectionClass) {
+            return false;
+        }
+
+        /* @var $instance Model */
+        $instance = $reflectionClass->newInstance();
+
+        $count = $instance::orm()->select([
+            'field' => [$ruleValue['localKey']]
+        ])->where($ruleValue['localKey'], $value, '=')->count();
+
+        return $count > 0;
+    }
+
+    /**
      * If valid url
      *
      * @param $inputs

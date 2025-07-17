@@ -5,6 +5,8 @@ namespace App\Controllers\Admin;
 use App\Controllers\Controller;
 use App\Core\ApiResponseTransformer;
 use App\Core\Interfaces\FileInterface;
+use App\Core\Interfaces\ValidatorInterface;
+use App\Core\LazyLoad;
 use App\Core\Request;
 use App\Core\Rules;
 use App\Core\Storage;
@@ -13,6 +15,8 @@ use App\Models\Admin\AdminModuleSetting;
 use App\Models\Admin\AdminPage;
 use App\Models\Admin\AdminModule;
 use App\Models\Admin\AdminModuleData;
+use App\Models\Admin\AdminPageCategory;
+use App\Models\Admin\AdminUser;
 use App\Utils\_;
 
 class AdminModuleController extends Controller
@@ -38,6 +42,9 @@ class AdminModuleController extends Controller
         ]);
         $paginationData = $pagination->getDetails();
 
+        $lazyLoad = new LazyLoad($paginationData->data);
+        $lazyLoad->with(AdminModuleSetting::class, 'module_setting_id')->get();
+
         $data = [
             'title' => 'Modules',
             'modules' => $paginationData,
@@ -45,7 +52,7 @@ class AdminModuleController extends Controller
             'total' => $total
         ];
 
-        $data['isShowPagination'] = $paginationData->total > $paginationData->perPage;
+//        p($data, true);
 
         return $this->view('admin/module/admin-module', $data);
     }
@@ -86,23 +93,19 @@ class AdminModuleController extends Controller
         return $this->view('admin/module/admin-module-create', $data);
     }
 
-    public function store()
+    public function store(): array
     {
         $formData = Request::all();
 
-        $validator = new Validator();
-        $validator->check($formData, [
-            'title' => Rules::set()->isRequired(),
-            'hook' => Rules::set()->isRequired()->notExists(AdminModule::class),
-            'status' => Rules::set()->isRequired(),
-            'module_setting_id' => Rules::set()->isRequired(),
-        ]);
+        // Validation
+        $validator = $this->_validateStore($formData);
 
         if ($validator->fails()) {
             return ApiResponseTransformer::error($validator->errors(), 'Some fields are invalid');
         }
 
-        $uploadedFiles = $this->uploadFormDataFiles($formData);
+        // Upload files if there is any
+        $uploadedFiles = $this->_uploadFormDataFiles($formData);
 
         if (count($uploadedFiles) > 0) {
             foreach ($uploadedFiles as $key => $file) {
@@ -115,15 +118,8 @@ class AdminModuleController extends Controller
         }
 
         $moduleDataFields = ['title', 'hook', 'status', 'module_setting_id'];
-
         $moduleData = _::only($formData, $moduleDataFields);
         $otherFields = _::except($formData, $moduleDataFields);
-
-        return [
-            'moduleData' => $moduleData,
-            'otherFields' => $otherFields,
-            'uploadedFiles' => $uploadedFiles,
-        ];
 
         // insert module data
         $module = AdminModule::orm()->insert($moduleData, ['hook']);
@@ -132,16 +128,21 @@ class AdminModuleController extends Controller
             return ApiResponseTransformer::error(null, 'Error while creating module');
         }
 
+        if ($module->isDuplicate()) {
+            return ApiResponseTransformer::error(null, 'Please use different hook name');
+        }
+
         // insert other fields data
         foreach ($otherFields as $key => $value) {
             $moduleData = AdminModuleData::orm()->insert([
-                'module_id' => $module->id,
+                'module_id' => $module->insertedId(),
                 'field_name' => $key,
                 'field_data' => is_array($value) ? json_encode($value) : $value,
             ]);
 
             if (!$moduleData->success()) {
-                AdminModuleData::orm()->delete(['module_id' => $module->id]);
+                // module data will get deleted automatically because of cascade
+                AdminModule::orm()->delete(['id' => $module->insertedId()]);
 
                 return ApiResponseTransformer::error(null, 'Error while saving module data');
             }
@@ -151,12 +152,31 @@ class AdminModuleController extends Controller
     }
 
     /**
+     * Validate storing form data
+     *
+     * @param array $formData
+     * @return ValidatorInterface
+     */
+    private function _validateStore(array $formData): ValidatorInterface
+    {
+        $validator = new Validator();
+        $validator->check($formData, [
+            'title' => Rules::set()->isRequired(),
+            'hook' => Rules::set()->isRequired()->notExists(AdminModule::class),
+            'status' => Rules::set()->isRequired(),
+            'module_setting_id' => Rules::set()->isRequired()->exists(AdminModuleSetting::class),
+        ]);
+
+        return $validator;
+    }
+
+    /**
      * Upload files from form data
      *
      * @param array $formData
      * @return array
      */
-    private function uploadFormDataFiles(array $formData): array
+    private function _uploadFormDataFiles(array $formData): array
     {
         $uploaded = [];
 

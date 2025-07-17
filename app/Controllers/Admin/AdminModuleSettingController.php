@@ -28,7 +28,7 @@ class AdminModuleSettingController extends Controller
         $pagination = AdminModuleSetting::orm()->query('SELECT * FROM ' . AdminModuleSetting::tableName() . ' ORDER by id DESC')->paginate([
             'perPage' => APP_ADMIN_PAGINATION_PER_PAGE,
             'total' => $total,
-            'pageUrl' => route('admin.pages.index')
+            'pageUrl' => route('admin.module-settings.index')
         ]);
         $paginationData = $pagination->getDetails();
 
@@ -38,8 +38,6 @@ class AdminModuleSettingController extends Controller
             'pageNumbers' => $pagination->pageNumbers(),
             'total' => $total
         ];
-
-        $data['isShowPagination'] = $paginationData->total > $paginationData->perPage;
 
         return $this->view('admin/module-setting/admin-module-setting', $data);
     }

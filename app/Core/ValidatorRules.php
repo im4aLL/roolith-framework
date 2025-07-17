@@ -105,6 +105,23 @@ class ValidatorRules implements ValidatorRulesInterface
     }
 
     /**
+     * If value exists in a table
+     *
+     * @param $condition
+     * @param string $localKey
+     * @return $this
+     */
+    public function exists($condition, string $localKey = 'id'): static
+    {
+        $this->rules['existsInTable'] = [
+            'condition' => $condition,
+            'localKey' => $localKey,
+        ];
+
+        return $this;
+    }
+
+    /**
      * @inheritDoc
      */
     public function isUrl(): static

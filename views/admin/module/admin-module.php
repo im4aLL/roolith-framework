@@ -20,7 +20,7 @@
             <thead>
                 <tr>
                     <th>Title</th>
-                    <th>Page</th>
+                    <th>Module settings</th>
                     <th>Status</th>
                     <th>Created</th>
                     <th>Last updated</th>
@@ -30,7 +30,7 @@
                 <?php foreach ($modules->data as $module): ?>
                 <tr>
                     <td><a href="<?= route('admin.modules.edit', ['param' => $module->id]) ?>"><?= $module->title ?></a></td>
-                    <td>page</td>
+                    <td><?= $module->module_setting_id_data->name ?></td>
                     <td><?= $module->status ?></td>
                     <td><?= diffForHumans($module->created_at) ?></td>
                     <td><?= diffForHumans($module->updated_at) ?></td>
@@ -45,23 +45,7 @@
             </tbody>
         </table>
 
-        <?php if ($isShowPagination) : ?>
-            <ul class="pagination">
-                <li class="pagination__item"><a href="<?= $modules->prevPageUrl ?>">Previous</a></li>
-                <li class="pagination__item"><a href="<?= $modules->firstPageUrl ?>">First</a></li>
-                <?php foreach ($moduleNumbers as $moduleNumber) : ?>
-                    <li class="pagination__item <?= $moduleNumber == $modules->currentPage ? 'pagination__item--active' : '' ?>">
-                        <a href="<?= $modules->path ?>?page=<?= $moduleNumber ?>">
-                            <?= $moduleNumber ?>
-                        </a>
-                    </li>
-                <?php endforeach; ?>
-                <li class="pagination__item"><a href="<?= $modules->lastPageUrl ?>">Last</a></li>
-                <li class="pagination__item"><a href="<?= $modules->nextPageUrl ?>">Next</a></li>
-            </ul>
-
-            <small class="is--dimmed">Total row(s) <?= $modules->total ?>. Showing page <?= $modules->currentPage ?> out of <?= $modules->lastPage ?></small>
-        <?php endif; ?>
+        <?php $this->inject('admin/partials/admin-pagination', ['p_data' => $modules, 'p_page_numbers' => $pageNumbers ]) ?>
 
     </section>
 </main>
