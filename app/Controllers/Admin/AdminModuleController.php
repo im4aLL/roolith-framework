@@ -45,14 +45,21 @@ class AdminModuleController extends Controller
         $lazyLoad = new LazyLoad($paginationData->data);
         $lazyLoad->with(AdminModuleSetting::class, 'module_setting_id')->get();
 
+        foreach ($paginationData->data as $row) {
+            $jsonString = $row->module_setting_id_data->settings;
+
+            if (_::isJson($jsonString)) {
+                $row->module_setting_id_data->settings = json_decode($jsonString);
+                $row->module_setting_id_data->settings_count = _::countObject($row->module_setting_id_data->settings);
+            }
+        }
+
         $data = [
             'title' => 'Modules',
             'modules' => $paginationData,
             'pageNumbers' => $pagination->pageNumbers(),
             'total' => $total
         ];
-
-//        p($data, true);
 
         return $this->view('admin/module/admin-module', $data);
     }

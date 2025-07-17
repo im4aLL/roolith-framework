@@ -816,4 +816,36 @@ class _
         return ucfirst($text);
     }
 
+    /**
+     * Check if it's a JSON string
+     *
+     * @param mixed $string
+     * @return bool
+     */
+    public static function isJson(mixed $string): bool
+    {
+        if (!is_string($string)) {
+            return false;
+        }
+
+        // Available from php 8.3
+        if (function_exists('json_validate')) {
+            return json_validate($string);
+        }
+
+        json_decode($string);
+
+        return json_last_error() === JSON_ERROR_NONE;
+    }
+
+    /**
+     * Size of an object
+     *
+     * @param object $object
+     * @return int
+     */
+    public static function countObject(object $object): int
+    {
+        return count(get_object_vars($object));
+    }
 }

@@ -30,7 +30,7 @@
                 <?php foreach ($modules->data as $module): ?>
                 <tr>
                     <td><a href="<?= route('admin.modules.edit', ['param' => $module->id]) ?>"><?= $module->title ?></a></td>
-                    <td><?= $module->module_setting_id_data->name ?></td>
+                    <td><?= $module->module_setting_id_data->name ?> (<?= $module->module_setting_id_data->settings_count ?>)</td>
                     <td><?= $module->status ?></td>
                     <td><?= diffForHumans($module->created_at) ?></td>
                     <td><?= diffForHumans($module->updated_at) ?></td>
