@@ -39,6 +39,7 @@ $router->group(['middleware' => AdminAuthMiddleware::class, 'urlPrefix' => '/adm
     $router->get('/', AdminController::class . '@index')->name('home');
     $router->crud('/pages', AdminPageController::class);
     $router->crud('/modules', AdminModuleController::class);
+    $router->delete('/module/file', AdminModuleController::class . '@deleteFile')->name('module.file.delete');
     $router->crud('/module-settings', AdminModuleSettingController::class);
     $router->match(['GET', 'POST'], '/file-manager', AdminMiscController::class . '@fileManager')->name('file.manager');
 

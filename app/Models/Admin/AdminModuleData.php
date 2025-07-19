@@ -24,8 +24,23 @@ class AdminModuleData extends Model
 
         foreach ($data as $row) {
             $result[$row->field_name] = $row->field_data;
+            $result[$row->field_name . '_id'] = $row->id;
         }
 
         return $result;
+    }
+
+    /**
+     * Find a file by file name
+     *
+     * @param int $moduleId
+     * @param string $fileName
+     * @return bool|object
+     */
+    public static function findFile(int $moduleId, string $fileName): bool|object
+    {
+        return self::orm()->select([
+            'condition' => "WHERE module_id = '$moduleId' AND field_data LIKE '%$fileName%'",
+        ])->first();
     }
 }

@@ -236,6 +236,117 @@ class AdminModuleController extends Controller
     public function destroy($id) {}
 
     /**
+     * Delete file and record
+     *
+     * @return array
+     */
+    public function deleteFile(): array
+    {
+        $data = Request::all(['skipSanitization' => true]);
+
+        // validate request
+        $validator = new Validator();
+        $validator->check($data, [
+            'moduleId' => Rules::set()->isRequired()->exists(AdminModule::class),
+            'fileName' => Rules::set()->isRequired(),
+            'moduleDataId' => Rules::set()->isRequired()->exists(AdminModuleData::class),
+        ]);
+
+        // if the file name is empty or false fixing those records in db
+        if ($validator->fails()) {
+            $errors = $validator->errors();
+
+            if (isset($errors['fileName']) && !isset($errors['moduleId']) && !isset($errors['moduleDataId'])) {
+                $this->_fixFalseFilenameInModuleData($data);
+            }
+
+            return ApiResponseTransformer::success([]);
+        }
+
+        // get module data
+        $moduleData = AdminModuleData::findFile($data['moduleId'], $data['fileName']);
+
+        if (!$moduleData) {
+            return ApiResponseTransformer::error(null, 'File does not have any record');
+        }
+
+        // physically delete the file
+        $deleteFile = $this->_deleteModuleDataFile($data['fileName']);
+
+        if (!$deleteFile) {
+            return ApiResponseTransformer::error(null, 'Unable to delete file');
+        }
+
+        // update db record
+        $fileData = _::isJson($moduleData->field_data) ? json_decode($moduleData->field_data) : $moduleData->field_data;
+
+        if (is_array($fileData)) {
+            $updatedFileData = _::exceptByValue($fileData, [$data['fileName']]);
+
+            if (count($updatedFileData) > 0) {
+                // remove the file name and update module data record
+                $field_data = json_encode(array_values($updatedFileData));
+                AdminModuleData::orm()->update(['field_data' => $field_data], ['id' => $moduleData->id]);
+            } else {
+                // since it was only one file, delete the whole record
+                AdminModuleData::orm()->delete(['id' => $moduleData->id]);
+            }
+        } else {
+            // delete the whole record
+            AdminModuleData::orm()->delete(['id' => $moduleData->id]);
+        }
+
+        return ApiResponseTransformer::success([]);
+    }
+
+    /**
+     * Fix false valued filename in module data
+     *
+     * @param array $data
+     * @return void
+     */
+    private function _fixFalseFilenameInModuleData(array $data): void
+    {
+        $moduleDataId = $data['moduleDataId'];
+        $moduleData = AdminModuleData::orm()->find($moduleDataId);
+
+        $fileData = _::isJson($moduleData->field_data) ? json_decode($moduleData->field_data) : $moduleData->field_data;
+
+        if (is_array($fileData)) {
+            // remove all falsy values
+            $updatedFileData = _::compact($fileData);
+
+            if (count($updatedFileData) > 0) {
+                $field_data = json_encode(array_values($updatedFileData));
+                AdminModuleData::orm()->update(['field_data' => $field_data], ['id' => $moduleData->id]);
+            } else {
+                AdminModuleData::orm()->delete(['id' => $moduleData->id]);
+            }
+        } else {
+            AdminModuleData::orm()->delete(['id' => $moduleData->id]);
+        }
+    }
+
+    /**
+     * Delete module data file
+     *
+     * @param string $fileName
+     * @return bool
+     */
+    private function _deleteModuleDataFile(string $fileName): bool
+    {
+        $path = APP_ADMIN_FILE_MANAGER_MODULE_DATA_DIR . $fileName;
+
+        if (file_exists($path)) {
+            unlink($path);
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Get a string of accepted file extensions for input field
      *
      * @param array $extensions

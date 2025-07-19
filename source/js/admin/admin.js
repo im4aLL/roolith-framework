@@ -4,6 +4,7 @@ import { Post } from "./post";
 import { SerializeObject } from "./serialize-object";
 import { DeleteItem } from "./delete-item";
 import { Repeater } from "./repeater";
+import { DeleteFile } from "./delete-file";
 
 window.$ = window.jQuery = $;
 
@@ -23,4 +24,5 @@ $(function () {
     new Post();
     new DeleteItem();
     new Repeater();
+    new DeleteFile();
 });

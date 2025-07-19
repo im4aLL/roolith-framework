@@ -88,6 +88,18 @@ class _
     }
 
     /**
+     * Except where it removes by value
+     *
+     * @param array $array
+     * @param array $values
+     * @return array
+     */
+    public static function exceptByValue(array $array, array $values): array
+    {
+        return array_filter($array, fn($v) => !in_array($v, $values, true));
+    }
+
+    /**
      * Array chunk
      * Creates an array of elements split into groups the length of size. If array can't be split evenly, the final chunk will be the remaining elements.
      *

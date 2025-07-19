@@ -88,6 +88,7 @@
                                         <a href="<?= $imageUrl ?>" target="_blank">
                                             <img src="<?= $imageUrl ?>" alt="No image" class="form__image">
                                         </a>
+                                        <a href="<?= route('admin.module.file.delete') ?>" class="form__file-delete" data-file="<?= $moduleData[$name] ?>" data-module-id="<?= $module->id ?>" data-module-data-id="<?= $moduleData[$name.'_id'] ?>">Delete</a>
                                     </li>
                                 </ul>
                             <?php endif; ?>
@@ -108,6 +109,7 @@
                                         <a href="<?= $imageUrl ?>" target="_blank">
                                             <img src="<?= $imageUrl ?>" alt="No image" class="form__image">
                                         </a>
+                                        <a href="<?= route('admin.module.file.delete') ?>" class="form__file-delete" data-file="<?= $singleImage ?>" data-module-id="<?= $module->id ?>" data-module-data-id="<?= $moduleData[$name.'_id'] ?>">Delete</a>
                                     </li>
                                     <?php endforeach; ?>
                                 </ul>
@@ -126,6 +128,7 @@
                                         <a href="<?= $fileUrl ?>" target="_blank">
                                             <?= $moduleData[$name] ?>
                                         </a>
+                                        <a href="<?= route('admin.module.file.delete') ?>" class="form__file-delete" data-file="<?= $moduleData[$name] ?>" data-module-id="<?= $module->id ?>" data-module-data-id="<?= $moduleData[$name.'_id'] ?>">Delete</a>
                                     </li>
                                 </ul>
                             <?php endif; ?>
@@ -145,6 +148,7 @@
                                             <a href="<?= $singleFileUrl ?>" target="_blank">
                                                 <?= $singleFile ?>
                                             </a>
+                                            <a href="<?= route('admin.module.file.delete') ?>" class="form__file-delete" data-file="<?= $singleFile ?>" data-module-id="<?= $module->id ?>" data-module-data-id="<?= $moduleData[$name.'_id'] ?>">Delete</a>
                                         </li>
                                     <?php endforeach; ?>
                                 </ul>

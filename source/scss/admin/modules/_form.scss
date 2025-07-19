@@ -130,7 +130,10 @@
     .form__image-item {
         position: relative;
         width: 6.25rem;
-        height: 4.375rem;
+
+        display: flex;
+        flex-direction: column;
+        gap: .3125rem;
     }
 
     .form__image {
@@ -150,5 +153,13 @@
 
     .form__file-item {
         position: relative;
+    }
+
+    .form__file-delete {
+        color: var(--color-danger);
+
+        &:hover, &:focus, &:visited {
+            color: var(--color-danger);
+        }
     }
 }
