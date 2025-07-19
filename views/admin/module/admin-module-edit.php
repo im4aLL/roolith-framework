@@ -20,12 +20,11 @@
                 <h3><?= $module->title ?></h3>
             </div>
 
-            <button data-url="<?= route('admin.modules.destroy', ['param' => 1]) ?>" class="button button--danger button--text" id="delete-button">Delete permanently</button>
+            <button data-url="<?= route('admin.modules.destroy', ['param' => $module->id]) ?>" class="button button--danger button--text" id="delete-button">Delete permanently</button>
         </div>
 
         <?php if (isset($moduleSettingData)) : ?>
-            <form action="<?= route('admin.modules.store') ?>" method="post" class="form" enctype="multipart/form-data" data-ajax="true">
-                <input type="hidden" name="module_setting_id" value="<?= $moduleSettingData->id ?>">
+            <form action="<?= route('admin.modules.update', ['param' => $module->id]) ?>" method="post" class="form" enctype="multipart/form-data" data-ajax="true">
                 <!-- base -->
                 <div class="form__col">
                     <div class="form__field">

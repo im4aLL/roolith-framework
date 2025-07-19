@@ -253,3 +253,24 @@ function getModuleImageUrl(string $imageName): string
 {
     return url(APP_ADMIN_FILE_MANAGER_MODULE_DATA_DIR . $imageName);
 }
+
+/**
+ * Whether data changed in an associative array
+ *
+ * @param array $updatedDataArray
+ * @param array $originalDataArray
+ * @return bool
+ */
+function isDataChanged(array $updatedDataArray, array $originalDataArray): bool
+{
+    $isChanged = false;
+
+    foreach ($updatedDataArray as $key => $value) {
+        if ($value != $originalDataArray[$key]) {
+            $isChanged = true;
+            break;
+        }
+    }
+
+    return $isChanged;
+}

@@ -210,7 +210,7 @@ class AdminModuleController extends Controller
 
     public function show($id) {}
 
-    public function edit($id)
+    public function edit($id): bool|string
     {
         $module = AdminModule::orm()->find($id);
         $moduleSetting = AdminModuleSetting::getById($module->module_setting_id);
@@ -226,12 +226,114 @@ class AdminModuleController extends Controller
             'acceptedFiles' => $this->_getExtensionString($this->_acceptedFiles),
         ];
 
-//        p($moduleData);
-
         return $this->view('admin/module/admin-module-edit', $data);
     }
 
-    public function update($id) {}
+    public function update($id): array
+    {
+        $module = AdminModule::orm()->find($id);
+        $originalModuleData = AdminModuleData::getAllByModuleId($module->id);
+
+        $formData = Request::all(['skipSanitization' => true]);
+
+        // Validation
+        $validator = $this->_validateUpdate($formData);
+
+        if ($validator->fails()) {
+            return ApiResponseTransformer::error($validator->errors(), 'Some fields are invalid');
+        }
+
+        // Upload files if there is any
+        $uploadedFiles = $this->_uploadFormDataFiles($formData);
+
+        if (count($uploadedFiles) > 0) {
+            foreach ($uploadedFiles as $key => $file) {
+                $originalFileData = $originalModuleData[$key] ?? null;
+                $newlyUploadedFileData = $file;
+                $newFileData = $file;
+
+                if ($originalFileData && strlen($originalFileData) > 0) {
+                    if (is_array($file)) {
+                        // add a newly added file to existing files
+                        $newFileData = array_merge((array) json_decode($originalFileData), $newlyUploadedFileData);
+                    } else {
+                        // delete the previous image and add a new file
+                        $this->_deleteModuleDataFile($originalFileData);
+                    }
+                }
+
+                $formData[$key] = is_array($newFileData) ? json_encode($newFileData) : $newFileData;
+            }
+        }
+
+        if (isset($formData['_files'])) {
+            unset($formData['_files']);
+        }
+
+        $moduleDataFields = ['title', 'status'];
+        $moduleData = _::only($formData, $moduleDataFields);
+        $otherFields = _::except($formData, $moduleDataFields);
+
+        $isModuleDataChanged = isDataChanged($moduleData, (array) $module);
+
+        // update module data
+        if ($isModuleDataChanged) {
+            $moduleUpdate = AdminModule::orm()->update($moduleData, ['id' => $module->id]);
+
+            if (!$moduleUpdate->success()) {
+                return ApiResponseTransformer::error(null, 'Error while updating module');
+            }
+        }
+
+        // update other fields data
+        foreach ($otherFields as $key => $value) {
+            $newValue = is_array($value) ? json_encode($value) : $value;
+            $oldValue = $originalModuleData[$key] ?? null;
+            $isModuleDataChanged = $newValue != $oldValue;
+
+            if (!$isModuleDataChanged) {
+                continue;
+            }
+
+            if ($oldValue) {
+                $moduleDataUpdate = AdminModuleData::orm()->update([
+                    'field_data' => $newValue,
+                ], [
+                    'module_id' => $module->id,
+                    'field_name' => $key,
+                ]);
+            } else {
+                $moduleDataUpdate = AdminModuleData::orm()->insert([
+                    'module_id' => $module->id,
+                    'field_name' => $key,
+                    'field_data' => $newValue,
+                ]);
+            }
+
+            if (!$moduleDataUpdate->success()) {
+                return ApiResponseTransformer::error(null, 'Error while updating module data');
+            }
+        }
+
+        return ApiResponseTransformer::success(['redirect' => route('admin.modules.edit', ['param' => $module->id])]);
+    }
+
+    /**
+     * Validate storing form data
+     *
+     * @param array $formData
+     * @return ValidatorInterface
+     */
+    private function _validateUpdate(array $formData): ValidatorInterface
+    {
+        $validator = new Validator();
+        $validator->check($formData, [
+            'title' => Rules::set()->isRequired(),
+            'status' => Rules::set()->isRequired(),
+        ]);
+
+        return $validator;
+    }
 
     public function destroy($id) {}
 

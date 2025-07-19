@@ -16,6 +16,10 @@
         &:focus {
             border: 0.0625rem solid var(--color-link);
         }
+
+        &:disabled {
+            opacity: 0.5;
+        }
     }
 
     .form__input--radio,
