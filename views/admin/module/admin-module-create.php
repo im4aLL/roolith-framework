@@ -89,22 +89,22 @@
                     <?php elseif ($fieldType == 'image') : ?>
                         <div class="form__field">
                             <label for="<?= $fieldKey ?>" class="form__label"><?= $fieldLabel ?></label>
-                            <input type="file" name="<?= $name ?>" id="<?= $fieldKey ?>" class="form__input" accept=".jpg,.jpeg,.png">
+                            <input type="file" name="<?= $name ?>" id="<?= $fieldKey ?>" class="form__input" accept="<?= $acceptedImages ?>" />
                         </div>
                     <?php elseif ($fieldType == 'image-multiple') : ?>
                         <div class="form__field">
                             <label for="<?= $fieldKey ?>" class="form__label"><?= $fieldLabel ?></label>
-                            <input type="file" name="<?= $name ?>[]" id="<?= $fieldKey ?>" class="form__input" accept=".jpg,.jpeg,.png" multiple>
+                            <input type="file" name="<?= $name ?>[]" id="<?= $fieldKey ?>" class="form__input" accept="<?= $acceptedImages ?>" multiple>
                         </div>
                     <?php elseif ($fieldType == 'file') : ?>
                         <div class="form__field">
                             <label for="<?= $fieldKey ?>" class="form__label"><?= $fieldLabel ?></label>
-                            <input type="file" name="<?= $name ?>" id="<?= $fieldKey ?>" class="form__input" accept=".pdf,.doc,.docx,.zip,.xls,.xlsx,.csv,.ppt,.pptx">
+                            <input type="file" name="<?= $name ?>" id="<?= $fieldKey ?>" class="form__input" accept="<?= $acceptedFiles ?>">
                         </div>
                     <?php elseif ($fieldType == 'file-multiple') : ?>
                         <div class="form__field">
                             <label for="<?= $fieldKey ?>" class="form__label"><?= $fieldLabel ?></label>
-                            <input type="file" name="<?= $name ?>[]" id="<?= $fieldKey ?>" class="form__input" accept=".pdf,.doc,.docx,.zip,.xls,.xlsx,.csv,.ppt,.pptx" multiple>
+                            <input type="file" name="<?= $name ?>[]" id="<?= $fieldKey ?>" class="form__input" accept="<?= $acceptedFiles ?>" multiple>
                         </div>
                     <?php endif; ?>
 

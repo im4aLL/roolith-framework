@@ -21,8 +21,10 @@ use App\Utils\_;
 
 class AdminModuleController extends Controller
 {
-    private string $formErrorKey = 'module_error';
-    private string $uploadDir = APP_ADMIN_FILE_MANAGER_DIR . 'uploads/';
+    private string $_formErrorKey = 'module_error';
+    private string $_uploadDir = APP_ADMIN_FILE_MANAGER_MODULE_DATA_DIR;
+    private array $_acceptedImages = ['jpg', 'jpeg', 'png'];
+    private array $_acceptedFiles = ['pdf', 'doc', 'docx', 'zip', 'xls', 'xlsx', 'csv', 'ppt', 'pptx'];
 
     /**
      * Show a list of modules with pagination
@@ -81,6 +83,8 @@ class AdminModuleController extends Controller
             'title' => 'Create Module',
             'loadEditor' => true,
             'moduleSettings' => $moduleSettings,
+            'acceptedImages' => $this->_getExtensionString($this->_acceptedImages),
+            'acceptedFiles' => $this->_getExtensionString($this->_acceptedFiles),
         ];
 
         // load selected module setting
@@ -194,10 +198,10 @@ class AdminModuleController extends Controller
         foreach ($formData['_files'] as $key => $file) {
             if (is_array($file)) {
                 foreach ($file as $fileData) {
-                    $uploaded[$key][] = $fileData->upload($this->uploadDir);
+                    $uploaded[$key][] = $fileData->upload($this->_uploadDir);
                 }
             } else {
-                $uploaded[$key] = $file->upload($this->uploadDir);
+                $uploaded[$key] = $file->upload($this->_uploadDir);
             }
         }
 
@@ -216,11 +220,13 @@ class AdminModuleController extends Controller
             'module' => $module,
             'moduleSettingData' => $moduleSetting,
             'moduleData' => $moduleData,
-            'title' => 'Edit module - '. $module->title,
+            'title' => 'Edit module - ' . $module->title,
             'loadEditor' => true,
+            'acceptedImages' => $this->_getExtensionString($this->_acceptedImages),
+            'acceptedFiles' => $this->_getExtensionString($this->_acceptedFiles),
         ];
 
-//        p($moduleData);
+        p($moduleData);
 
         return $this->view('admin/module/admin-module-edit', $data);
     }
@@ -228,4 +234,17 @@ class AdminModuleController extends Controller
     public function update($id) {}
 
     public function destroy($id) {}
+
+    /**
+     * Get a string of accepted file extensions for input field
+     *
+     * @param array $extensions
+     * @return string
+     */
+    private function _getExtensionString(array $extensions): string
+    {
+        return implode(', ', array_map(function ($ext) {
+            return '.' . $ext;
+        }, $extensions));
+    }
 }

@@ -242,3 +242,14 @@ function diffForHumans(string $dateString): string
 {
     return Carbon::parse($dateString)->diffForHumans();
 }
+
+/**
+ * Get module image URL
+ *
+ * @param string $imageName
+ * @return string
+ */
+function getModuleImageUrl(string $imageName): string
+{
+    return url(APP_ADMIN_FILE_MANAGER_MODULE_DATA_DIR . $imageName);
+}
