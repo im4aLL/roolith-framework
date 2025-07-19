@@ -86,7 +86,7 @@
                                     <li class="form__image-item">
                                         <?php $imageUrl = getModuleImageUrl($moduleData[$name]); ?>
                                         <a href="<?= $imageUrl ?>" target="_blank">
-                                            <img src="<?= $imageUrl ?>" alt="<?= $fieldLabel ?>" class="form__image">
+                                            <img src="<?= $imageUrl ?>" alt="No image" class="form__image">
                                         </a>
                                     </li>
                                 </ul>
@@ -97,19 +97,59 @@
                     <?php elseif ($fieldType == 'image-multiple') : ?>
                         <div class="form__field">
                             <label for="<?= $fieldKey ?>" class="form__label"><?= $fieldLabel ?></label>
-                            <?php if (isset($moduleData[$name])) print_r(json_decode($moduleData[$name])) ?>
+
+                            <?php if (isset($moduleData[$name])) : ?>
+                                <ul class="form__image-list">
+                                    <?php $multiImages = json_decode($moduleData[$name]); ?>
+
+                                    <?php foreach ($multiImages as $singleImage) : ?>
+                                    <li class="form__image-item">
+                                        <?php $imageUrl = getModuleImageUrl($singleImage); ?>
+                                        <a href="<?= $imageUrl ?>" target="_blank">
+                                            <img src="<?= $imageUrl ?>" alt="No image" class="form__image">
+                                        </a>
+                                    </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php endif; ?>
+
                             <input type="file" name="<?= $name ?>[]" id="<?= $fieldKey ?>" class="form__input" accept="<?= $acceptedImages ?>" multiple>
                         </div>
                     <?php elseif ($fieldType == 'file') : ?>
                         <div class="form__field">
                             <label for="<?= $fieldKey ?>" class="form__label"><?= $fieldLabel ?></label>
-                            <?= $moduleData[$name] ?? null ?>
+
+                            <?php if (isset($moduleData[$name])) : ?>
+                                <ul class="form__file-list">
+                                    <li class="form__file-item">
+                                        <?php $fileUrl = getModuleImageUrl($moduleData[$name]); ?>
+                                        <a href="<?= $fileUrl ?>" target="_blank">
+                                            <?= $moduleData[$name] ?>
+                                        </a>
+                                    </li>
+                                </ul>
+                            <?php endif; ?>
                             <input type="file" name="<?= $name ?>" id="<?= $fieldKey ?>" class="form__input" accept="<?= $acceptedFiles ?>">
                         </div>
                     <?php elseif ($fieldType == 'file-multiple') : ?>
                         <div class="form__field">
                             <label for="<?= $fieldKey ?>" class="form__label"><?= $fieldLabel ?></label>
-                            <?php if (isset($moduleData[$name])) print_r(json_decode($moduleData[$name])) ?>
+
+                            <?php if (isset($moduleData[$name])) : ?>
+                                <ul class="form__file-list">
+                                    <?php $multiFiles = json_decode($moduleData[$name]); ?>
+
+                                    <?php foreach ($multiFiles as $singleFile) : ?>
+                                        <li class="form__file-item">
+                                            <?php $singleFileUrl = getModuleImageUrl($singleFile); ?>
+                                            <a href="<?= $singleFileUrl ?>" target="_blank">
+                                                <?= $singleFile ?>
+                                            </a>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php endif; ?>
+
                             <input type="file" name="<?= $name ?>[]" id="<?= $fieldKey ?>" class="form__input" accept="<?= $acceptedFiles ?>" multiple>
                         </div>
                     <?php endif; ?>

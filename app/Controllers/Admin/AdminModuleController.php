@@ -226,7 +226,7 @@ class AdminModuleController extends Controller
             'acceptedFiles' => $this->_getExtensionString($this->_acceptedFiles),
         ];
 
-        p($moduleData);
+//        p($moduleData);
 
         return $this->view('admin/module/admin-module-edit', $data);
     }

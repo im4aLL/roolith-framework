@@ -138,6 +138,17 @@
         height: 100%;
         object-fit: cover;
         border-radius: var(--border-radius);
-        border: 0.125rem solid var(--color-border);
+        border: 0.125rem solid var(--color-link-visited);
+    }
+
+    .form__file-list {
+        display: flex;
+        flex-direction: column;
+        gap: .3125rem;
+        margin-bottom: 0.3125rem;
+    }
+
+    .form__file-item {
+        position: relative;
     }
 }
