@@ -33,11 +33,42 @@ class AdminModuleController extends Controller
      */
     public function index(): string|bool
     {
-        $total = AdminModule::orm()->select([
-            'field' => ['id']
-        ])->count();
+        $filterInput = Request::input('filter');
 
-        $pagination = AdminModule::raw()->query('SELECT * FROM ' . AdminModule::tableName() . ' ORDER by id DESC')->paginate([
+        $selectArray = [
+            'field' => ['id']
+        ];
+
+        if ($filterInput) {
+            $whereConditions = [];
+
+            foreach ($filterInput as $key => $value) {
+                if (!$value) {
+                    continue;
+                }
+
+                if ($key == 'title') {
+                    $whereConditions[] = "$key LIKE '%$value%'";
+                } else {
+                    $whereConditions[] = "$key = '$value'";
+                }
+
+            }
+
+            $selectArray = [
+                'field' => ['id'],
+                'condition' => 'WHERE '.implode(' AND ', $whereConditions)
+            ];
+        }
+
+        $total = AdminModule::orm()->select($selectArray)->count();
+
+        $queryString = 'SELECT * FROM ' . AdminModule::tableName() . ' ORDER by id DESC';
+        if ($filterInput) {
+            $queryString = 'SELECT * FROM ' . AdminModule::tableName() . ' WHERE '.implode(' AND ', $whereConditions). ' ORDER by id DESC';
+        }
+
+        $pagination = AdminModule::raw()->query($queryString)->paginate([
             'perPage' => APP_ADMIN_PAGINATION_PER_PAGE,
             'total' => $total,
             'pageUrl' => route('admin.modules.index')
@@ -60,7 +91,9 @@ class AdminModuleController extends Controller
             'title' => 'Modules',
             'modules' => $paginationData,
             'pageNumbers' => $pagination->pageNumbers(),
-            'total' => $total
+            'total' => $total,
+            'groupNames' => AdminModule::getAllGroups(),
+            'filterInput' => $filterInput
         ];
 
         return $this->view('admin/module/admin-module', $data);

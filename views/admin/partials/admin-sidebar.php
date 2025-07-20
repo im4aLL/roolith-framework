@@ -11,6 +11,9 @@
             <a href="<?= route('admin.pages.index') ?>" class="nav__link">Pages</a>
         </li>
         <li class="nav__item">
+            <a href="<?= route('admin.categories.index') ?>" class="nav__link">Categories</a>
+        </li>
+        <li class="nav__item">
             <a href="<?= route('admin.modules.index') ?>" class="nav__link">Modules</a>
         </li>
         <li class="nav__item">

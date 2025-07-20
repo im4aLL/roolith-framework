@@ -1,5 +1,6 @@
 <?php
 
+use App\Controllers\Admin\AdminCategoryController;
 use App\Controllers\Admin\AdminMiscController;
 use App\Controllers\Admin\AdminModuleSettingController;
 use App\Controllers\WelcomeController;
@@ -38,6 +39,7 @@ $router->post('/admin/login', AdminAuthController::class . '@verifyCredential')-
 $router->group(['middleware' => AdminAuthMiddleware::class, 'urlPrefix' => '/admin', 'namePrefix' => 'admin.'], function () use ($router) {
     $router->get('/', AdminController::class . '@index')->name('home');
     $router->crud('/pages', AdminPageController::class);
+    $router->crud('/categories', AdminCategoryController::class);
     $router->crud('/modules', AdminModuleController::class);
     $router->delete('/module/file', AdminModuleController::class . '@deleteFile')->name('module.file.delete');
     $router->crud('/module-settings', AdminModuleSettingController::class);

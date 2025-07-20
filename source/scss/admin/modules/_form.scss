@@ -75,8 +75,16 @@
         display: flex;
         gap: 0.3125rem;
 
+        .form__field {
+            margin-bottom: 0;
+        }
+
         .form__input {
             width: auto;
+        }
+
+        .form__label {
+            display: inline-flex;
         }
     }
 
@@ -165,5 +173,9 @@
         &:hover, &:focus, &:visited {
             color: var(--color-danger);
         }
+    }
+
+    .form--filter {
+        padding-top: 1.25rem;
     }
 }

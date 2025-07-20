@@ -20,10 +20,11 @@ class Request implements RequestInterface
         }
 
         if (isset($_GET[$name])) {
-            return Sanitize::param($_GET[$name]);
+            return is_array($_GET[$name]) ? Sanitize::params($_GET[$name]) : Sanitize::param($_GET[$name]);
         }
 
         $streamInput = self::streamInput($name);
+
         if ($streamInput) {
             return $streamInput;
         }

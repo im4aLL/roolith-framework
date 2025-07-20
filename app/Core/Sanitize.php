@@ -15,6 +15,19 @@ class Sanitize implements SanitizeInterface
     }
 
     /**
+     * Filter multiple param
+     *
+     * @param array $params
+     * @return array
+     */
+    public static function params(array $params): array
+    {
+        return array_map(function ($value) {
+            return self::param($value);
+        }, $params);
+    }
+
+    /**
      * @inheritDoc
      */
     public static function email($string): string
