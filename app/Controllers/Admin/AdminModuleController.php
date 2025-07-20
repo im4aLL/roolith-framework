@@ -37,7 +37,7 @@ class AdminModuleController extends Controller
             'field' => ['id']
         ])->count();
 
-        $pagination = AdminModule::orm()->query('SELECT * FROM ' . AdminModule::tableName() . ' ORDER by id DESC')->paginate([
+        $pagination = AdminModule::raw()->query('SELECT * FROM ' . AdminModule::tableName() . ' ORDER by id DESC')->paginate([
             'perPage' => APP_ADMIN_PAGINATION_PER_PAGE,
             'total' => $total,
             'pageUrl' => route('admin.modules.index')
@@ -85,6 +85,7 @@ class AdminModuleController extends Controller
             'moduleSettings' => $moduleSettings,
             'acceptedImages' => $this->_getExtensionString($this->_acceptedImages),
             'acceptedFiles' => $this->_getExtensionString($this->_acceptedFiles),
+            'groupNames' => AdminModule::getAllGroups(),
         ];
 
         // load selected module setting
@@ -128,7 +129,7 @@ class AdminModuleController extends Controller
             unset($formData['_files']);
         }
 
-        $moduleDataFields = ['title', 'hook', 'status', 'module_setting_id'];
+        $moduleDataFields = ['title', 'hook', 'status', 'module_setting_id', 'group_name'];
         $moduleData = _::only($formData, $moduleDataFields);
         $otherFields = _::except($formData, $moduleDataFields);
 
@@ -224,6 +225,7 @@ class AdminModuleController extends Controller
             'loadEditor' => true,
             'acceptedImages' => $this->_getExtensionString($this->_acceptedImages),
             'acceptedFiles' => $this->_getExtensionString($this->_acceptedFiles),
+            'groupNames' => AdminModule::getAllGroups(),
         ];
 
         return $this->view('admin/module/admin-module-edit', $data);
@@ -270,7 +272,7 @@ class AdminModuleController extends Controller
             unset($formData['_files']);
         }
 
-        $moduleDataFields = ['title', 'status'];
+        $moduleDataFields = ['title', 'status', 'group_name'];
         $moduleData = _::only($formData, $moduleDataFields);
         $otherFields = _::except($formData, $moduleDataFields);
 

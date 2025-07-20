@@ -39,6 +39,17 @@
                 </div>
 
                 <div class="form__field">
+                    <label for="group" class="form__label">Group (optional)</label>
+                    <input type="text" name="group_name" id="group" class="form__input" list="group-name-list" value="<?= $module->group_name ?>">
+                </div>
+
+                <datalist id="group-name-list">
+                    <?php foreach ($groupNames as $groupName): ?>
+                        <option value="<?= $groupName ?>"></option>
+                    <?php endforeach; ?>
+                </datalist>
+
+                <div class="form__field">
                     <label for="status" class="form__label">Status</label>
                     <select name="status" id="status" class="form__input form--select">
                         <?php if ($module) : ?>

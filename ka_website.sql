@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.1
+-- version 5.1.1
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 17, 2025 at 04:04 AM
--- Server version: 10.4.32-MariaDB
--- PHP Version: 8.2.12
+-- Generation Time: Jul 20, 2025 at 04:08 AM
+-- Server version: 10.4.22-MariaDB
+-- PHP Version: 8.1.2
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -34,7 +34,7 @@ CREATE TABLE `categories` (
   `body` text DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `categories`
@@ -57,10 +57,25 @@ CREATE TABLE `modules` (
   `module_setting_id` int(11) NOT NULL,
   `title` varchar(255) DEFAULT NULL,
   `hook` varchar(255) NOT NULL,
+  `group_name` varchar(255) NOT NULL,
   `status` enum('published','draft') DEFAULT 'draft',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `modules`
+--
+
+INSERT INTO `modules` (`id`, `module_setting_id`, `title`, `hook`, `group_name`, `status`, `created_at`, `updated_at`) VALUES
+(1, 3, 'Module 1', 'mod-6878650db82b4', '', 'published', '2025-07-17 02:51:37', '2025-07-17 02:51:37'),
+(3, 3, 'Module 2', 'mod-68786c26cde95', 'test-group', 'draft', '2025-07-17 03:21:19', '2025-07-20 01:36:12'),
+(4, 1, 'mega', 'mod-687893ab7694b', '', 'published', '2025-07-17 06:10:58', '2025-07-17 06:10:58'),
+(5, 1, 'mega 2', 'mod-687895e2d2626', '', 'draft', '2025-07-17 06:19:56', '2025-07-17 06:19:56'),
+(6, 1, 'aaa', 'mod-6878979287eab', '', 'draft', '2025-07-17 06:27:46', '2025-07-17 06:27:46'),
+(7, 4, 'Some text xyy', 'mod-687bd28f190a4', '', 'draft', '2025-07-19 17:15:14', '2025-07-19 17:45:58'),
+(8, 3, 'video item one', 'mod-687c4925f3a08', '', 'published', '2025-07-20 01:41:52', '2025-07-20 01:41:52'),
+(14, 3, 'something', 'mod-687c4eb8cd3aa', 'youtube', 'draft', '2025-07-20 02:04:53', '2025-07-20 02:04:53');
 
 -- --------------------------------------------------------
 
@@ -73,7 +88,52 @@ CREATE TABLE `module_data` (
   `module_id` int(11) NOT NULL,
   `field_name` varchar(255) NOT NULL,
   `field_data` text NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `module_data`
+--
+
+INSERT INTO `module_data` (`id`, `module_id`, `field_name`, `field_data`) VALUES
+(1, 1, 'label', 'haha'),
+(2, 1, 'buttonText', 'submit'),
+(3, 1, 'image', '1752720697_625643_plan.jpg'),
+(5, 3, 'label', 'b'),
+(6, 3, 'buttonText', 'aa'),
+(7, 4, 'header', 'something'),
+(8, 4, 'body', 'body text'),
+(9, 4, 'another', 'another text'),
+(10, 4, 'rich_text', 'rich&amp;nbsp;text&amp;nbsp;1'),
+(11, 4, 'another_rich_text', 'may&amp;nbsp;be&amp;nbsp;another&amp;nbsp;rich&amp;nbsp;text&amp;nbsp;'),
+(13, 4, 'image_multiple', '[\"1752947284_861288_Screenshot_1.jpg\",\"1752948284_616163_Screenshot_1.png\"]'),
+(14, 4, 'attachment', '1752732658_940412_test.pdf'),
+(15, 4, 'multiple_attachment', '[\"1752732658_957560_Resumedark.pdf\"]'),
+(16, 5, 'header', 'wtf'),
+(17, 5, 'body', 'ssdsd'),
+(18, 5, 'another', 'fdfdf'),
+(19, 5, 'rich_text', 'ewrqwerqeqweq'),
+(20, 5, 'another_rich_text', 'ggjfgjgfhj'),
+(21, 5, 'image', '1752733196_259636_IMG_3415_result.jpg'),
+(22, 5, 'image_multiple', '[\"1752733196_293306_hadi_fairytale.jpg\",\"1752733196_342723_hadi-pp.jpg\"]'),
+(23, 5, 'attachment', '1752733196_722713_Presidents_Honour_List_winter_2023.pdf'),
+(24, 5, 'multiple_attachment', '[\"1752733196_841280_final-exam-answer-md-habibullah-al-hadi.pdf\"]'),
+(25, 6, 'header', ''),
+(26, 6, 'body', ''),
+(27, 6, 'another', ''),
+(28, 6, 'rich_text', 'asdasdsadadsdasdsdasdsadasdsada'),
+(29, 6, 'another_rich_text', ''),
+(30, 7, 'something_long', 'xii'),
+(31, 7, 'another_long', 'yyu'),
+(32, 4, 'image', '1752949155_780446_canada-post.jpg'),
+(33, 6, 'image', '1752949406_390705_abworkout.jpg'),
+(34, 6, 'image_multiple', '[\"1752949406_257310_Screenshot_3.png\",\"1752949406_377288_Screenshot_4.png\"]'),
+(35, 6, 'attachment', '1752949424_958946_unofficial-transcript.pdf'),
+(36, 6, 'multiple_attachment', '[\"1752949406_571987_Presidents_Honour_List_winter_2023.pdf\",\"1752949406_479553_Resumedark.pdf\"]'),
+(37, 8, 'group', 'youtube'),
+(38, 8, 'label', 'test'),
+(39, 8, 'buttonText', 'Join Event'),
+(40, 14, 'label', 'a'),
+(41, 14, 'buttonText', 'b');
 
 -- --------------------------------------------------------
 
@@ -85,7 +145,7 @@ CREATE TABLE `module_page` (
   `id` int(11) NOT NULL,
   `page_id` int(11) NOT NULL,
   `module_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -99,14 +159,17 @@ CREATE TABLE `module_settings` (
   `settings` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`settings`)),
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `module_settings`
 --
 
 INSERT INTO `module_settings` (`id`, `name`, `settings`, `created_at`, `updated_at`) VALUES
-(1, 'Hero', '{\"name\":[\"headline\",\"body\",\"image\",\"another\",\"rich-text\",\"image-multiple\"],\"type\":[\"text\",\"textarea\",\"image\",\"text\",\"rich-text\",\"image-multiple\"]}', '2025-07-09 06:34:13', '2025-07-16 07:24:24');
+(1, 'Hero', '{\"name\":[\"header\",\"body\",\"image\",\"another\",\"rich_text\",\"image_multiple\",\"attachment\",\"multiple_attachment\",\"another_rich_text\"],\"type\":[\"text\",\"textarea\",\"image\",\"text\",\"rich-text\",\"image-multiple\",\"file\",\"file-multiple\",\"rich-text\"]}', '2025-07-09 06:34:13', '2025-07-17 06:41:12'),
+(3, 'Test Module', '{\"name\":[\"label\",\"buttonText\",\"image\"],\"type\":[\"text\",\"text\",\"image\"]}', '2025-07-17 02:50:47', '2025-07-17 02:50:47'),
+(4, 'Final settings', '{\"name\":[\"something_long\",\"another_long\"],\"type\":[\"text\",\"text\"]}', '2025-07-17 07:02:59', '2025-07-17 07:02:59'),
+(5, 'content', '{\"name\":[\"headline\",\"subtext\",\"section_one_hl\",\"section_one_body\",\"section_one_link\",\"section_two_hl\",\"section_two_body\",\"section_two_link\",\"image\"],\"type\":[\"text\",\"textarea\",\"text\",\"rich-text\",\"text\",\"text\",\"rich-text\",\"text\",\"image\"]}', '2025-07-19 22:35:39', '2025-07-19 22:36:16');
 
 -- --------------------------------------------------------
 
@@ -124,7 +187,7 @@ CREATE TABLE `pages` (
   `status` enum('published','draft') DEFAULT 'draft',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `pages`
@@ -155,7 +218,7 @@ CREATE TABLE `page_category` (
   `category_id` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `page_category`
@@ -181,7 +244,7 @@ CREATE TABLE `settings` (
   `type` enum('string','int','bool','json','float') NOT NULL DEFAULT 'string',
   `group` varchar(50) DEFAULT NULL,
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 
@@ -198,14 +261,14 @@ CREATE TABLE `users` (
   `last_logged_in` datetime DEFAULT NULL,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `users`
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `last_logged_in`, `created_at`, `updated_at`) VALUES
-(1, 'Admin', 'admin@website.com', '$2y$10$4KVrVzLxkpTsSCP2O3EZPeBwKUV0dn93ZJvk0tx4oHXaenz2sX1ry', 'admin', '2025-07-16 06:22:55', '2025-06-26 05:01:42', '2025-07-16 04:22:55');
+(1, 'Admin', 'admin@website.com', '$2y$10$4KVrVzLxkpTsSCP2O3EZPeBwKUV0dn93ZJvk0tx4oHXaenz2sX1ry', 'admin', '2025-07-20 00:32:01', '2025-06-26 05:01:42', '2025-07-19 22:32:01');
 
 --
 -- Indexes for dumped tables
@@ -291,13 +354,13 @@ ALTER TABLE `categories`
 -- AUTO_INCREMENT for table `modules`
 --
 ALTER TABLE `modules`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
 
 --
 -- AUTO_INCREMENT for table `module_data`
 --
 ALTER TABLE `module_data`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=42;
 
 --
 -- AUTO_INCREMENT for table `module_page`
@@ -309,7 +372,7 @@ ALTER TABLE `module_page`
 -- AUTO_INCREMENT for table `module_settings`
 --
 ALTER TABLE `module_settings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `pages`
