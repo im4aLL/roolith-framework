@@ -6,7 +6,6 @@ use App\Controllers\Admin\AdminModuleSettingController;
 use App\Controllers\WelcomeController;
 use App\Core\RouterFactory;
 use Roolith\Configuration\Config;
-
 use App\Controllers\Admin\AdminModuleController;
 use App\Middlewares\Admin\AdminAuthMiddleware;
 use App\Controllers\Admin\AdminAuthController;

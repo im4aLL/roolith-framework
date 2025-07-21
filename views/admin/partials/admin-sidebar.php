@@ -19,9 +19,12 @@
         <li class="nav__item">
             <a href="<?= route('admin.module-settings.index') ?>" class="nav__link">Module Settings</a>
         </li>
+        <li class="nav__item">
+            <a href="<?= route('admin.file.manager') ?>" class="nav__link">File Manager</a>
+        </li>
 
         <li class="nav__item">
-            <a href="<?= route('admin.users.index') ?>" class="nav__link">Settings</a>
+            <a href="#" class="nav__link">Settings</a>
 
             <ul class="nav__list nav__list--sub">
                 <li class="nav__item">
@@ -32,9 +35,7 @@
                 </li>
             </ul>
         </li>
-        <li class="nav__item">
-            <a href="<?= route('admin.file.manager') ?>" class="nav__link">File Manager</a>
-        </li>
+
         <li class="nav__item">
             <a href="<?= route('admin.auth.logout') ?>" class="nav__link">Sign Out</a>
         </li>

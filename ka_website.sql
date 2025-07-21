@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 20, 2025 at 06:03 PM
+-- Generation Time: Jul 21, 2025 at 08:05 AM
 -- Server version: 10.4.22-MariaDB
 -- PHP Version: 8.1.2
 
@@ -151,6 +151,15 @@ CREATE TABLE `module_page` (
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Dumping data for table `module_page`
+--
+
+INSERT INTO `module_page` (`id`, `page_id`, `module_id`, `position`, `created_at`, `updated_at`) VALUES
+(7, 25, 14, 1, '2025-07-21 05:05:25', '2025-07-21 05:05:25'),
+(8, 25, 1, 2, '2025-07-21 05:05:25', '2025-07-21 05:05:25'),
+(9, 25, 3, 3, '2025-07-21 05:05:25', '2025-07-21 05:05:25');
+
 -- --------------------------------------------------------
 
 --
@@ -203,12 +212,13 @@ INSERT INTO `pages` (`id`, `title`, `slug`, `body`, `type`, `user_id`, `status`,
 (3, 'Sample page 3', 'sample-page-3', NULL, 'page', 1, 'draft', '2025-06-28 22:20:13', '2025-06-28 23:08:22'),
 (4, 'Blog page 1', 'blog-page-1', NULL, 'blog', NULL, 'draft', '2025-06-28 22:20:28', '2025-07-02 04:45:49'),
 (5, 'Blog page 2', 'blog-page-2', NULL, 'blog', NULL, 'draft', '2025-06-28 22:20:34', '2025-07-02 04:45:52'),
-(6, 'Blog page 3', 'blog-page-3', NULL, 'blog', NULL, 'draft', '2025-06-28 22:20:41', '2025-06-29 20:18:42'),
+(6, 'Blog page 3', 'blog-page-3', '<p>asdsdd</p>', 'blog', NULL, 'draft', '2025-06-28 22:20:41', '2025-07-21 05:32:22'),
 (12, 'About x', 'about-x', '<p>ffdfdfere&nbsp;x</p>', 'page', 1, 'published', '2025-07-03 06:01:18', '2025-07-06 23:03:02'),
 (13, 'Service', 'service', 'asdsdsd', 'page', 1, 'published', '2025-07-03 06:03:55', '2025-07-04 06:24:44'),
 (20, 'Contact', 'contact', 'contact&nbsp;page', 'page', 1, 'published', '2025-07-03 06:11:17', '2025-07-04 05:58:55'),
 (21, 'Allow html', 'allow-html', '<p>html&nbsp;</p><p>content&nbsp;</p><p></p><p><strong>here</strong></p>', 'page', 1, 'published', '2025-07-04 06:07:34', '2025-07-07 01:55:43'),
-(24, 'Another page', 'another-page', '<p>Another&nbsp;page&nbsp;here</p><p></p><p>hola</p><p>hadi</p>', 'page', 1, 'draft', '2025-07-08 06:14:45', '2025-07-08 06:14:45');
+(24, 'Another page', 'another-page', '<p>Another&nbsp;page&nbsp;here</p><p></p><p>hola</p><p>hadi</p>', 'page', 1, 'draft', '2025-07-08 06:14:45', '2025-07-08 06:14:45'),
+(25, 'Page with modules', 'page-with-modules', '<p>page&nbsp;</p><p>description</p><p>here&nbsp;</p>', 'page', 1, 'published', '2025-07-20 23:05:53', '2025-07-20 23:05:53');
 
 -- --------------------------------------------------------
 
@@ -234,7 +244,8 @@ INSERT INTO `page_category` (`id`, `page_id`, `category_id`, `created_at`, `upda
 (3, 1, 1, '2025-07-02 04:53:38', '2025-07-02 04:53:38'),
 (7, 13, 1, '2025-07-03 06:03:55', '2025-07-03 06:03:55'),
 (10, 12, 4, '2025-07-06 23:01:11', '2025-07-06 23:01:11'),
-(11, 12, 3, '2025-07-06 23:02:32', '2025-07-06 23:02:32');
+(11, 12, 3, '2025-07-06 23:02:32', '2025-07-06 23:02:32'),
+(16, 25, 1, '2025-07-21 04:45:18', '2025-07-21 04:45:18');
 
 -- --------------------------------------------------------
 
@@ -243,10 +254,9 @@ INSERT INTO `page_category` (`id`, `page_id`, `category_id`, `created_at`, `upda
 --
 
 CREATE TABLE `settings` (
+  `id` int(11) NOT NULL,
   `key` varchar(100) NOT NULL,
   `value` text NOT NULL,
-  `type` enum('string','int','bool','json','float') NOT NULL DEFAULT 'string',
-  `group` varchar(50) DEFAULT NULL,
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -335,7 +345,8 @@ ALTER TABLE `page_category`
 -- Indexes for table `settings`
 --
 ALTER TABLE `settings`
-  ADD PRIMARY KEY (`key`);
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `key` (`key`);
 
 --
 -- Indexes for table `users`
@@ -370,7 +381,7 @@ ALTER TABLE `module_data`
 -- AUTO_INCREMENT for table `module_page`
 --
 ALTER TABLE `module_page`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 
 --
 -- AUTO_INCREMENT for table `module_settings`
@@ -382,13 +393,19 @@ ALTER TABLE `module_settings`
 -- AUTO_INCREMENT for table `pages`
 --
 ALTER TABLE `pages`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=26;
 
 --
 -- AUTO_INCREMENT for table `page_category`
 --
 ALTER TABLE `page_category`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+
+--
+-- AUTO_INCREMENT for table `settings`
+--
+ALTER TABLE `settings`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `users`
