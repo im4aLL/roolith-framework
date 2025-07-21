@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 20, 2025 at 04:08 AM
+-- Generation Time: Jul 20, 2025 at 06:03 PM
 -- Server version: 10.4.22-MariaDB
 -- PHP Version: 8.1.2
 
@@ -44,7 +44,8 @@ INSERT INTO `categories` (`id`, `name`, `slug`, `body`, `created_at`, `updated_a
 (1, 'Test', 'test', NULL, '2025-06-28 22:19:28', '2025-07-02 04:09:01'),
 (2, 'Sample', 'sample', NULL, '2025-07-02 04:08:36', '2025-07-02 04:08:36'),
 (3, 'News', 'news', NULL, '2025-07-02 04:08:49', '2025-07-02 04:08:49'),
-(4, 'Service', 'service', NULL, '2025-07-06 23:00:29', '2025-07-06 23:00:29');
+(4, 'Service', 'service', NULL, '2025-07-06 23:00:29', '2025-07-06 23:00:29'),
+(5, 'Movies', 'movies', '<p>body&nbsp;data&nbsp;</p>', '2025-07-20 06:12:33', '2025-07-20 06:27:32');
 
 -- --------------------------------------------------------
 
@@ -144,7 +145,10 @@ INSERT INTO `module_data` (`id`, `module_id`, `field_name`, `field_data`) VALUES
 CREATE TABLE `module_page` (
   `id` int(11) NOT NULL,
   `page_id` int(11) NOT NULL,
-  `module_id` int(11) NOT NULL
+  `module_id` int(11) NOT NULL,
+  `position` int(11) NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
@@ -348,7 +352,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `categories`
 --
 ALTER TABLE `categories`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT for table `modules`

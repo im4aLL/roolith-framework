@@ -178,4 +178,22 @@
     .form--filter {
         padding-top: 1.25rem;
     }
+
+    .form__list--draggable {
+        .form__list-item {
+            grid-template-columns: .9375rem 18.75rem 18.75rem auto;
+            align-items: center;
+
+            &::before {
+                content: "⋮⋮";
+                width: .9375rem;
+                cursor: move;
+                text-align: center;
+            }
+        }
+    }
+
+    .form__list-item--dragging {
+        opacity: 0.5;
+    }
 }

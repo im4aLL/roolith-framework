@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b9267df1081b15b3b7a5dac573eb789b",
+    "content-hash": "b8b374a317a8767e48139da813bdec86",
     "packages": [
         {
             "name": "filp/whoops",
@@ -662,23 +662,23 @@
         },
         {
             "name": "roolith/database",
-            "version": "1.0.3",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/im4aLL/roolith-database.git",
-                "reference": "5cb5e5ac99867afec43f6a70288d07a5cea6b866"
+                "reference": "9aa3fbffd14576b246b6f5c63bdff44cc9d8075e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/im4aLL/roolith-database/zipball/5cb5e5ac99867afec43f6a70288d07a5cea6b866",
-                "reference": "5cb5e5ac99867afec43f6a70288d07a5cea6b866",
+                "url": "https://api.github.com/repos/im4aLL/roolith-database/zipball/9aa3fbffd14576b246b6f5c63bdff44cc9d8075e",
+                "reference": "9aa3fbffd14576b246b6f5c63bdff44cc9d8075e",
                 "shasum": ""
             },
             "require": {
                 "ext-pdo": "*"
             },
             "require-dev": {
-                "fzaninotto/faker": "^1.9",
+                "fakerphp/faker": "^1.24",
                 "phpunit/phpunit": "^9.2"
             },
             "type": "library",
@@ -700,9 +700,9 @@
             "description": "PHP database driver",
             "support": {
                 "issues": "https://github.com/im4aLL/roolith-database/issues",
-                "source": "https://github.com/im4aLL/roolith-database/tree/1.0.3"
+                "source": "https://github.com/im4aLL/roolith-database/tree/1.1.0"
             },
-            "time": "2021-09-29T10:09:14+00:00"
+            "time": "2025-07-21T04:43:33+00:00"
         },
         {
             "name": "roolith/event",

@@ -9,8 +9,10 @@ use App\Core\Request;
 use App\Core\Rules;
 use App\Core\Validator;
 use App\Models\Admin\AdminCategory;
+use App\Models\Admin\AdminModule;
 use App\Models\Admin\AdminPage;
 use App\Models\Admin\AdminPageCategory;
+use App\Models\Admin\AdminPageModule;
 use App\Models\Admin\AdminUser;
 use App\Utils\_;
 
@@ -35,15 +37,15 @@ class AdminPageController extends Controller
         $paginationData = $pagination->getDetails();
 
         $lazyLoad = new LazyLoad($paginationData->data, ['add_array' => true]);
-        $lazyLoad->with(AdminUser::class, 'user_id')->with(AdminPageCategory::class, 'id', 'page_id')->get();
+        $lazyLoad->with(AdminUser::class, 'user_id')->with(AdminPageCategory::class, 'id', 'page_id')->with(AdminPageModule::class, 'id', 'page_id')->get();
 
-        $this->attachCategoryNames($paginationData->data);
+        $this->_attachCategoryNames($paginationData->data);
 
         $data = [
             'title' => 'Pages',
             'pages' => $paginationData,
             'pageNumbers' => $pagination->pageNumbers(),
-            'total' => $total
+            'total' => $total,
         ];
 
         return $this->view('admin/page/admin-page', $data);
@@ -57,11 +59,13 @@ class AdminPageController extends Controller
     public function create(): bool|string
     {
         $categories = AdminCategory::all();
+        $modules = AdminModule::all();
 
         $data = [
             'title' => 'Create Page',
             'loadEditor' => true,
             'categories' => $categories,
+            'modules' => $modules,
         ];
 
         return $this->view('admin/page/admin-page-create', $data);
@@ -74,7 +78,7 @@ class AdminPageController extends Controller
      */
     public function store(): array
     {
-        $formData = Request::only(['title', 'type', 'status', 'body', 'category_id']);
+        $formData = Request::only(['title', 'type', 'status', 'body', 'category_id', 'module_id']);
 
         $validator = new Validator();
         $validator->check($formData, [
@@ -94,10 +98,13 @@ class AdminPageController extends Controller
         $formData['body'] = Request::unsafeInput('body');
         $categoryIds = $formData['category_id'];
         unset($formData['category_id']);
+        $moduleIds = $formData['module_id'];
+        unset($formData['module_id']);
 
         $insert = AdminPage::orm()->insert($formData, ['slug']);
         if ($insert->success()) {
-            $this->addCategoryToPage($categoryIds, $insert->insertedId());
+            $this->_addCategoryToPage($categoryIds, $insert->insertedId());
+            $this->_addModuleToPage($moduleIds, $insert->insertedId());
 
             return ApiResponseTransformer::success(['redirect' => route('admin.pages.index')]);
         } elseif ($insert->isDuplicate()) {
@@ -105,54 +112,6 @@ class AdminPageController extends Controller
         }
 
         return ApiResponseTransformer::error(null, 'Uh-oh! Our page-maker just took a coffee break. Try again in a bit.');
-    }
-
-    /**
-     * Add categories to a page
-     *
-     * @param array $categoryIds
-     * @param int $pageId
-     * @return void
-     */
-    private function addCategoryToPage(array $categoryIds, int $pageId): void
-    {
-        $categories = _::compact($categoryIds);
-
-        if (count($categories) === 0) {
-            return;
-        }
-
-        foreach ($categories as $categoryId) {
-            $data = [];
-            $data['page_id'] = $pageId;
-            $data['category_id'] = $categoryId;
-
-            AdminPageCategory::orm()->insert($data);
-        }
-    }
-
-    /**
-     * Remove categories from a page
-     *
-     * @param array $categoryIds
-     * @param int $pageId
-     * @return void
-     */
-    private function removeCategoryFromPage(array $categoryIds, int $pageId): void
-    {
-        $categories = _::compact($categoryIds);
-
-        if (count($categories) === 0) {
-            return;
-        }
-
-        foreach ($categories as $categoryId) {
-            $data = [];
-            $data['page_id'] = $pageId;
-            $data['category_id'] = $categoryId;
-
-            AdminPageCategory::orm()->delete($data);
-        }
     }
 
     /**
@@ -174,13 +133,19 @@ class AdminPageController extends Controller
         $page = AdminPage::orm()->find($id);
         $pageCategories = AdminPageCategory::orm()->where('page_id', $id)->get();
         $page->category_ids = _::pluck($pageCategories, 'category_id');
+        $page->modules = AdminPageModule::orm()->select([
+            'orderBy' => 'position ASC',
+        ])->where('page_id', $id)->get();
+
         $categories = AdminCategory::all();
+        $modules = AdminModule::all();
 
         $data = [
             'title' => 'Edit Page - ' . $page->title,
             'page' => $page,
             'loadEditor' => true,
             'categories' => $categories,
+            'modules' => $modules,
         ];
 
         return $this->view('admin/page/admin-page-edit', $data);
@@ -203,6 +168,9 @@ class AdminPageController extends Controller
         $pageCategories = AdminPageCategory::orm()->where('page_id', $id)->get();
         $oldCategoryIds = _::pluck($pageCategories, 'category_id');
 
+        $pageModules = AdminPageModule::orm()->where('page_id', $id)->get();
+        $oldModuleIds = _::pluck($pageModules, 'module_id');
+
         $formData = Request::all();
 
         $validator = new Validator();
@@ -213,6 +181,7 @@ class AdminPageController extends Controller
             'body' => Rules::set()->isRequired(),
             'category_id' => Rules::set()->isArray(),
             'slug' => Rules::set()->isRequired(),
+            'module_id' => Rules::set()->isArray(),
         ]);
 
         if ($validator->fails()) {
@@ -223,6 +192,10 @@ class AdminPageController extends Controller
         $newCategoryIds = $formData['category_id'];
         unset($formData['category_id']);
 
+        $newModuleIds = $formData['module_id'];
+        $isModuleChanged = $this->_isModuleChanged($oldModuleIds, $newModuleIds);
+        unset($formData['module_id']);
+
         $update = AdminPage::orm()->update($formData, ['id' => $page->id], ['slug']);
 
         if ($update->isDuplicate()) {
@@ -231,8 +204,12 @@ class AdminPageController extends Controller
 
         if ($update->success()) {
             $categoryChangeResult = _::compareArrays($oldCategoryIds, $newCategoryIds);
-            $this->removeCategoryFromPage($categoryChangeResult['removed'], $page->id);
-            $this->addCategoryToPage($categoryChangeResult['added'], $page->id);
+            $this->_removeCategoryFromPage($categoryChangeResult['removed'], $page->id);
+            $this->_addCategoryToPage($categoryChangeResult['added'], $page->id);
+
+            if ($isModuleChanged) {
+                $this->_updatePageModules($newModuleIds, $page->id);
+            }
 
             return ApiResponseTransformer::success(['redirect' => route('admin.pages.edit', ['param' => $page->id])]);
         }
@@ -257,7 +234,8 @@ class AdminPageController extends Controller
         $pageCategories = AdminPageCategory::orm()->where('page_id', $id)->get();
         $categoryIds = _::pluck($pageCategories, 'category_id');
 
-        $this->removeCategoryFromPage($categoryIds, $page->id);
+        $this->_removeCategoryFromPage($categoryIds, $page->id);
+        $this->_deleteAllPageModules($page->id);
         $delete = AdminPage::orm()->delete(['id' => $id]);
 
         if (!$delete->success()) {
@@ -268,20 +246,93 @@ class AdminPageController extends Controller
     }
 
     /**
+     * Add categories to a page
+     *
+     * @param array $categoryIds
+     * @param int $pageId
+     * @return void
+     */
+    private function _addCategoryToPage(array $categoryIds, int $pageId): void
+    {
+        $categories = _::compact($categoryIds);
+
+        if (count($categories) === 0) {
+            return;
+        }
+
+        foreach ($categories as $categoryId) {
+            $data = [];
+            $data['page_id'] = $pageId;
+            $data['category_id'] = $categoryId;
+
+            AdminPageCategory::orm()->insert($data);
+        }
+    }
+
+    /**
+     * Add module to pages
+     *
+     * @param array $moduleIds
+     * @param int $pageId
+     * @return void
+     */
+    private function _addModuleToPage(array $moduleIds, int $pageId): void
+    {
+        $moduleIdArray = _::compact($moduleIds);
+
+        if (count($moduleIdArray) === 0) {
+            return;
+        }
+
+        foreach ($moduleIdArray as $index => $moduleId) {
+            $data = [];
+            $data['page_id'] = $pageId;
+            $data['module_id'] = $moduleId;
+            $data['position'] = $index + 1;
+
+            AdminPageModule::orm()->insert($data);
+        }
+    }
+
+    /**
+     * Remove categories from a page
+     *
+     * @param array $categoryIds
+     * @param int $pageId
+     * @return void
+     */
+    private function _removeCategoryFromPage(array $categoryIds, int $pageId): void
+    {
+        $categories = _::compact($categoryIds);
+
+        if (count($categories) === 0) {
+            return;
+        }
+
+        foreach ($categories as $categoryId) {
+            $data = [];
+            $data['page_id'] = $pageId;
+            $data['category_id'] = $categoryId;
+
+            AdminPageCategory::orm()->delete($data);
+        }
+    }
+
+    /**
      * Attach category names to a paginated result
      *
      * @param array $paginatedData
      * @return void
      */
-    private function attachCategoryNames(array $paginatedData): void
+    private function _attachCategoryNames(array $paginatedData): void
     {
         $categoryIds = [];
         foreach ($paginatedData as $data) {
-            if (!$data->id_data_array) {
+            if (!$data->admin_page_category_array) {
                 continue;
             }
 
-            $ids = _::pluck($data->id_data_array, 'category_id');
+            $ids = _::pluck($data->admin_page_category_array, 'category_id');
             $categoryIds = array_merge($categoryIds, $ids);
         }
 
@@ -295,11 +346,11 @@ class AdminPageController extends Controller
         ])->get();
 
         foreach ($paginatedData as $data) {
-            if (!$data->id_data_array) {
+            if (!$data->admin_page_category_array) {
                 continue;
             }
 
-            foreach ($data->id_data_array as $category) {
+            foreach ($data->admin_page_category_array as $category) {
                 $matchedCategory = _::find($categories, function ($cat) use ($category) {
                     return $cat->id == $category->category_id;
                 });
@@ -311,7 +362,63 @@ class AdminPageController extends Controller
                 $category->name = $matchedCategory->name;
             }
 
-            $data->categoryNames = implode(', ', _::pluck($data->id_data_array, 'name'));
+            $data->categoryNames = implode(', ', _::pluck($data->admin_page_category_array, 'name'));
         }
+    }
+
+    /**
+     * Remove page modules and add new modules
+     *
+     * @param array $moduleIds
+     * @param int $pageId
+     * @return void
+     */
+    private function _updatePageModules(array $moduleIds, int $pageId): void
+    {
+        $delete = $this->_deleteAllPageModules($pageId);
+
+        if (!$delete) {
+            return;
+        }
+
+        $this->_addModuleToPage($moduleIds, $pageId);
+    }
+
+    /**
+     * Delete page modules
+     *
+     * @param int $pageId
+     * @return bool
+     */
+    private function _deleteAllPageModules(int $pageId): bool
+    {
+        $delete = AdminPageModule::orm()->delete(['page_id' => $pageId]);
+
+        return $delete->success();
+    }
+
+    /**
+     * Is module order changed or added new modules?
+     *
+     * @param array $oldModuleArray
+     * @param array $newModuleArray
+     * @return bool
+     */
+    private function _isModuleChanged(array $oldModuleArray, array $newModuleArray): bool
+    {
+        $isModuleChanged = false;
+
+        if (count($oldModuleArray) != count($newModuleArray)) {
+            return true;
+        }
+
+        foreach ($oldModuleArray as $index => $oldModuleId) {
+            if  ($oldModuleId != $newModuleArray[$index]) {
+                $isModuleChanged = true;
+                break;
+            }
+        }
+
+        return $isModuleChanged;
     }
 }

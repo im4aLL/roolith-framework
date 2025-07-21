@@ -63,7 +63,8 @@ class LazyLoad
      */
     private function attachModelData(object $dto): void
     {
-        $key = $dto->foreignKey . '_data';
+        $array = explode('\\', $dto->model);
+        $key = _::pascalCaseToSnakeCase(end($array));
         $ids = [];
 
         foreach ($this->result as $item) {

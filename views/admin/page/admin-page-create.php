@@ -23,6 +23,7 @@
                 'form_header' => 'Add new page',
                 'form_data' => null,
                 'form_data_categories' => $categories,
+                'form_data_modules' => $modules,
             ]);
         ?>
     </section>

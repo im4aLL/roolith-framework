@@ -37,7 +37,7 @@
                     <td><?= $page->type ?></td>
                     <td><?= $page->status ?></td>
                     <td><?= $page->categoryNames ?? '-' ?></td>
-                    <td><?= $page->user_id_data ? $page->user_id_data->name : '-' ?></td>
+                    <td><?= $page->admin_user ? $page->admin_user->name : '-' ?></td>
                     <td><?= diffForHumans($page->created_at) ?></td>
                     <td><?= diffForHumans($page->updated_at) ?></td>
                 </tr>

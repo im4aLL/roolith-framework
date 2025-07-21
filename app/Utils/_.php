@@ -860,4 +860,17 @@ class _
     {
         return count(get_object_vars($object));
     }
+
+    /**
+     * Pascal case to snake case
+     *
+     * @param string $input
+     * @return string
+     */
+    public static function pascalCaseToSnakeCase(string $input): string
+    {
+        $snake = preg_replace('/(?<!^)[A-Z]/', '_$0', $input);
+
+        return strtolower($snake);
+    }
 }

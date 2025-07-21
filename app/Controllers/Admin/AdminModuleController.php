@@ -79,11 +79,11 @@ class AdminModuleController extends Controller
         $lazyLoad->with(AdminModuleSetting::class, 'module_setting_id')->get();
 
         foreach ($paginationData->data as $row) {
-            $jsonString = $row->module_setting_id_data->settings;
+            $jsonString = $row->admin_module_setting->settings;
 
             if (_::isJson($jsonString)) {
-                $row->module_setting_id_data->settings = json_decode($jsonString);
-                $row->module_setting_id_data->settings_count = count($row->module_setting_id_data->settings->name);
+                $row->admin_module_setting->settings = json_decode($jsonString);
+                $row->admin_module_setting->settings_count = count($row->admin_module_setting->settings->name);
             }
         }
 

@@ -23,6 +23,7 @@
                 'form_header' => 'Edit page - ' .$page->title,
                 'form_data' => $page,
                 'form_data_categories' => $categories,
+                'form_data_modules' => $modules,
             ]);
         ?>
     </section>

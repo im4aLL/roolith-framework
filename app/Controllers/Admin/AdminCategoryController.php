@@ -3,14 +3,10 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\Controller;
 use App\Core\ApiResponseTransformer;
-use App\Core\LazyLoad;
 use App\Core\Request;
 use App\Core\Rules;
 use App\Core\Validator;
 use App\Models\Admin\AdminCategory;
-use App\Models\Admin\AdminPage;
-use App\Models\Admin\AdminPageCategory;
-use App\Models\Admin\AdminUser;
 use App\Utils\_;
 
 class AdminCategoryController extends Controller

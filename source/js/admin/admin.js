@@ -5,6 +5,7 @@ import { SerializeObject } from "./serialize-object";
 import { DeleteItem } from "./delete-item";
 import { Repeater } from "./repeater";
 import { DeleteFile } from "./delete-file";
+import { Draggable } from "./draggable";
 
 window.$ = window.jQuery = $;
 
@@ -25,4 +26,5 @@ $(function () {
     new DeleteItem();
     new Repeater();
     new DeleteFile();
+    new Draggable();
 });
