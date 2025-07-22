@@ -44,8 +44,8 @@
                 <option value="draft"<?= $form_data->status == 'draft' ? ' selected' : '' ?>>Draft</option>
                 <option value="published"<?= $form_data->status == 'published' ? ' selected' : '' ?>>Published</option>
             <?php else: ?>
-                <option value="draft" selected>Draft</option>
-                <option value="published">Published</option>
+                <option value="draft">Draft</option>
+                <option value="published" selected>Published</option>
             <?php endif; ?>
         </select>
     </div>

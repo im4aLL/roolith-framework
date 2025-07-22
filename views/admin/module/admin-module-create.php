@@ -67,8 +67,8 @@
                 <div class="form__field">
                     <label for="status" class="form__label">Status</label>
                     <select name="status" id="status" class="form__input form--select">
-                        <option value="draft" selected>Draft</option>
-                        <option value="published">Published</option>
+                        <option value="draft">Draft</option>
+                        <option value="published" selected>Published</option>
                     </select>
                 </div>
                 <!-- base -->
