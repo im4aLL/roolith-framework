@@ -6,7 +6,7 @@
     </aside>
 
     <section class="layout__body">
-        <h3>Pages (<?= $total ?>)</h3>
+        <h3>Categories (<?= $total ?>)</h3>
 
         <nav class="nav nav--horizontal">
             <ul class="nav__list">

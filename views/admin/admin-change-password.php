@@ -29,7 +29,7 @@
             </div>
 
             <div class="form__field">
-                <label for="re_new_password" class="form__label">New password</label>
+                <label for="re_new_password" class="form__label">Retype new password</label>
                 <input type="password" name="re_new_password" id="re_new_password" class="form__input">
             </div>
 

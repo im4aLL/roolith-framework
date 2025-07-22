@@ -2,13 +2,16 @@
 namespace App\Controllers\Admin;
 
 use App\Controllers\Controller;
+use App\Models\Admin\AdminCategory;
+use App\Models\Admin\AdminModule;
+use App\Models\Admin\AdminModuleSetting;
 use App\Models\Admin\AdminPage;
 use App\Models\Admin\AdminUser;
 use Carbon\Carbon;
 
 class AdminController extends Controller
 {
-    public function index()
+    public function index(): bool|string
     {
         $currentUser = AdminUser::current();
 
@@ -18,37 +21,25 @@ class AdminController extends Controller
             FROM ".AdminPage::tableName();
         $pageCount = AdminPage::raw()->query($pageQueryString)->first();
 
+        $moduleQueryString = "SELECT
+                SUM(CASE WHEN status = 'published' THEN 1 ELSE 0 END) AS published_count,
+                SUM(CASE WHEN status = 'draft' THEN 1 ELSE 0 END) AS draft_count
+            FROM ".AdminModule::tableName();
+        $moduleCount = AdminModule::raw()->query($moduleQueryString)->first();
+
+        $moduleSettingsCount = AdminModuleSetting::raw()->query("SELECT COUNT(id) as total from ".AdminModuleSetting::tableName())->first();
+        $categoryCount = AdminCategory::raw()->query("SELECT COUNT(id) as total from ".AdminCategory::tableName())->first();
+
         $data = [
             'content' => 'Welcome to Roolith admin!',
             'title' => 'Roolith Admin',
             'lastLoggedIn' => Carbon::parse($currentUser->last_logged_in)->toDayDateTimeString(),
             'pageCount' => $pageCount,
+            'moduleCount' => $moduleCount,
+            'moduleSettingsCount' => $moduleSettingsCount,
+            'categoryCount' => $categoryCount,
         ];
 
         return $this->view('admin.admin-dashboard', $data);
-    }
-
-    public function create()
-    {
-    }
-
-    public function store()
-    {
-    }
-
-    public function show($id)
-    {
-    }
-
-    public function edit($id)
-    {
-    }
-
-    public function update($id)
-    {
-    }
-
-    public function destroy($id)
-    {
     }
 }
