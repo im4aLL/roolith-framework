@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 21, 2025 at 08:05 AM
+-- Generation Time: Jul 22, 2025 at 08:30 AM
 -- Server version: 10.4.22-MariaDB
 -- PHP Version: 8.1.2
 
@@ -255,10 +255,19 @@ INSERT INTO `page_category` (`id`, `page_id`, `category_id`, `created_at`, `upda
 
 CREATE TABLE `settings` (
   `id` int(11) NOT NULL,
-  `key` varchar(100) NOT NULL,
+  `item` varchar(100) NOT NULL,
   `value` text NOT NULL,
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `settings`
+--
+
+INSERT INTO `settings` (`id`, `item`, `value`, `updated_at`) VALUES
+(1, 'a', 'b', '2025-07-22 05:25:00'),
+(3, 'aaa', 'ccccddd', '2025-07-22 05:28:49'),
+(4, 'facebook', 'http://facebook.com/?something=2', '2025-07-22 05:32:59');
 
 -- --------------------------------------------------------
 
@@ -282,7 +291,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `last_logged_in`, `created_at`, `updated_at`) VALUES
-(1, 'Admin', 'admin@website.com', '$2y$10$4KVrVzLxkpTsSCP2O3EZPeBwKUV0dn93ZJvk0tx4oHXaenz2sX1ry', 'admin', '2025-07-20 00:32:01', '2025-06-26 05:01:42', '2025-07-19 22:32:01');
+(1, 'Admin', 'admin@website.com', '$2y$10$2MBWGshFkYB0riI7tVczbOryz2zbrBkFRRFLeYT/DVxPTIm8HqJ/2', 'admin', '2025-07-20 00:32:01', '2025-06-26 05:01:42', '2025-07-22 06:13:37');
 
 --
 -- Indexes for dumped tables
@@ -346,7 +355,7 @@ ALTER TABLE `page_category`
 --
 ALTER TABLE `settings`
   ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `key` (`key`);
+  ADD UNIQUE KEY `item` (`item`);
 
 --
 -- Indexes for table `users`
@@ -405,7 +414,7 @@ ALTER TABLE `page_category`
 -- AUTO_INCREMENT for table `settings`
 --
 ALTER TABLE `settings`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `users`
