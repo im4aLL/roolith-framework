@@ -14,6 +14,9 @@ class AdminAuthController extends Controller
     private AdminUser $user;
     private Validator $validator;
 
+    private string $_changePassErrorMessageKey = 'change_pass_error';
+    private string $_changePassMsgKey = 'change_pass_msg';
+
     public function __construct(AdminUser $adminUser, Validator $validator)
     {
         parent::__construct();
@@ -99,5 +102,69 @@ class AdminAuthController extends Controller
         $this->user->destroySession();
 
         redirectToRoute('admin.auth.login');
+    }
+
+    /**
+     * Change a password form
+     *
+     * @return bool|string
+     */
+    public function changePassword(): bool|string
+    {
+        $errorMessage = Storage::getTemp($this->_changePassErrorMessageKey);
+        $successMessage = Storage::getTemp($this->_changePassMsgKey);
+
+        $data = [
+            'title' => 'Change password',
+        ];
+
+        if ($errorMessage) {
+            $data['error_message'] = $errorMessage;
+        }
+
+        if ($successMessage) {
+            $data['success_message'] = $successMessage;
+        }
+
+        return $this->view('admin/admin-change-password', $data);
+    }
+
+    /**
+     * Update password for admin user
+     *
+     * @return void
+     */
+    public function updatePassword(): void
+    {
+        $changePasswordRouteName = 'admin.auth.changePassword';
+        $postedData = Request::only(['current_password', 'new_password', 're_new_password']);
+
+        if (strlen($postedData['new_password']) < 6) {
+            Storage::temp($this->_changePassErrorMessageKey, 'Password must be at least 6 characters.');
+            redirectToRoute($changePasswordRouteName);
+        }
+
+        if ($postedData['new_password'] != $postedData['re_new_password']) {
+            Storage::temp($this->_changePassErrorMessageKey, 'New change does not match');
+            redirectToRoute($changePasswordRouteName);
+        }
+
+        $user = AdminUser::current();
+
+        if (!password_verify($postedData['current_password'], $user->password)) {
+            Storage::temp($this->_changePassErrorMessageKey, 'Current password does not match');
+            redirectToRoute($changePasswordRouteName);
+        }
+
+        $newPassword = password_hash($postedData['new_password'], PASSWORD_DEFAULT);
+        $result = AdminUser::orm()->update(['password' => $newPassword], ['id' => $user->id]);
+
+        if ($result->success()) {
+            Storage::temp($this->_changePassMsgKey, 'Password has been changed');
+            redirectToRoute($changePasswordRouteName);
+        }
+
+        Storage::temp($this->_changePassErrorMessageKey, 'Unable to update password');
+        redirectToRoute($changePasswordRouteName);
     }
 }

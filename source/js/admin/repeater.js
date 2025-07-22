@@ -29,7 +29,7 @@ export class Repeater {
     removeFieldButtonClickHandler() {
         $(".form__list").on(
             "click",
-            ".form__list-item-action .button",
+            ".form__list-item-action .button:not(.form__delete-cta)",
             function () {
                 if (confirm("Are you sure you want to remove this field?")) {
                     $(this).closest(".form__list-item").remove();

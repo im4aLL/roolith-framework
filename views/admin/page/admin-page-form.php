@@ -76,24 +76,29 @@
     <div class="form__field">
         <label for="module_list" class="form__label">Add modules</label>
         <ul class="form__list form__list--draggable">
-            <?php foreach ($form_data->modules as $pageModule): ?>
-                <li class="form__list-item" draggable="true">
-                    <select name="module_id[]" class="form__input form--select">
-                        <option value="">Select module</option>
-                        <?php foreach ($form_data_modules as $module): ?>
-                            <option value="<?= $module->id ?>" <?= $module->id == $pageModule->module_id ? 'selected' : '' ?>>
-                                <?= $module->title ?> <?= $module->group_name ? "({$module->group_name})" : '' ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
+            <?php
+                if ($form_data) :
+                    foreach ($form_data->modules as $pageModule): ?>
+                        <li class="form__list-item" draggable="true">
+                            <select name="module_id[]" class="form__input form--select">
+                                <option value="">Select module</option>
+                                <?php foreach ($form_data_modules as $module): ?>
+                                    <option value="<?= $module->id ?>" <?= $module->id == $pageModule->module_id ? 'selected' : '' ?>>
+                                        <?= $module->title ?> <?= $module->group_name ? "({$module->group_name})" : '' ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
 
-                    <div class="form__list-item-action">
-                        <button class="button button--text button--danger" type="button">Remove</button>
-                    </div>
-                </li>
-            <?php endforeach; ?>
+                            <div class="form__list-item-action">
+                                <button class="button button--text button--danger" type="button">Remove</button>
+                            </div>
+                        </li>
+            <?php
+                    endforeach;
+                endif;
+            ?>
 
-            <?php if (count($form_data->modules) == 0) : ?>
+            <?php if (!$form_data || count($form_data->modules) == 0) : ?>
             <li class="form__list-item" draggable="true">
                 <select name="module_id[]" class="form__input form--select">
                     <option value="">Select module</option>

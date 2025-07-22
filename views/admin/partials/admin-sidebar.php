@@ -28,10 +28,10 @@
 
             <ul class="nav__list nav__list--sub">
                 <li class="nav__item">
-                    <a href="<?= route('admin.users.create') ?>" class="nav__link">Change Password</a>
+                    <a href="<?= route('admin.auth.changePassword') ?>" class="nav__link">Change Password</a>
                 </li>
                 <li class="nav__item">
-                    <a href="<?= route('admin.users.create') ?>" class="nav__link">Site Settings</a>
+                    <a href="<?= route('admin.siteSettings') ?>" class="nav__link">Site Settings</a>
                 </li>
             </ul>
         </li>

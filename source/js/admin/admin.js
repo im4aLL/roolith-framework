@@ -6,6 +6,7 @@ import { DeleteItem } from "./delete-item";
 import { Repeater } from "./repeater";
 import { DeleteFile } from "./delete-file";
 import { Draggable } from "./draggable";
+import { SiteSettings } from "./site-settings";
 
 window.$ = window.jQuery = $;
 
@@ -27,4 +28,5 @@ $(function () {
     new Repeater();
     new DeleteFile();
     new Draggable();
+    new SiteSettings();
 });
