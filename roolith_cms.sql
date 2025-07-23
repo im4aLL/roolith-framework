@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 22, 2025 at 08:30 AM
+-- Generation Time: Jul 23, 2025 at 08:34 AM
 -- Server version: 10.4.22-MariaDB
 -- PHP Version: 8.1.2
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `ka_website`
+-- Database: `roolith_cms`
 --
 
 -- --------------------------------------------------------
@@ -46,6 +46,34 @@ INSERT INTO `categories` (`id`, `name`, `slug`, `body`, `created_at`, `updated_a
 (3, 'News', 'news', NULL, '2025-07-02 04:08:49', '2025-07-02 04:08:49'),
 (4, 'Service', 'service', NULL, '2025-07-06 23:00:29', '2025-07-06 23:00:29'),
 (5, 'Movies', 'movies', '<p>body&nbsp;data&nbsp;</p>', '2025-07-20 06:12:33', '2025-07-20 06:27:32');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `messages`
+--
+
+CREATE TABLE `messages` (
+  `id` int(11) NOT NULL,
+  `reference` varchar(50) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  `type` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `message` text NOT NULL,
+  `fields` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
+  `is_seen` tinyint(1) NOT NULL DEFAULT 0,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `messages`
+--
+
+INSERT INTO `messages` (`id`, `reference`, `name`, `type`, `email`, `message`, `fields`, `is_seen`, `created_at`) VALUES
+(1, 'DW-380406-1753240531', 'hadi', 'contact', 'a@b.com', 'hola', '{\"a\":\"111\",\"b\":\"2222\"}', 0, '2025-07-23 03:15:31'),
+(2, 'NO-999713-1753240567', 'john', 'contact', 'a@b.com', 'hola', '{\"a\":\"111\",\"b\":\"2222\"}', 1, '2025-07-23 03:16:07'),
+(3, 'KO-653954-1753242156', 'xxx', 'contact', 'c@a.com', 'holaasdasdsdad', '{\"a\":\"111\",\"b\":\"2222\"}', 0, '2025-07-23 03:42:36'),
+(4, 'RF-607297-1753243764', 'yyyy', 'contact', 'c@a.com', 'holaasdasdsdad', NULL, 0, '2025-07-23 04:09:24');
 
 -- --------------------------------------------------------
 
@@ -291,7 +319,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `last_logged_in`, `created_at`, `updated_at`) VALUES
-(1, 'Admin', 'admin@website.com', '$2y$10$2MBWGshFkYB0riI7tVczbOryz2zbrBkFRRFLeYT/DVxPTIm8HqJ/2', 'admin', '2025-07-20 00:32:01', '2025-06-26 05:01:42', '2025-07-22 06:13:37');
+(1, 'Admin', 'admin@website.com', '$2y$10$2MBWGshFkYB0riI7tVczbOryz2zbrBkFRRFLeYT/DVxPTIm8HqJ/2', 'admin', '2025-07-22 08:49:57', '2025-06-26 05:01:42', '2025-07-22 06:49:57');
 
 --
 -- Indexes for dumped tables
@@ -303,6 +331,13 @@ INSERT INTO `users` (`id`, `name`, `email`, `password`, `role`, `last_logged_in`
 ALTER TABLE `categories`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `slug` (`slug`);
+
+--
+-- Indexes for table `messages`
+--
+ALTER TABLE `messages`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `reference` (`reference`);
 
 --
 -- Indexes for table `modules`
@@ -373,6 +408,12 @@ ALTER TABLE `users`
 --
 ALTER TABLE `categories`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `messages`
+--
+ALTER TABLE `messages`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `modules`

@@ -4,7 +4,7 @@ return [
 
     'database' => [
         'host' => 'localhost',
-        'name' => 'ka_website',
+        'name' => 'roolith_cms',
         'user' => 'root',
         'pass' => '',
     ],
