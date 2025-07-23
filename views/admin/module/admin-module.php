@@ -20,7 +20,7 @@
             <form action="" method="get" class="form form--inline form--filter">
                 <div class="form__field">
                     <label for="title" class="form__label">By title</label>
-                    <input type="text" id="title" name="filter[title]" class="form__input" value="<?= isset($filterInput) ? $filterInput['title'] : '' ?>">
+                    <input type="text" id="title" name="filter[title]" class="form__input" value="<?= $filterInput['title'] ?? '' ?>">
                 </div>
 
                 <div class="form__field">
@@ -28,7 +28,7 @@
                     <select name="filter[group_name]" id="group_name" class="form__input form--select">
                         <option value=""></option>
                         <?php foreach ($groupNames as $groupName): ?>
-                            <option value="<?= $groupName ?>" <?= isset($filterInput) && $filterInput['group_name'] == $groupName ? 'selected' : '' ?>><?= $groupName ?></option>
+                            <option value="<?= $groupName ?>" <?= isset($filterInput['group_name']) && $filterInput['group_name'] == $groupName ? 'selected' : '' ?>><?= $groupName ?></option>
                         <?php endforeach; ?>
                     </select>
                 </div>
@@ -37,8 +37,8 @@
                     <label for="status" class="form__label">By status</label>
                     <select name="filter[status]" id="status" class="form__input form--select">
                         <option value=""></option>
-                        <option value="draft" <?= isset($filterInput) && $filterInput['status'] == 'draft' ? 'selected' : '' ?>>Draft</option>
-                        <option value="published" <?= isset($filterInput) && $filterInput['status'] == 'published' ? 'selected' : '' ?>>Published</option>
+                        <option value="draft" <?= isset($filterInput['status']) && $filterInput['status'] == 'draft' ? 'selected' : '' ?>>Draft</option>
+                        <option value="published" <?= isset($filterInput['status']) && $filterInput['status'] == 'published' ? 'selected' : '' ?>>Published</option>
                     </select>
                 </div>
 

@@ -3,6 +3,7 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\Controller;
 use App\Models\Admin\AdminCategory;
+use App\Models\Admin\AdminMessage;
 use App\Models\Admin\AdminModule;
 use App\Models\Admin\AdminModuleSetting;
 use App\Models\Admin\AdminPage;
@@ -29,6 +30,7 @@ class AdminController extends Controller
 
         $moduleSettingsCount = AdminModuleSetting::raw()->query("SELECT COUNT(id) as total from ".AdminModuleSetting::tableName())->first();
         $categoryCount = AdminCategory::raw()->query("SELECT COUNT(id) as total from ".AdminCategory::tableName())->first();
+        $unreadMessageCount = AdminMessage::raw()->query("SELECT COUNT(id) as total from ".AdminMessage::tableName()." WHERE is_seen = '0'")->first();
 
         $data = [
             'content' => 'Welcome to Roolith admin!',
@@ -38,6 +40,7 @@ class AdminController extends Controller
             'moduleCount' => $moduleCount,
             'moduleSettingsCount' => $moduleSettingsCount,
             'categoryCount' => $categoryCount,
+            'unreadMessageCount' => $unreadMessageCount,
         ];
 
         return $this->view('admin.admin-dashboard', $data);

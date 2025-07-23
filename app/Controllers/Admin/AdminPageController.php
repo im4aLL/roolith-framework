@@ -25,11 +25,42 @@ class AdminPageController extends Controller
      */
     public function index(): string|bool
     {
-        $total = AdminPage::orm()->select([
-            'field' => ['id']
-        ])->count();
+        $filterInput = Request::input('filter');
 
-        $pagination = AdminPage::orm()->query('SELECT * FROM ' . AdminPage::tableName() . ' ORDER by id DESC')->paginate([
+        $selectArray = [
+            'field' => ['id']
+        ];
+
+        if ($filterInput) {
+            $whereConditions = [];
+
+            foreach ($filterInput as $key => $value) {
+                if (!$value) {
+                    continue;
+                }
+
+                if ($key == 'title') {
+                    $whereConditions[] = "$key LIKE '%$value%'";
+                } else {
+                    $whereConditions[] = "$key = '$value'";
+                }
+
+            }
+
+            $selectArray = [
+                'field' => ['id'],
+                'condition' => 'WHERE '.implode(' AND ', $whereConditions)
+            ];
+        }
+
+        $total = AdminPage::orm()->select($selectArray)->count();
+
+        $queryString = 'SELECT * FROM ' . AdminPage::tableName() . ' ORDER by id DESC';
+        if ($filterInput) {
+            $queryString = 'SELECT * FROM ' . AdminPage::tableName() . ' WHERE '.implode(' AND ', $whereConditions). ' ORDER by id DESC';
+        }
+
+        $pagination = AdminPage::raw()->query($queryString)->paginate([
             'perPage' => APP_ADMIN_PAGINATION_PER_PAGE,
             'total' => $total,
             'pageUrl' => route('admin.pages.index')
@@ -46,6 +77,7 @@ class AdminPageController extends Controller
             'pages' => $paginationData,
             'pageNumbers' => $pagination->pageNumbers(),
             'total' => $total,
+            'filterInput' => $filterInput,
         ];
 
         return $this->view('admin/page/admin-page', $data);

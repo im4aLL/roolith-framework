@@ -8,15 +8,44 @@
     <section class="layout__body">
         <h3><?= $this->escape('content') ?></h3>
 
-        <p>You have last logged in at <time datetime="2021-01-01T00:00:00+00:00"><?= $lastLoggedIn ?></time></p>
+        <p>You have last logged in at <?= diffForHumans($lastLoggedIn) ?></p>
 
         <ul class="card">
-            <li class="card__item"><span class="card__info"><?= $pageCount->published_count ?></span> Published Pages</li>
-            <li class="card__item"><span class="card__info"><?= $pageCount->draft_count ?></span> Unpublished Pages</li>
-            <li class="card__item"><span class="card__info"><?= $moduleCount->published_count ?></span> Published Modules</li>
-            <li class="card__item"><span class="card__info"><?= $moduleCount->draft_count ?></span> Unpublished Modules</li>
-            <li class="card__item"><span class="card__info"><?= $moduleSettingsCount->total ?></span> Module settings</li>
-            <li class="card__item"><span class="card__info"><?= $categoryCount->total ?></span> Categories</li>
+            <li class="card__item">
+                <a href="<?= route('admin.pages.index') ?>?filter[status]=published">
+                    <span class="card__info"><?= $pageCount->published_count ?></span> Published Pages
+                </a>
+            </li>
+            <li class="card__item">
+                <a href="<?= route('admin.pages.index') ?>?filter[status]=draft">
+                    <span class="card__info"><?= $pageCount->draft_count ?></span> Unpublished Pages
+                </a>
+            </li>
+            <li class="card__item">
+                <a href="<?= route('admin.modules.index') ?>?filter[status]=published">
+                    <span class="card__info"><?= $moduleCount->published_count ?></span> Published Modules
+                </a>
+            </li>
+            <li class="card__item">
+                <a href="<?= route('admin.modules.index') ?>?filter[status]=draft">
+                    <span class="card__info"><?= $moduleCount->draft_count ?></span> Unpublished Modules
+                </a>
+            </li>
+            <li class="card__item">
+                <a href="<?= route('admin.module-settings.index') ?>">
+                    <span class="card__info"><?= $moduleSettingsCount->total ?></span> Module settings
+                </a>
+            </li>
+            <li class="card__item">
+                <a href="<?= route('admin.categories.index') ?>">
+                    <span class="card__info"><?= $categoryCount->total ?></span> Categories
+                </a>
+            </li>
+            <li class="card__item">
+                <a href="<?= route('admin.messages.index') ?>">
+                    <span class="card__info"><?= $unreadMessageCount->total ?></span> Unread messages
+                </a>
+            </li>
         </ul>
 
     </section>

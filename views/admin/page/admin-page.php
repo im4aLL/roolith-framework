@@ -16,6 +16,39 @@
             </ul>
         </nav>
 
+        <div class="table__filters">
+            <form action="" method="get" class="form form--inline form--filter">
+                <div class="form__field">
+                    <label for="title" class="form__label">By title</label>
+                    <input type="text" id="title" name="filter[title]" class="form__input" value="<?= $filterInput['title'] ?? '' ?>">
+                </div>
+
+                <div class="form__field">
+                    <label for="type" class="form__label">By type</label>
+                    <select name="filter[type]" id="type" class="form__input form--select">
+                        <option value=""></option>
+                        <option value="page" <?= isset($filterInput['type']) && $filterInput['type'] == 'page' ? 'selected' : '' ?>>Page</option>
+                        <option value="blog" <?= isset($filterInput['type']) && $filterInput['type'] == 'blog' ? 'selected' : '' ?>>Blog</option>
+                    </select>
+                </div>
+
+                <div class="form__field">
+                    <label for="status" class="form__label">By status</label>
+                    <select name="filter[status]" id="status" class="form__input form--select">
+                        <option value=""></option>
+                        <option value="draft" <?= isset($filterInput['status']) && $filterInput['status'] == 'draft' ? 'selected' : '' ?>>Draft</option>
+                        <option value="published" <?= isset($filterInput['status']) && $filterInput['status'] == 'published' ? 'selected' : '' ?>>Published</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="button">Filter</button>
+
+                <?php if (isset($filterInput)) : ?>
+                    <a href="<?= route('admin.pages.index') ?>" class="button">Reset filter</a>
+                <?php endif; ?>
+            </form>
+        </div>
+
         <table class="table">
             <thead>
                 <tr>
