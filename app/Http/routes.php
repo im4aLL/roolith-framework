@@ -1,6 +1,7 @@
 <?php
 
 use App\Controllers\Admin\AdminCategoryController;
+use App\Controllers\Admin\AdminMessageController;
 use App\Controllers\Admin\AdminMiscController;
 use App\Controllers\Admin\AdminModuleSettingController;
 use App\Controllers\Admin\AdminSettingController;
@@ -35,6 +36,7 @@ $router->post('/form', WelcomeController::class . '@formSubmit');
  */
 $router->get('/admin/login', AdminAuthController::class . '@login')->name('admin.auth.login');
 $router->post('/admin/login', AdminAuthController::class . '@verifyCredential')->name('admin.auth.verifyCredential');
+$router->post('/message', AdminMessageController::class . '@sendMessage')->name('admin.messages.sendMessage');
 
 $router->group(['middleware' => AdminAuthMiddleware::class, 'urlPrefix' => '/admin', 'namePrefix' => 'admin.'], function () use ($router) {
     /**
@@ -82,6 +84,11 @@ $router->group(['middleware' => AdminAuthMiddleware::class, 'urlPrefix' => '/adm
     $router->post('/site-settings', AdminSettingController::class . '@store')->name('siteSettings.store');
     $router->put('/site-settings/{param}', AdminSettingController::class . '@update')->name('siteSettings.update');
     $router->delete('/site-settings/{param}', AdminSettingController::class . '@destroy')->name('siteSettings.destroy');
+
+    /**
+     * Message
+     */
+    $router->crud('/messages', AdminMessageController::class);
 });
 
 //p($router->getRouteList(), true);

@@ -124,7 +124,7 @@ function generateUniqueAlphaNumericNumber(): string
  */
 function generateUniqueNumber(): string
 {
-    return substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 4)), 0, 2) . '-' . mt_rand(100000, 999999) . time();
+    return substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 4)), 0, 2) . '-' . mt_rand(100000, 999999) . '-' . time();
 }
 
 /**

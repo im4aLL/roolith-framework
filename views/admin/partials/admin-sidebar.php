@@ -22,6 +22,9 @@
         <li class="nav__item">
             <a href="<?= route('admin.file.manager') ?>" class="nav__link">File Manager</a>
         </li>
+        <li class="nav__item">
+            <a href="<?= route('admin.messages.index') ?>" class="nav__link">Messages</a>
+        </li>
 
         <li class="nav__item">
             <a href="#" class="nav__link">Settings</a>
