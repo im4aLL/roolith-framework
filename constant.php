@@ -19,4 +19,4 @@ const APP_VIEW_ROOT = APP_ROOT . '/views';
  *
  * If you turn it off, all files under admin folder (Admin/*) will be deactivated
  */
-const APP_ENABLE_CMS = true;
+const APP_ENABLE_CMS = false;
