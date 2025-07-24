@@ -3,7 +3,6 @@ namespace App\Models\Content;
 
 use App\Models\Model;
 use App\Models\User;
-use App\Utils\_;
 use App\Utils\Collection;
 
 class Page extends Model
@@ -88,39 +87,8 @@ class Page extends Model
 
         $pageModuleIds = Collection::make($pageModules)->pluck("module_id")->toArray();
         $modules = Module::raw()->query("SELECT * FROM ".Module::tableName()." WHERE id IN (".implode(',', $pageModuleIds).") AND status = 'published'")->get();
-        $moduleData = ModuleData::raw()->query("SELECT * FROM ".ModuleData::tableName()." WHERE module_id IN (".implode(',', $pageModuleIds).")")->get();
 
-        foreach ($modules as $module) {
-            $mData = self::_getModuleDataByModuleId($module->id, $moduleData);
-
-            foreach ($mData as $data) {
-                $module->{$data->field_name} = $data->field_data;
-            }
-
-            $module->theme_template = $module->hook . '-' . _::slug($module->title);
-        }
-
-        return $modules;
-    }
-
-    /**
-     * Get module data by module id
-     *
-     * @param int $moduleId
-     * @param iterable $moduleData
-     * @return array
-     */
-    private static function _getModuleDataByModuleId(int $moduleId, iterable $moduleData): array
-    {
-        $result = [];
-
-        foreach ($moduleData as $data) {
-            if ($data->module_id === $moduleId) {
-                $result[] = $data;
-            }
-        }
-
-        return $result;
+        return Module::attachModuleData($modules);
     }
 
     /**
