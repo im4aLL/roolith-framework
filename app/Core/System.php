@@ -17,6 +17,12 @@ class System
     public function __construct()
     {
         require_once APP_ROOT . '/constant.php';
+
+        $cmsConstantPath = APP_ROOT . '/cms-constant.php';
+        if (file_exists($cmsConstantPath)) {
+            require_once $cmsConstantPath;
+        }
+
         require_once APP_ROOT . '/app/Utils/functions.php';
 
         $this->db = null;
