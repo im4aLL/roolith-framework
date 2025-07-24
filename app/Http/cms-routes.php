@@ -9,14 +9,13 @@ use App\Controllers\Admin\AdminModuleController;
 use App\Controllers\Admin\AdminModuleSettingController;
 use App\Controllers\Admin\AdminPageController;
 use App\Controllers\Admin\AdminSettingController;
+use App\Controllers\Content\BlogController;
+use App\Controllers\Content\CategoryController;
+use App\Controllers\Content\PageController;
 use App\Core\RouterFactory;
 use App\Middlewares\Admin\AdminAuthMiddleware;
 
 $router = RouterFactory::getInstance();
-
-/**
- * CMS routes
- */
 
 /**
  * Admin routes
@@ -77,3 +76,12 @@ $router->group(['middleware' => AdminAuthMiddleware::class, 'urlPrefix' => '/adm
      */
     $router->crud('/messages', AdminMessageController::class);
 });
+
+/**
+ * CMS routes
+ */
+$router->get('/categories', CategoryController::class .  '@index')->name('categories.index');
+$router->get('/categories/{slug}', CategoryController::class .  '@show')->name('categories.show');
+$router->get('/blog', BlogController::class . '@index')->name('blog.index');
+$router->get('/blog/{slug}', BlogController::class . '@show')->name('blog.show');
+$router->get('/{slug}', PageController::class . '@show')->name('page.show');

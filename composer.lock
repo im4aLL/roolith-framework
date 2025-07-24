@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "b8b374a317a8767e48139da813bdec86",
+    "content-hash": "a74c8fb7efd1f5ae93baa9f5e3f73444",
     "packages": [
         {
             "name": "filp/whoops",
@@ -662,16 +662,16 @@
         },
         {
             "name": "roolith/database",
-            "version": "1.1.0",
+            "version": "1.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/im4aLL/roolith-database.git",
-                "reference": "9aa3fbffd14576b246b6f5c63bdff44cc9d8075e"
+                "reference": "8566a8964cddcf06ade45d7517f0ead4b84121a0"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/im4aLL/roolith-database/zipball/9aa3fbffd14576b246b6f5c63bdff44cc9d8075e",
-                "reference": "9aa3fbffd14576b246b6f5c63bdff44cc9d8075e",
+                "url": "https://api.github.com/repos/im4aLL/roolith-database/zipball/8566a8964cddcf06ade45d7517f0ead4b84121a0",
+                "reference": "8566a8964cddcf06ade45d7517f0ead4b84121a0",
                 "shasum": ""
             },
             "require": {
@@ -700,9 +700,9 @@
             "description": "PHP database driver",
             "support": {
                 "issues": "https://github.com/im4aLL/roolith-database/issues",
-                "source": "https://github.com/im4aLL/roolith-database/tree/1.1.0"
+                "source": "https://github.com/im4aLL/roolith-database/tree/1.2.0"
             },
-            "time": "2025-07-21T04:43:33+00:00"
+            "time": "2025-07-24T07:17:46+00:00"
         },
         {
             "name": "roolith/event",

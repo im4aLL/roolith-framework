@@ -54,9 +54,9 @@ class Model
     /**
      * Get all records
      *
-     * @return iterable
+     * @return array
      */
-    public function getAll(): iterable
+    public function getAll(): array
     {
         return $this->getOrm()->get();
     }
@@ -79,9 +79,9 @@ class Model
     /**
      * Get all records
      *
-     * @return iterable
+     * @return array
      */
-    public static function all(): iterable
+    public static function all(): array
     {
         return self::instance()->getAll();
     }
