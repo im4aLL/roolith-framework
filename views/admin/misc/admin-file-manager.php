@@ -76,7 +76,8 @@
                                 </div>
                             </td>
                             <td><?= $fm->formatBytes($dir['size']) ?></td>
-                            <td><?= \Carbon\Carbon::parse($dir['modified'])->toDayDateTimeString() ?></td>
+                            <td><?php $dateTime = \Carbon\Carbon::parse($dir['modified']);
+                                echo '<span title="' . $dateTime->toDayDateTimeString() . '">' . $dateTime->diffForHumans() . '</span>'; ?></td>
                             <td>
                                 <form method="post" style="display: inline;">
                                     <input type="hidden" name="action" value="delete">
@@ -96,7 +97,7 @@
                                 </div>
                             </td>
                             <td><?= $fm->formatBytes($file['size']) ?></td>
-                            <td><?= \Carbon\Carbon::parse($file['modified'])->toDayDateTimeString() ?></td>
+                            <td><?php $dateTime = \Carbon\Carbon::parse($file['modified']); echo '<span title="'.$dateTime->toDayDateTimeString().'">'.$dateTime->diffForHumans().'</span>'; ?></td>
                             <td>
                                 <div class="fm__file-actions">
                                     <form method="post" class="form form--inline">

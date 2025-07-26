@@ -18,6 +18,11 @@
         font-family: monospace;
         font-size: .875rem;
         min-height: 25rem;
+
+        img {
+            max-width: 31.25rem;
+            max-height: 31.25rem;
+        }
     }
 
     .ql-image-url {

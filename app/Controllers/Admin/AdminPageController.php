@@ -277,6 +277,14 @@ class AdminPageController extends Controller
         return ApiResponseTransformer::success(['redirect' => route('admin.pages.index')]);
     }
 
+    public function fileUpload(): string
+    {
+        $fileInput = Request::file('image');
+        $fileName = $fileInput->upload(APP_ADMIN_FILE_MANAGER_MODULE_DATA_DIR);
+
+        return url(APP_ADMIN_FILE_MANAGER_MODULE_DATA_DIR . $fileName);
+    }
+
     /**
      * Add categories to a page
      *

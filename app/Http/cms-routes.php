@@ -34,6 +34,7 @@ $router->group(['middleware' => AdminAuthMiddleware::class, 'urlPrefix' => '/adm
      * Page
      */
     $router->crud('/pages', AdminPageController::class);
+    $router->post('/pages/file/upload', AdminPageController::class . '@fileUpload')->name('pages.fileUpload');
 
     /**
      * Category

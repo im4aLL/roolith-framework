@@ -14,3 +14,9 @@ const APP_ADMIN_PAGINATION_PER_PAGE = 23; // 23
  */
 const APP_ADMIN_FILE_MANAGER_DIR = 'files/';
 const APP_ADMIN_FILE_MANAGER_MODULE_DATA_DIR = APP_ADMIN_FILE_MANAGER_DIR . 'uploads/';
+
+/**
+ * Allow file types
+ */
+const APP_ADMIN_ALLOWED_IMAGE_TYPES = ['jpg', 'jpeg', 'png'];
+const APP_ADMIN_ALLOWED_FILE_TYPES = ['pdf', 'doc', 'docx', 'zip', 'xls', 'xlsx', 'csv', 'ppt', 'pptx'];

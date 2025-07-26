@@ -21,10 +21,9 @@ use App\Utils\_;
 
 class AdminModuleController extends Controller
 {
-    private string $_formErrorKey = 'module_error';
     private string $_uploadDir = APP_ADMIN_FILE_MANAGER_MODULE_DATA_DIR;
-    private array $_acceptedImages = ['jpg', 'jpeg', 'png'];
-    private array $_acceptedFiles = ['pdf', 'doc', 'docx', 'zip', 'xls', 'xlsx', 'csv', 'ppt', 'pptx'];
+    private array $_acceptedImages = APP_ADMIN_ALLOWED_IMAGE_TYPES;
+    private array $_acceptedFiles = APP_ADMIN_ALLOWED_FILE_TYPES;
 
     /**
      * Show a list of modules with pagination

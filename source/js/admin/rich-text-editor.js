@@ -1,3 +1,16 @@
+// Import the base block blot
+const Block = Quill.import("blots/block");
+
+// Create custom block class using <div>
+class DivBlock extends Block {
+    static blotName = "block"; // must override the default block
+    static tagName = "div"; // use <div> instead of <p>
+    static className = null; // optional: remove any default class
+}
+
+// Register the custom block
+Quill.register(DivBlock, true);
+
 export class RichTextEditor {
     constructor(editorElement) {
         if (!editorElement) {
@@ -13,7 +26,7 @@ export class RichTextEditor {
         this.initQuill();
         this.addValueToQuill();
         this.watchForChanges();
-        // this.imageUploadHandler();
+        this.imageUploadHandler();
         this.registerImageUrlToolbar();
     }
 
@@ -98,11 +111,11 @@ export class RichTextEditor {
         fd.append("image", file);
 
         const xhr = new XMLHttpRequest();
-        xhr.open("POST", "http://localhost:3000/upload/image", true);
+        xhr.open("POST", "/admin/pages/file/upload", true);
         xhr.onload = () => {
+            console.log(xhr);
             if (xhr.status === 200) {
-                const url = JSON.parse(xhr.responseText).data;
-                this._insertToEditor(url);
+                this._insertToEditor(xhr.response);
             }
         };
         xhr.send(fd);
@@ -110,11 +123,7 @@ export class RichTextEditor {
 
     _insertToEditor(url) {
         const range = this.editor.getSelection();
-        this.editor.insertEmbed(
-            range.index,
-            "image",
-            `http://localhost:9000${url}`
-        );
+        this.editor.insertEmbed(range.index, "image", url);
     }
 
     addValueToQuill() {
