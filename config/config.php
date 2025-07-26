@@ -8,13 +8,13 @@ return [
     /**
      * Database configuration
      */
-    'database' => [
-        'host' => 'localhost',
-        'name' => 'roolith_cms',
-        'user' => 'root',
-        'pass' => '',
-    ],
-//    'database' => null,
+//    'database' => [
+//        'host' => 'localhost',
+//        'name' => 'roolith_cms',
+//        'user' => 'root',
+//        'pass' => '',
+//    ],
+    'database' => null,
 
     /**
      * For domain to have www or not www in domain
