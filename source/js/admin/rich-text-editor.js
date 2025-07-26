@@ -113,7 +113,6 @@ export class RichTextEditor {
         const xhr = new XMLHttpRequest();
         xhr.open("POST", "/admin/pages/file/upload", true);
         xhr.onload = () => {
-            console.log(xhr);
             if (xhr.status === 200) {
                 this._insertToEditor(xhr.response);
             }
