@@ -18,7 +18,7 @@
         "roolith/generator": "1.0.3",
         "roolith/router": "1.0.15",
         "roolith/template-engine": "1.0.4",
-        "nesbot/carbon": "^2.39",
+        "nesbot/carbon": "2.73.0",
         "filp/whoops": "^2.18"
     },
     "autoload": {
