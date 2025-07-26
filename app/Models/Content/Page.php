@@ -12,10 +12,15 @@ class Page extends Model
     /**
      * Get last 10 blog items
      *
-     * @return array
+     * @return object
      */
-    public static function getLatestBlogItems(): array
+    public static function getLatestBlogItems(): object
     {
+        $total = Page::orm()->select([
+            'field' => ['id'],
+            'condition' => "WHERE status = 'published' AND type = 'blog'",
+        ])->count();
+
         $queryString = "SELECT a.*,
             b.name as user_name,
             GROUP_CONCAT(CONCAT(c.name, ':', c.slug) ORDER BY c.name SEPARATOR ',') AS category_names
@@ -25,10 +30,15 @@ class Page extends Model
         LEFT JOIN ".Category::tableName()." AS c ON c.id = pc.category_id
             WHERE a.status = 'published' AND a.type = 'blog'
             GROUP BY a.id
-            ORDER BY a.id DESC
-            LIMIT 0, 10";
+            ORDER BY a.id DESC";
 
-        return Page::raw()->query($queryString)->get();
+        $pagination = Page::raw()->query($queryString)->paginate([
+            'perPage' => 10,
+            'total' => $total,
+            'pageUrl' => route('blog.index')
+        ]);
+
+        return $pagination->getDetails();
     }
 
     /**

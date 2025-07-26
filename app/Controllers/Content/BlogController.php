@@ -6,7 +6,7 @@ use App\Models\Content\Page;
 
 class BlogController extends Controller
 {
-    public function index(): array
+    public function index(): object
     {
         return Page::getLatestBlogItems();
     }
