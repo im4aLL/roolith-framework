@@ -19,7 +19,8 @@
         "roolith/router": "1.0.15",
         "roolith/template-engine": "1.0.4",
         "nesbot/carbon": "2.73.0",
-        "filp/whoops": "^2.18"
+        "filp/whoops": "^2.18",
+        "php": ">=8.0"
     },
     "autoload": {
         "psr-4": {
