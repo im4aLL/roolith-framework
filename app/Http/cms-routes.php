@@ -55,7 +55,9 @@ $router->group(['middleware' => AdminAuthMiddleware::class, 'urlPrefix' => '/adm
     /**
      * File manager
      */
-    $router->match(['GET', 'POST'], '/file-manager', AdminMiscController::class . '@fileManager')->name('file.manager');
+    // $router->match(['GET', 'POST'], '/file-manager', AdminMiscController::class . '@fileManager')->name('file.manager');
+    $router->get('/file-manager', AdminMiscController::class . '@fileManager')->name('file.manager');
+    $router->post('/file-manager', AdminMiscController::class . '@fileManager')->name('file.manager');
 
     /**
      * Auth

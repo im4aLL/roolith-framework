@@ -1,5 +1,83 @@
+@use "../../../node_modules/roolith-css/src/sass/function" as *;
 @use "../../../node_modules/roolith-css/src/sass/roolith";
 
 :root {
-    --r-layout-header-height: 61px;
+    --r-layout-header-height: 3.8125rem;
+    --r-layout-secondary-background-color: var(--r-global-background-color);
+}
+
+.block-header,
+.layout-secondary {
+    .breadcrumb {
+        padding-top: 0;
+    }
+}
+
+.layout-secondary {
+    .form {
+        padding-top: 1.25rem;
+    }
+
+    .block-filter .form {
+        padding-top: 0;
+    }
+}
+
+// quill
+.ql-container.ql-snow,
+.ql-toolbar.ql-snow {
+    border: 0.0625rem solid var(--r-form-input-border-color);
+    background-color: var(--r-global-background-color);
+
+    .form__field--error & {
+        border-color: var(--r-form-error-color);
+    }
+}
+
+.ql-toolbar.ql-snow {
+    border-top-left-radius: var(--r-form-input-radius);
+    border-top-right-radius: var(--r-form-input-radius);
+}
+
+.ql-container.ql-snow {
+    border-bottom-left-radius: var(--r-form-input-radius);
+    border-bottom-right-radius: var(--r-form-input-radius);
+}
+
+.ql-editor.ql-blank::before {
+    color: var(--r-form-input-placeholder-color);
+    font-style: normal;
+}
+
+.ql-editor {
+    font-family: var(--r-global-base-font);
+    font-size: 0.875rem;
+    min-height: 25rem;
+
+    img {
+        max-width: 31.25rem;
+        max-height: 31.25rem;
+    }
+}
+
+.ql-image-url {
+    &::after {
+        content: "";
+        display: inline-block;
+        width: 1rem;
+        height: 1rem;
+        mask-image: inline-svg(
+            '<svg stroke-width="2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" color="#000"><path d="M21 3.6v16.8a.6.6 0 0 1-.6.6H3.6a.6.6 0 0 1-.6-.6V3.6a.6.6 0 0 1 .6-.6h16.8a.6.6 0 0 1 .6.6Z" stroke="#000" stroke-linecap="round" stroke-linejoin="round"/><path d="m3 16 7-3 11 5M16 10a2 2 0 1 1 0-4 2 2 0 0 1 0 4Z" stroke="#000" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+        );
+        mask-size: cover;
+        background-color: #444;
+        position: relative;
+        top: 0.0625rem;
+    }
+
+    &:hover {
+        &::after {
+            background-color: #06c;
+        }
+    }
 }

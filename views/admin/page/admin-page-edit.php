@@ -1,32 +1,33 @@
 <?php $this->inject('admin/partials/admin-header') ?>
 
-<main class="layout">
-    <aside class="layout__sidebar">
-        <?php $this->inject('admin/partials/admin-sidebar') ?>
-    </aside>
+<!-- main -->
+<main class="layout" id="js-layout">
+    <?php $this->inject('admin/partials/admin-layout-header-n-primary') ?>
 
-    <section class="layout__body">
-        <ul class="breadcrumb">
-            <li class="breadcrumb__item">
-                <a href="<?= route('admin.pages.index') ?>" class="breadcrumb__link">Pages</a>
-            </li>
-            <li class="breadcrumb__item">
-                <a href="<?= route('admin.pages.edit', ['param' => $page->id]) ?>" class="breadcrumb__link"><?= $page->title ?></a>
-            </li>
-        </ul>
+    <!-- right -->
+    <div class="layout-secondary">
+        <!-- breadcrumb -->
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="<?= route('admin.home') ?>">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="<?= route('admin.pages.index') ?>">Pages</a></li>
+            <li class="breadcrumb-item active"><?= $page->title ?></li>
+        </ol>
+        <!-- breadcrumb -->
 
         <?php
-            $this->inject('admin/page/admin-page-form', [
-                'form_action_url' => route('admin.pages.update', ['param' => $page->id]),
-                'form_action_url_method' => 'put',
-                'form_button_text' => 'Save changes',
-                'form_header' => 'Edit page - ' .$page->title,
-                'form_data' => $page,
-                'form_data_categories' => $categories,
-                'form_data_modules' => $modules,
-            ]);
+        $this->inject('admin/page/admin-page-form', [
+            'form_action_url' => route('admin.pages.update', ['param' => $page->id]),
+            'form_action_url_method' => 'put',
+            'form_button_text' => 'Save changes',
+            'form_header' => 'Edit page - ' . $page->title,
+            'form_data' => $page,
+            'form_data_categories' => $categories,
+            'form_data_modules' => $modules,
+        ]);
         ?>
-    </section>
+    </div>
+    <!-- right -->
 </main>
+<!-- main -->
 
 <?php $this->inject('admin/partials/admin-footer') ?>

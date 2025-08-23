@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Session key for the admin user.
  */
@@ -7,7 +8,7 @@ const APP_ADMIN_SESSION_KEY = 'roolithAdminUser';
 /**
  * Number of items per page in admin grid view.
  */
-const APP_ADMIN_PAGINATION_PER_PAGE = 23; // 23
+const APP_ADMIN_PAGINATION_PER_PAGE = 5; // 23
 
 /**
  * Where the admin file manager is stored.

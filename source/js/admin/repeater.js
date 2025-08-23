@@ -6,55 +6,90 @@ export class Repeater {
     init() {
         this.addNewFieldButtonClickHandler();
         this.removeFieldButtonClickHandler();
-        this.watchNoSpaceInput();
+        this.dragHandler();
     }
 
     addNewFieldButtonClickHandler() {
-        $("#add-field").on("click", function () {
+        $(".js-add-field").on("click", function () {
             const cloneElement = $(this)
-                .closest(".form__field")
-                .find(".form__list .form__list-item")
+                .closest(".block-repeater")
+                .find(".block-repeater-list .block-repeater-item")
                 .last()
                 .clone();
 
             $(this)
-                .closest(".form__field")
-                .find(".form__list")
+                .closest(".block-repeater")
+                .find(".block-repeater-list")
                 .append(cloneElement);
 
-            cloneElement.find(".form__input").first().val("").trigger("focus");
+            cloneElement.find(".form-input").val("").first().trigger("focus");
         });
     }
 
     removeFieldButtonClickHandler() {
-        $(".form__list").on(
-            "click",
-            ".form__list-item-action .button:not(.form__delete-cta)",
+        $(".block-repeater-list").on("click", ".js-remove-field", function () {
+            console.log(this);
+
+            if (confirm("Are you sure you want to remove this field?")) {
+                $(this).closest(".block-repeater-item").remove();
+            }
+        });
+    }
+
+    dragHandler() {
+        let $draggedItem = null;
+
+        $(".block-repeater-list").on(
+            "dragstart",
+            ".block-repeater-item",
+            function (e) {
+                $draggedItem = $(this);
+                $(this).addClass("dragging");
+                e.originalEvent.dataTransfer.effectAllowed = "move";
+            }
+        );
+
+        $(".block-repeater-list").on(
+            "dragend",
+            ".block-repeater-item",
             function () {
-                if (confirm("Are you sure you want to remove this field?")) {
-                    $(this).closest(".form__list-item").remove();
+                $(this).removeClass("dragging");
+                $draggedItem = null;
+            }
+        );
+
+        $(".block-repeater-list").on(
+            "dragover",
+            ".block-repeater-item",
+            function (e) {
+                e.preventDefault();
+                e.originalEvent.dataTransfer.dropEffect = "move";
+            }
+        );
+
+        $(".block-repeater-list").on(
+            "dragenter",
+            ".block-repeater-item",
+            function (e) {
+                e.preventDefault();
+
+                if ($(this).is($draggedItem)) {
+                    return;
+                }
+
+                const draggedIndex = $draggedItem.index();
+                const targetIndex = $(this).index();
+
+                if (draggedIndex < targetIndex) {
+                    $(this).after($draggedItem);
+                } else {
+                    $(this).before($draggedItem);
                 }
             }
         );
-    }
 
-    toSnakeCase(str) {
-        return str
-            .replace(/\s+/g, "_") // Replace spaces with underscores
-            .replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`) // Handle camelCase
-            .replace(/-+/g, "_") // Convert hyphens to underscores
-            .replace(/__+/g, "_") // Remove double underscores
-            .replace(/^_+|_+$/g, "") // Trim underscores at start/end
-            .toLowerCase();
-    }
-
-    watchNoSpaceInput() {
-        const _this = this;
-
-        $(".form__list").on("blur", ".form__input--no-space", function () {
-            const snakeCase = _this.toSnakeCase($(this).val());
-
-            $(this).val(snakeCase);
+        $(".block-repeater-list").on("drop", function (e) {
+            e.preventDefault();
         });
     }
 }

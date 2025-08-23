@@ -1,92 +1,130 @@
 <?php $this->inject('admin/partials/admin-header') ?>
 
-<main class="layout">
-    <aside class="layout__sidebar">
-        <?php $this->inject('admin/partials/admin-sidebar') ?>
-    </aside>
+<!-- main -->
+<main class="layout" id="js-layout">
+    <?php $this->inject('admin/partials/admin-layout-header-n-primary') ?>
 
-    <section class="layout__body">
-        <h3>Pages (<?= $total ?>)</h3>
+    <!-- right -->
+    <div class="layout-secondary">
 
-        <nav class="nav nav--horizontal">
-            <ul class="nav__list">
-                <li class="nav__item">
-                    <a href="<?= route('admin.pages.create') ?>" class="nav__link">Add Page</a>
-                </li>
-            </ul>
-        </nav>
+        <!-- block header -->
+        <div class="block-header">
+            <!-- breadcrumb -->
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="<?= route('admin.home') ?>">Dashboard</a></li>
+                <li class="breadcrumb-item active">Pages</li>
+            </ol>
+            <!-- breadcrumb -->
 
-        <div class="table__filters">
-            <form action="" method="get" class="form form--inline form--filter">
-                <div class="form__field">
-                    <label for="title" class="form__label">By title</label>
-                    <input type="text" id="title" name="filter[title]" class="form__input" value="<?= $filterInput['title'] ?? '' ?>">
+            <!-- block header container -->
+            <div class="block-header-container">
+                <div class="block-header-primary">
+                    <h5 class="block-header-title">Pages (<?= $total ?>)</h5>
+                    <p class="block-header-subtitle">Manage your pages and blogs</p>
+                </div>
+                <div class="block-header-secondary">
+                    <!-- action menu -->
+                    <nav class="action-menu action-menu-primary">
+                        <ul class="action-menu-list">
+                            <li class="action-menu-item">
+                                <a href="<?= route('admin.pages.create') ?>" class="action-menu-link">
+                                    <i class="iconoir-plus-square action-menu-icon"></i>
+                                    <span class="action-menu-label">Add new</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                    <!-- action menu -->
+                </div>
+            </div>
+            <!-- block header container -->
+        </div>
+        <!-- block header -->
+
+        <!-- filter -->
+        <div class="block-filter">
+            <form action="" class="form block-filter-form" method="get">
+                <div class="form-field form-field-search">
+                    <span class="form-field-search-icon"><i class="icon icon-search"></i></span>
+                    <input type="text" name="filter[title]" class="form-input" placeholder="Search ..." value="<?= $filterInput['title'] ?? '' ?>" />
                 </div>
 
-                <div class="form__field">
-                    <label for="type" class="form__label">By type</label>
-                    <select name="filter[type]" id="type" class="form__input form--select">
+                <div class="form-field">
+                    <label for="type" class="form-label">By type</label>
+                    <select name="filter[type]" id="type" class="form-select">
                         <option value=""></option>
                         <option value="page" <?= isset($filterInput['type']) && $filterInput['type'] == 'page' ? 'selected' : '' ?>>Page</option>
                         <option value="blog" <?= isset($filterInput['type']) && $filterInput['type'] == 'blog' ? 'selected' : '' ?>>Blog</option>
                     </select>
                 </div>
 
-                <div class="form__field">
-                    <label for="status" class="form__label">By status</label>
-                    <select name="filter[status]" id="status" class="form__input form--select">
+                <div class="form-field">
+                    <label for="status" class="form-label">By status</label>
+                    <select name="filter[status]" id="status" class="form-select">
                         <option value=""></option>
                         <option value="draft" <?= isset($filterInput['status']) && $filterInput['status'] == 'draft' ? 'selected' : '' ?>>Draft</option>
                         <option value="published" <?= isset($filterInput['status']) && $filterInput['status'] == 'published' ? 'selected' : '' ?>>Published</option>
                     </select>
                 </div>
 
-                <button type="submit" class="button">Filter</button>
-
-                <?php if (isset($filterInput)) : ?>
-                    <a href="<?= route('admin.pages.index') ?>" class="button">Reset filter</a>
-                <?php endif; ?>
+                <div class="block-filter-button-group">
+                    <button type="submit" class="button button-primary">Filter</button>
+                    <?php if (isset($filterInput)) : ?>
+                        <a href="<?= route('admin.pages.index') ?>" class="button button-outline">Reset filter</a>
+                    <?php endif; ?>
+                </div>
             </form>
         </div>
+        <!-- filter -->
 
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Slug</th>
-                    <th>Type</th>
-                    <th>Status</th>
-                    <th>Category</th>
-                    <th>User</th>
-                    <th>Created</th>
-                    <th>Last updated</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($pages->data as $page): ?>
-                <tr>
-                    <td><a href="<?= route('admin.pages.edit', ['param' => $page->id]) ?>"><?= $page->title ?></a></td>
-                    <td>/<?= $page->slug ?></td>
-                    <td><?= $page->type ?></td>
-                    <td><?= $page->status ?></td>
-                    <td><?= $page->categoryNames ?? '-' ?></td>
-                    <td><?= $page->admin_user ? $page->admin_user->name : '-' ?></td>
-                    <td><?= diffForHumans($page->created_at) ?></td>
-                    <td><?= diffForHumans($page->updated_at) ?></td>
-                </tr>
-                <?php endforeach; ?>
+        <!-- content -->
+        <div class="table-responsive">
+            <table class="table table-primary full-width">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Slug</th>
+                        <th>Type</th>
+                        <th>Category</th>
+                        <th>User</th>
+                        <th>Created</th>
+                        <th>Last updated</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($pages->data as $page): ?>
+                        <tr>
+                            <td><a href="<?= route('admin.pages.edit', ['param' => $page->id]) ?>"><?= $page->title ?></a></td>
+                            <td>/<?= $page->slug ?></td>
+                            <td>
+                                <span class="badge<?= $page->type == 'page' ? ' badge-primary' : ' badge-secondary' ?>"><?= $page->type ?></span>
+                            </td>
+                            <td><?= $page->categoryNames ?? '-' ?></td>
+                            <td><?= $page->admin_user ? $page->admin_user->name : '-' ?></td>
+                            <td><?= diffForHumans($page->created_at) ?></td>
+                            <td><?= diffForHumans($page->updated_at) ?></td>
+                            <td>
+                                <span class="badge<?= $page->status == 'published' ? ' badge-success' : ' badge-info' ?>"><?= $page->status ?></span>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
 
-                <?php if ($total == 0) : ?>
-                <tr>
-                    <td colspan="8">Looks like this table decided to go minimalist. No records here!</td>
-                </tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
+                    <?php if ($total == 0) : ?>
+                        <tr>
+                            <td colspan="8">Looks like this table decided to go minimalist. No records here!</td>
+                        </tr>
+                    <?php endif; ?>
+                </tbody>
+            </table>
+        </div>
 
-        <?php $this->inject('admin/partials/admin-pagination', ['p_data' => $pages, 'p_page_numbers' => $pageNumbers ]) ?>
+        <?php $this->inject('admin/partials/admin-pagination', ['p_data' => $pages, 'p_page_numbers' => $pageNumbers]) ?>
+        <!-- content -->
 
-    </section>
+    </div>
+    <!-- right -->
 </main>
+<!-- main -->
 
 <?php $this->inject('admin/partials/admin-footer') ?>

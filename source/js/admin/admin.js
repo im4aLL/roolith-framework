@@ -15,7 +15,7 @@ window.$ = window.jQuery = $;
 $(function () {
     new SerializeObject();
 
-    const editors = $(".form__field--editor");
+    const editors = $(".form-field--editor");
 
     if (editors.length > 0) {
         $.each(editors, (index, editor) => {

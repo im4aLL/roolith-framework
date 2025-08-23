@@ -69,7 +69,7 @@ export class RichTextEditor {
 
     _getValueElement() {
         return $(this.editorElement)
-            .closest(".form__field")
+            .closest(".form-field")
             .find(".form__editor-value");
     }
 

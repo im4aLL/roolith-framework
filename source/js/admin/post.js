@@ -164,13 +164,13 @@ export class Post {
             const field = $(fieldSelector);
 
             if (field.length > 0) {
-                field.closest(".form__field").addClass("form__field--error");
+                field.closest(".form-field").addClass("error");
             }
         });
     }
 
     _resetFormError() {
-        $(".form__field").removeClass("form__field--error");
+        $(".form__field").removeClass("error");
     }
 
     _getLength(value) {
