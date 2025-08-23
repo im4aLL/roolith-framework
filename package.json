@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "jquery": "^3.7.1",
-    "quill": "^2.0.3"
+    "quill": "^2.0.3",
+    "roolith-css": "^3.2.0"
   }
 }

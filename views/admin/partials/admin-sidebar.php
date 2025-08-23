@@ -1,46 +1,91 @@
-<div>
-    <h2><a href="<?= route('admin.home') ?>" class="nav__logo">CMS</a> <span>v<?= getVersion() ?></span></h2>
-</div>
+<!-- sidebar nav -->
+<nav class="sidebar-nav" id="js-sidebar-nav-list">
+    <!-- group -->
+    <div class="sidebar-nav-group">
+        <div class="sidebar-nav-header">General</div>
 
-<nav class="nav">
-    <ul class="nav__list">
-        <li class="nav__item">
-            <a href="<?= route('admin.home') ?>" class="nav__link">Dashboard</a>
-        </li>
-        <li class="nav__item">
-            <a href="<?= route('admin.pages.index') ?>" class="nav__link">Pages</a>
-        </li>
-        <li class="nav__item">
-            <a href="<?= route('admin.categories.index') ?>" class="nav__link">Categories</a>
-        </li>
-        <li class="nav__item">
-            <a href="<?= route('admin.modules.index') ?>" class="nav__link">Modules</a>
-        </li>
-        <li class="nav__item">
-            <a href="<?= route('admin.module-settings.index') ?>" class="nav__link">Module Settings</a>
-        </li>
-        <li class="nav__item">
-            <a href="<?= route('admin.file.manager') ?>" class="nav__link">File Manager</a>
-        </li>
-        <li class="nav__item">
-            <a href="<?= route('admin.messages.index') ?>" class="nav__link">Messages</a>
-        </li>
+        <ul class="sidebar-nav-list">
+            <li class="sidebar-nav-list-item is-active">
+                <a href="<?= route('admin.home') ?>" class="sidebar-nav-list-link">
+                    <i class="iconoir-home"></i>
+                    <span class="sidebar-nav-list-label">Dashboard</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-list-item">
+                <a href="<?= route('admin.pages.index') ?>" class="sidebar-nav-list-link">
+                    <i class="iconoir-multiple-pages"></i>
+                    <span class="sidebar-nav-list-label">Pages</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-list-item">
+                <a href="<?= route('admin.categories.index') ?>" class="sidebar-nav-list-link">
+                    <i class="iconoir-keyframes"></i>
+                    <span class="sidebar-nav-list-label">Categories</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-list-item">
+                <a href="<?= route('admin.modules.index') ?>" class="sidebar-nav-list-link">
+                    <i class="iconoir-xray-view"></i>
+                    <span class="sidebar-nav-list-label">Modules</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-list-item">
+                <a href="<?= route('admin.file.manager') ?>" class="sidebar-nav-list-link">
+                    <i class="iconoir-folder"></i>
+                    <span class="sidebar-nav-list-label">File Manager</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-list-item">
+                <a href="<?= route('admin.messages.index') ?>" class="sidebar-nav-list-link">
+                    <i class="iconoir-message"></i>
+                    <span class="sidebar-nav-list-label">Messages</span>
+                    <span class="sidebar-nav-list-badge badge">99</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <!-- group -->
 
-        <li class="nav__item">
-            <a href="#" class="nav__link">Settings</a>
+    <!-- group -->
+    <div class="sidebar-nav-group">
+        <div class="sidebar-nav-header">Settings</div>
 
-            <ul class="nav__list nav__list--sub">
-                <li class="nav__item">
-                    <a href="<?= route('admin.auth.changePassword') ?>" class="nav__link">Change Password</a>
-                </li>
-                <li class="nav__item">
-                    <a href="<?= route('admin.siteSettings') ?>" class="nav__link">Site Settings</a>
-                </li>
-            </ul>
-        </li>
+        <ul class="sidebar-nav-list">
+            <li class="sidebar-nav-list-item">
+                <a href="<?= route('admin.module-settings.index') ?>" class="sidebar-nav-list-link">
+                    <i class="iconoir-rubik-cube"></i>
+                    <span class="sidebar-nav-list-label">Module Settings</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-list-item">
+                <a href="<?= route('admin.siteSettings') ?>" class="sidebar-nav-list-link">
+                    <i class="iconoir-settings"></i>
+                    <span class="sidebar-nav-list-label">Site Settings</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <!-- group -->
 
-        <li class="nav__item">
-            <a href="<?= route('admin.auth.logout') ?>" class="nav__link">Sign Out</a>
-        </li>
-    </ul>
+    <!-- group -->
+    <div class="sidebar-nav-group">
+        <div class="sidebar-nav-header">Account</div>
+
+        <ul class="sidebar-nav-list">
+            <li class="sidebar-nav-list-item">
+                <a href="<?= route('admin.auth.changePassword') ?>" class="sidebar-nav-list-link">
+                    <i class="iconoir-password-cursor"></i>
+                    <span class="sidebar-nav-list-label">Change Password</span>
+                </a>
+            </li>
+            <li class="sidebar-nav-list-item">
+                <a href="<?= route('admin.auth.logout') ?>" class="sidebar-nav-list-link">
+                    <i class="iconoir-log-out"></i>
+                    <span class="sidebar-nav-list-label">Sign Out</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <!-- group -->
 </nav>
+<!-- sidebar nav -->

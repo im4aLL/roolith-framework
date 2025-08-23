@@ -1,35 +1,5 @@
-@use "./settings";
-@use "./reset";
-@use "./base";
-@use "./typography";
+@use "../../../node_modules/roolith-css/src/sass/roolith";
 
-@use "./modules/nav";
-@use "./modules/layout";
-@use "./modules/table";
-@use "./modules/card";
-@use "./modules/button";
-@use "./modules/form";
-@use "./modules/login";
-@use "./modules/pagination";
-@use "./modules/breadcrumb";
-@use "./modules/quill";
-@use "./modules/fm";
-@use "./modules/message";
-
-@include reset.roolith-admin-reset();
-@include settings.roolith-admin-settings();
-@include base.roolith-admin-base();
-@include typography.roolith-admin-typography();
-
-@include nav.roolith-admin-nav();
-@include layout.roolith-admin-layout();
-@include table.roolith-admin-table();
-@include card.roolith-admin-card();
-@include button.roolith-admin-button();
-@include form.roolith-admin-form();
-@include login.roolith-admin-login();
-@include pagination.roolith-admin-pagination();
-@include breadcrumb.roolith-admin-breadcrumb();
-@include quill.roolith-admin-quill();
-@include fm.roolith-admin-fm();
-@include message.roolith-admin-message();
+:root {
+    --r-layout-header-height: 61px;
+}
