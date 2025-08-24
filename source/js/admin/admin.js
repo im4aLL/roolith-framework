@@ -5,7 +5,6 @@ import { SerializeObject } from "./serialize-object";
 import { DeleteItem } from "./delete-item";
 import { Repeater } from "./repeater";
 import { DeleteFile } from "./delete-file";
-import { Draggable } from "./draggable";
 import { SiteSettings } from "./site-settings";
 import { PasswordToggle } from "./password-toggle";
 import { Layout } from "./layout";
@@ -29,7 +28,6 @@ $(function () {
     new DeleteItem();
     new Repeater();
     new DeleteFile();
-    new Draggable();
     new SiteSettings();
 
     // new
