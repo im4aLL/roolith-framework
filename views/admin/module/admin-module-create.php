@@ -1,61 +1,60 @@
 <?php $this->inject('admin/partials/admin-header') ?>
 
-<main class="layout">
-    <aside class="layout__sidebar">
-        <?php $this->inject('admin/partials/admin-sidebar') ?>
-    </aside>
+<!-- main -->
+<main class="layout" id="js-layout">
+    <?php $this->inject('admin/partials/admin-layout-header-n-primary') ?>
 
-    <section class="layout__body">
-        <ul class="breadcrumb">
-            <li class="breadcrumb__item">
-                <a href="<?= route('admin.modules.index') ?>" class="breadcrumb__link">Module</a>
-            </li>
-            <li class="breadcrumb__item">
-                <a href="<?= route('admin.modules.create') ?>" class="breadcrumb__link">Add new</a>
-            </li>
-        </ul>
+    <!-- right -->
+    <div class="layout-secondary">
+        <!-- breadcrumb -->
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="<?= route('admin.home') ?>">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="<?= route('admin.modules.index') ?>">Modules</a></li>
+            <li class="breadcrumb-item active">Add new</li>
+        </ol>
+        <!-- breadcrumb -->
 
-        <div class="layout__header">
-            <div>
-                <h3>Add new module</h3>
-            </div>
-        </div>
-
+        <!-- content -->
         <?php if (isset($setting_load_error_message)) : ?>
-            <div class="message message--danger"><?= $setting_load_error_message ?></div>
+            <div class="message message-danger"><?= $setting_load_error_message ?></div>
         <?php endif; ?>
 
+        <!-- actions -->
         <div class="form__actions">
             <form method="get" class="form form--inline">
-                <select name="module_setting_id" class="form__input form--select">
-                    <option></option>
-                    <?php foreach ($moduleSettings as $moduleSetting): ?>
-                        <option value="<?= $moduleSetting->id ?>" <?= isset($moduleSettingData) && $moduleSettingData->id == $moduleSetting->id ? 'selected' : '' ?>><?= $moduleSetting->name ?></option>
-                    <?php endforeach; ?>
-                </select>
-                <button type="submit" class="button">Load selected module</button>
+                <div class="form-field">
+                    <label for="module_setting_id" class="form-label">Select a module settings</label>
+                    <select name="module_setting_id" id="module_setting_id" class="form-select">
+                        <option></option>
+                        <?php foreach ($moduleSettings as $moduleSetting): ?>
+                            <option value="<?= $moduleSetting->id ?>" <?= isset($moduleSettingData) && $moduleSettingData->id == $moduleSetting->id ? 'selected' : '' ?>><?= $moduleSetting->name ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="form-field">
+                    <button type="submit" class="button">Load selected module</button>
+                </div>
             </form>
         </div>
+        <!-- actions -->
 
         <?php if (isset($moduleSettingData)) : ?>
             <form action="<?= route('admin.modules.store') ?>" method="post" class="form" enctype="multipart/form-data" data-ajax="true">
                 <input type="hidden" name="module_setting_id" value="<?= $moduleSettingData->id ?>">
                 <!-- base -->
-                <div class="form__col">
-                    <div class="form__field">
-                        <label for="title" class="form__label">Title</label>
-                        <input type="text" name="title" id="title" class="form__input">
-                    </div>
-
-                    <div class="form__field">
-                        <label for="hook" class="form__label">Hook</label>
-                        <input type="text" name="hook" id="hook" class="form__input" value="<?= uniqid('mod-') ?>">
-                    </div>
+                <div class="form-field">
+                    <label for="title" class="form-label">Title</label>
+                    <input type="text" name="title" id="title" class="form-input">
                 </div>
 
-                <div class="form__field">
-                    <label for="group" class="form__label">Group (optional)</label>
-                    <input type="text" name="group_name" id="group" class="form__input" list="group-name-list">
+                <div class="form-field">
+                    <label for="hook" class="form-label">Hook</label>
+                    <input type="text" name="hook" id="hook" class="form-input" value="<?= uniqid('mod-') ?>">
+                </div>
+
+                <div class="form-field">
+                    <label for="group" class="form-label">Group (optional)</label>
+                    <input type="text" name="group_name" id="group" class="form-input" list="group-name-list">
                 </div>
 
                 <datalist id="group-name-list">
@@ -64,9 +63,9 @@
                     <?php endforeach; ?>
                 </datalist>
 
-                <div class="form__field">
-                    <label for="status" class="form__label">Status</label>
-                    <select name="status" id="status" class="form__input form--select">
+                <div class="form-field">
+                    <label for="status" class="form-label">Status</label>
+                    <select name="status" id="status" class="form-select">
                         <option value="draft">Draft</option>
                         <option value="published" selected>Published</option>
                     </select>
@@ -82,40 +81,40 @@
                     ?>
 
                     <?php if ($fieldType == 'text') : ?>
-                        <div class="form__field">
-                            <label for="<?= $fieldKey ?>" class="form__label"><?= $fieldLabel ?></label>
-                            <input type="text" name="<?= $name ?>" id="<?= $fieldKey ?>" class="form__input">
+                        <div class="form-field">
+                            <label for="<?= $fieldKey ?>" class="form-label"><?= $fieldLabel ?></label>
+                            <input type="text" name="<?= $name ?>" id="<?= $fieldKey ?>" class="form-input">
                         </div>
                     <?php elseif ($fieldType == 'textarea') : ?>
-                        <div class="form__field">
-                            <label for="<?= $fieldKey ?>" class="form__label"><?= $fieldLabel ?></label>
-                            <textarea name="<?= $name ?>" id="<?= $fieldKey ?>" class="form__input form--textarea" rows="8"></textarea>
+                        <div class="form-field">
+                            <label for="<?= $fieldKey ?>" class="form-label"><?= $fieldLabel ?></label>
+                            <textarea name="<?= $name ?>" id="<?= $fieldKey ?>" class="form-input form--textarea" rows="8"></textarea>
                         </div>
                     <?php elseif ($fieldType == 'rich-text') : ?>
-                        <div class="form__field form__field--editor">
-                            <label class="form__label"><?= $fieldLabel ?></label>
+                        <div class="form-field form-field--editor">
+                            <label class="form-label"><?= $fieldLabel ?></label>
                             <div class="form__editor"></div>
                             <div class="form__editor-value" data-input-name="<?= $name ?>" style="display: none;"></div>
                         </div>
                     <?php elseif ($fieldType == 'image') : ?>
-                        <div class="form__field">
-                            <label for="<?= $fieldKey ?>" class="form__label"><?= $fieldLabel ?></label>
-                            <input type="file" name="<?= $name ?>" id="<?= $fieldKey ?>" class="form__input" accept="<?= $acceptedImages ?>" />
+                        <div class="form-field">
+                            <label for="<?= $fieldKey ?>" class="form-label"><?= $fieldLabel ?></label>
+                            <input type="file" name="<?= $name ?>" id="<?= $fieldKey ?>" class="form-file" accept="<?= $acceptedImages ?>" />
                         </div>
                     <?php elseif ($fieldType == 'image-multiple') : ?>
-                        <div class="form__field">
-                            <label for="<?= $fieldKey ?>" class="form__label"><?= $fieldLabel ?></label>
-                            <input type="file" name="<?= $name ?>[]" id="<?= $fieldKey ?>" class="form__input" accept="<?= $acceptedImages ?>" multiple>
+                        <div class="form-field">
+                            <label for="<?= $fieldKey ?>" class="form-label"><?= $fieldLabel ?></label>
+                            <input type="file" name="<?= $name ?>[]" id="<?= $fieldKey ?>" class="form-file" accept="<?= $acceptedImages ?>" multiple>
                         </div>
                     <?php elseif ($fieldType == 'file') : ?>
-                        <div class="form__field">
-                            <label for="<?= $fieldKey ?>" class="form__label"><?= $fieldLabel ?></label>
-                            <input type="file" name="<?= $name ?>" id="<?= $fieldKey ?>" class="form__input" accept="<?= $acceptedFiles ?>">
+                        <div class="form-field">
+                            <label for="<?= $fieldKey ?>" class="form-label"><?= $fieldLabel ?></label>
+                            <input type="file" name="<?= $name ?>" id="<?= $fieldKey ?>" class="form-file" accept="<?= $acceptedFiles ?>">
                         </div>
                     <?php elseif ($fieldType == 'file-multiple') : ?>
-                        <div class="form__field">
-                            <label for="<?= $fieldKey ?>" class="form__label"><?= $fieldLabel ?></label>
-                            <input type="file" name="<?= $name ?>[]" id="<?= $fieldKey ?>" class="form__input" accept="<?= $acceptedFiles ?>" multiple>
+                        <div class="form-field">
+                            <label for="<?= $fieldKey ?>" class="form-label"><?= $fieldLabel ?></label>
+                            <input type="file" name="<?= $name ?>[]" id="<?= $fieldKey ?>" class="form-file" accept="<?= $acceptedFiles ?>" multiple>
                         </div>
                     <?php endif; ?>
 
@@ -123,12 +122,15 @@
                 <!-- generated fields -->
 
                 <div class="form__button">
-                    <button class="button" type="submit">Save</button>
+                    <button class="button button-primary" type="submit">Save</button>
                     <div id="error-container" class="form__general-error"></div>
                 </div>
             </form>
         <?php endif; ?>
-    </section>
+        <!-- content -->
+    </div>
+    <!-- right -->
 </main>
+<!-- main -->
 
 <?php $this->inject('admin/partials/admin-footer') ?>

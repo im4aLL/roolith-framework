@@ -23,6 +23,57 @@
     }
 }
 
+.form--inline {
+    display: flex;
+    align-items: flex-end;
+    gap: 0.625rem;
+}
+
+.form__image-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.625rem;
+    margin-bottom: 0.3125rem;
+}
+
+.form__image-item {
+    position: relative;
+    width: 6.25rem;
+
+    display: flex;
+    flex-direction: column;
+    gap: 0.3125rem;
+}
+
+.form__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: var(--r-global-border-radius);
+    border: 0.125rem solid var(--r-color-primary);
+}
+
+.form__file-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3125rem;
+    margin-bottom: 0.3125rem;
+}
+
+.form__file-item {
+    position: relative;
+}
+
+.form__file-delete {
+    color: var(--r-color-danger);
+
+    &:hover,
+    &:focus,
+    &:visited {
+        color: var(--r-color-danger);
+    }
+}
+
 // quill
 .ql-container.ql-snow,
 .ql-toolbar.ql-snow {

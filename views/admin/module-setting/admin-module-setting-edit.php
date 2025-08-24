@@ -1,30 +1,33 @@
 <?php $this->inject('admin/partials/admin-header') ?>
 
-<main class="layout">
-    <aside class="layout__sidebar">
-        <?php $this->inject('admin/partials/admin-sidebar') ?>
-    </aside>
+<!-- main -->
+<main class="layout" id="js-layout">
+    <?php $this->inject('admin/partials/admin-layout-header-n-primary') ?>
 
-    <section class="layout__body">
-        <ul class="breadcrumb">
-            <li class="breadcrumb__item">
-                <a href="<?= route('admin.module-settings.index') ?>" class="breadcrumb__link">Module Settings</a>
-            </li>
-            <li class="breadcrumb__item">
-                <a href="<?= route('admin.module-settings.edit', ['param' => $moduleSetting->id]) ?>" class="breadcrumb__link"><?= $moduleSetting->name ?></a>
-            </li>
-        </ul>
+    <!-- right -->
+    <div class="layout-secondary">
+        <!-- breadcrumb -->
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="<?= route('admin.home') ?>">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="<?= route('admin.module-settings.index') ?>">Module settings</a></li>
+            <li class="breadcrumb-item active"><?= $moduleSetting->name ?></li>
+        </ol>
+        <!-- breadcrumb -->
 
+        <!-- content -->
         <?php
-            $this->inject('admin/module-setting/admin-module-setting-form', [
-                'form_action_url' => route('admin.module-settings._update', ['param' => $moduleSetting->id]),
-                'form_action_url_method' => 'post',
-                'form_button_text' => 'Save changes',
-                'form_header' => 'Edit module setting - '.$moduleSetting->name,
-                'form_data' => $moduleSetting,
-            ]);
+        $this->inject('admin/module-setting/admin-module-setting-form', [
+            'form_action_url' => route('admin.module-settings._update', ['param' => $moduleSetting->id]),
+            'form_action_url_method' => 'post',
+            'form_button_text' => 'Save changes',
+            'form_header' => 'Edit module setting - ' . $moduleSetting->name,
+            'form_data' => $moduleSetting,
+        ]);
         ?>
-    </section>
+        <!-- content -->
+    </div>
+    <!-- right -->
 </main>
+<!-- main -->
 
 <?php $this->inject('admin/partials/admin-footer') ?>

@@ -1,20 +1,41 @@
 <?php $this->inject('admin/partials/admin-header') ?>
 
-<main class="layout">
-    <aside class="layout__sidebar">
-        <?php $this->inject('admin/partials/admin-sidebar') ?>
-    </aside>
+<!-- main -->
+<main class="layout" id="js-layout">
+    <?php $this->inject('admin/partials/admin-layout-header-n-primary') ?>
 
-    <section class="layout__body">
-        <ul class="breadcrumb">
-            <li class="breadcrumb__item">
-                <a href="<?= route('admin.messages.index') ?>" class="breadcrumb__link">Messages</a>
-            </li>
-            <li class="breadcrumb__item">
-                <a href="<?= route('admin.messages.show', ['param' => $message->id]) ?>" class="breadcrumb__link"><?= $message->reference ?></a>
-            </li>
-        </ul>
+    <!-- right -->
+    <div class="layout-secondary">
+        <!-- breadcrumb -->
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="<?= route('admin.home') ?>">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="<?= route('admin.messages.index') ?>">Messages</a></li>
+            <li class="breadcrumb-item active"><?= $message->reference ?></li>
+        </ol>
+        <!-- breadcrumb -->
 
+        <!-- block header container -->
+        <div class="block-header-container">
+            <div class="block-header-primary">
+                <h5 class="block-header-title"><?= $message->reference ?></h5>
+            </div>
+            <div class="block-header-secondary">
+                <!-- action menu -->
+                <nav class="action-menu action-menu-primary">
+                    <ul class="action-menu-list">
+                        <li class="action-menu-item">
+                            <form action="<?= route('admin.messages._destroy', ['param' => $message->id]) ?>" method="post">
+                                <button type="submit" class="button button-danger button-text" onclick="return confirm('Are you sure?')">Delete permanently</button>
+                            </form>
+                        </li>
+                    </ul>
+                </nav>
+                <!-- action menu -->
+            </div>
+        </div>
+        <!-- block header container -->
+
+        <!-- content -->
         <section>
             <dl>
                 <dt>Name</dt>
@@ -44,13 +65,12 @@
                 <form action="<?= route('admin.messages.update', ['param' => $message->id]) ?>" method="post">
                     <button type="submit" class="button"><?= $message->is_seen ? 'Mark as unread' : 'Mark as read' ?></button>
                 </form>
-
-                <form action="<?= route('admin.messages._destroy', ['param' => $message->id]) ?>" method="post">
-                    <button type="submit" class="button button--danger button--text" onclick="return confirm('Are you sure?')">Delete permanently</button>
-                </form>
             </div>
         </section>
-    </section>
+        <!-- content -->
+    </div>
+    <!-- right -->
 </main>
+<!-- main -->
 
 <?php $this->inject('admin/partials/admin-footer') ?>
