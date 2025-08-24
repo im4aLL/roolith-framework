@@ -14,10 +14,10 @@ export class SiteSettings {
     _onBlurInput() {
         const self = this;
 
-        $(this.containerSelector).on("blur", ".form__input", function () {
-            const $section = $(this).closest(".form__list-item");
-            const item = $section.find(".form__input[name='item']").val();
-            const value = $section.find(".form__input[name='value']").val();
+        $(this.containerSelector).on("blur", ".form-input", function () {
+            const $section = $(this).closest(".block-repeater-item");
+            const item = $section.find(".form-input[name='item']").val();
+            const value = $section.find(".form-input[name='value']").val();
             const id = $section.data("id");
             const method = id ? "PUT" : "POST";
 
@@ -68,13 +68,15 @@ export class SiteSettings {
 
         $(this.containerSelector).on(
             "click",
-            ".form__delete-cta",
+            ".js-alt-remove-field",
             function (e) {
+                e.stopImmediatePropagation();
+
                 if (!confirm("Are you sure?")) {
                     return;
                 }
 
-                const $section = $(this).closest(".form__list-item");
+                const $section = $(this).closest(".block-repeater-item");
                 const id = $section.data("id");
 
                 if (!id) {

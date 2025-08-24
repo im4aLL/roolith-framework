@@ -88,7 +88,7 @@ if (is_array($activeRouteNameArray) && isset($activeRouteNameArray[1])) {
                     <span class="sidebar-nav-list-label">Change Password</span>
                 </a>
             </li>
-            <li class="sidebar-nav-list-item<?= $activeRouteName === 'auth' ? ' is-active' : '' ?>">
+            <li class="sidebar-nav-list-item">
                 <a href="<?= route('admin.auth.logout') ?>" class="sidebar-nav-list-link">
                     <i class="iconoir-log-out"></i>
                     <span class="sidebar-nav-list-label">Sign Out</span>

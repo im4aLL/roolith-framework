@@ -43,17 +43,21 @@
             <?php endif; ?>
 
             <div class="block-grid">
-                <form method="post" class="form form--inline">
-                    <input type="hidden" name="action" value="create_folder">
-                    <input type="text" name="folder_name" placeholder="Folder name" class="form-input" required>
-                    <button type="submit" class="button">Create Folder</button>
-                </form>
+                <div class="block-grid-item">
+                    <form method="post" class="form">
+                        <input type="hidden" name="action" value="create_folder">
+                        <input type="text" name="folder_name" placeholder="Folder name" class="form-input" required>
+                        <button type="submit" class="button">Create Folder</button>
+                    </form>
+                </div>
 
-                <form method="post" enctype="multipart/form-data" class="form form--inline">
-                    <input type="hidden" name="action" value="upload_file">
-                    <input type="file" name="file" class="form-file" required>
-                    <button type="submit" class="button">Upload File</button>
-                </form>
+                <div class="block-grid-item">
+                    <form method="post" enctype="multipart/form-data" class="form">
+                        <input type="hidden" name="action" value="upload_file">
+                        <input type="file" name="file" class="form-file" required>
+                        <button type="submit" class="button">Upload File</button>
+                    </form>
+                </div>
             </div>
 
             <div class="table-responsive">

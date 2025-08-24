@@ -1,41 +1,85 @@
 <?php $this->inject('admin/partials/admin-header'); ?>
 
-<main class="layout">
+<!-- main -->
+<main class="layout" id="js-layout">
+    <?php $this->inject('admin/partials/admin-layout-header-n-primary') ?>
 
-    <aside class="layout__sidebar">
-        <?php $this->inject('admin/partials/admin-sidebar') ?>
-    </aside>
+    <!-- right -->
+    <div class="layout-secondary">
+        <!-- breadcrumb -->
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="<?= route('admin.home') ?>">Dashboard</a></li>
+            <li class="breadcrumb-item active">Site settings</li>
+        </ol>
+        <!-- breadcrumb -->
 
-    <section class="layout__body">
-        <h3><?= $this->escape('title') ?></h3>
-
-        <!-- fields -->
-        <div class="form__field" id="site-settings-field-container" data-action-url="<?= route('admin.siteSettings.store') ?>">
-            <ul class="form__list">
-                <?php foreach ($settingsData as $row) : ?>
-                <li class="form__list-item" data-id="<?= $row->id ?>">
-                    <input type="text" name="item" class="form__input form__input--no-space" placeholder="item" value="<?= $row->item ?>">
-                    <input type="text" name="value" class="form__input form__input--no-space" placeholder="value" value="<?= $row->value ?>">
-
-                    <div class="form__list-item-action">
-                        <button class="button button--text button--danger form__delete-cta" type="button">Remove</button>
-                    </div>
-                </li>
-                <?php endforeach; ?>
-                <li class="form__list-item">
-                    <input type="text" name="item" class="form__input form__input--no-space" placeholder="item">
-                    <input type="text" name="value" class="form__input form__input--no-space" placeholder="value">
-
-                    <div class="form__list-item-action">
-                        <button class="button button--text button--danger form__delete-cta" type="button">Remove</button>
-                    </div>
-                </li>
-            </ul>
-            <button class="button button--text" type="button" id="add-field">Add new</button>
+        <!-- block header container -->
+        <div class="block-header-container">
+            <div class="block-header-primary">
+                <h5 class="block-header-title"><?= $this->escape('title') ?></h5>
+                <p class="block-header-subtitle">Custom site settings and configurations</p>
+            </div>
         </div>
-        <!-- fields -->
-    </section>
+        <!-- block header container -->
 
+        <!-- content -->
+        <div class="form-field" id="site-settings-field-container" data-action-url="<?= route('admin.siteSettings.store') ?>">
+            <div class="block-repeater">
+                <label class="block-repeater-label form-label">Custom Fields</label>
+
+                <ul class="block-repeater-list">
+                    <?php foreach ($settingsData as $row) : ?>
+                        <li class="block-repeater-item" data-id="<?= $row->id ?>">
+                            <button class="block-repeater-sort">⋮⋮</button>
+                            <div class="block-repeater-primary">
+                                <div class="form-field">
+                                    <label class="form-label">Item</label>
+                                    <input type="text" class="form-input" name="item" value="<?= $row->item ?>" placeholder="item" />
+                                </div>
+                                <div class="form-field">
+                                    <label class="form-label">Value</label>
+                                    <input type="text" class="form-input" name="value" value="<?= $row->value ?>" placeholder="value" />
+                                </div>
+                            </div>
+                            <div class="block-repeater-secondary">
+                                <button class="button button-outline button-danger button-icon js-alt-remove-field" type="button">
+                                    <i class="iconoir-xmark"></i>
+                                    Remove
+                                </button>
+                            </div>
+                        </li>
+                    <?php endforeach; ?>
+                    <li class="block-repeater-item">
+                        <button class="block-repeater-sort">⋮⋮</button>
+                        <div class="block-repeater-primary">
+                            <div class="form-field">
+                                <label class="form-label">Item</label>
+                                <input type="text" class="form-input" name="item" placeholder="item" />
+                            </div>
+                            <div class="form-field">
+                                <label class="form-label">Value</label>
+                                <input type="text" class="form-input" name="value" placeholder="value" />
+                            </div>
+                        </div>
+                        <div class="block-repeater-secondary">
+                            <button class="button button-outline button-danger button-icon js-alt-remove-field" type="button">
+                                <i class="iconoir-xmark"></i>
+                                Remove
+                            </button>
+                        </div>
+                    </li>
+                </ul>
+
+                <button class="button button-icon js-add-field" type="button">
+                    <i class="iconoir-plus"></i>
+                    Add More Fields
+                </button>
+            </div>
+        </div>
+        <!-- content -->
+    </div>
+    <!-- right -->
 </main>
+<!-- main -->
 
 <?php $this->inject('admin/partials/admin-footer') ?>
