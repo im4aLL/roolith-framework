@@ -6,21 +6,24 @@
 
     <!-- right -->
     <div class="layout-secondary">
-        <!-- breadcrumb -->
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="<?= route('admin.home') ?>">Dashboard</a></li>
-            <li class="breadcrumb-item active">Site settings</li>
-        </ol>
-        <!-- breadcrumb -->
 
-        <!-- block header container -->
-        <div class="block-header-container">
-            <div class="block-header-primary">
-                <h5 class="block-header-title"><?= $this->escape('title') ?></h5>
-                <p class="block-header-subtitle">Custom site settings and configurations</p>
+        <div class="block-header">
+            <!-- breadcrumb -->
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="<?= route('admin.home') ?>">Dashboard</a></li>
+                <li class="breadcrumb-item active">Site settings</li>
+            </ol>
+            <!-- breadcrumb -->
+
+            <!-- block header container -->
+            <div class="block-header-container">
+                <div class="block-header-primary">
+                    <h5 class="block-header-title"><?= $this->escape('title') ?></h5>
+                    <p class="block-header-subtitle">Custom site settings and configurations</p>
+                </div>
             </div>
+            <!-- block header container -->
         </div>
-        <!-- block header container -->
 
         <!-- content -->
         <div class="form-field" id="site-settings-field-container" data-action-url="<?= route('admin.siteSettings.store') ?>">

@@ -7,7 +7,33 @@
     <!-- right -->
     <div class="layout-secondary">
 
+        <!-- block banner -->
+        <div class="block-banner">
+            <div class="box box-large">
+                <div class="box-body">
+                    <h5 class="block-banner-title">Welcome to roolith CMS!</h5>
+                    <p class="block-banner-text">
+                        Start creating your first module, or manage your existing modules. Its easy! Then you can
+                        start creating page content and upload media files.
+                    </p>
+
+                    <div class="button-bundle block-banner-buttons">
+                        <button class="button button-primary">Get Started</button>
+                        <button class="button button-text button-primary button-has-icon">
+                            Learn More
+                            <i class="iconoir-open-new-window"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- block banner -->
+
+        <div class="spacer-20"></div>
+
         <p>You have last logged in at <?= diffForHumans($lastLoggedIn) ?></p>
+
+        <div class="spacer-20"></div>
 
         <!-- block box -->
         <div class="block-boxes">
@@ -55,27 +81,7 @@
         </div>
         <!-- block box -->
 
-        <!-- block banner -->
-        <div class="block-banner">
-            <div class="box box-large">
-                <div class="box-body">
-                    <h5 class="block-banner-title">Welcome to roolith CMS!</h5>
-                    <p class="block-banner-text">
-                        Start creating your first module, or manage your existing modules. Its easy! Then you can
-                        start creating page content and upload media files.
-                    </p>
-
-                    <div class="button-bundle block-banner-buttons">
-                        <button class="button button-primary">Get Started</button>
-                        <button class="button button-text button-primary button-has-icon">
-                            Learn More
-                            <i class="iconoir-open-new-window"></i>
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- block banner -->
+        <div class="spacer-20"></div>
 
         <!-- block step -->
         <div class="block-banner">

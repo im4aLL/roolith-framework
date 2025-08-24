@@ -7,21 +7,23 @@
 
     <!-- right -->
     <div class="layout-secondary">
-        <!-- breadcrumb -->
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="<?= route('admin.home') ?>">Dashboard</a></li>
-            <li class="breadcrumb-item active">Change password</li>
-        </ol>
-        <!-- breadcrumb -->
+        <div class="block-header">
+            <!-- breadcrumb -->
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="<?= route('admin.home') ?>">Dashboard</a></li>
+                <li class="breadcrumb-item active">Change password</li>
+            </ol>
+            <!-- breadcrumb -->
 
-        <!-- block header container -->
-        <div class="block-header-container">
-            <div class="block-header-primary">
-                <h5 class="block-header-title">Account</h5>
-                <p class="block-header-subtitle">Update you account information</p>
+            <!-- block header container -->
+            <div class="block-header-container">
+                <div class="block-header-primary">
+                    <h5 class="block-header-title">Account</h5>
+                    <p class="block-header-subtitle">Update you account information</p>
+                </div>
             </div>
+            <!-- block header container -->
         </div>
-        <!-- block header container -->
 
         <!-- message -->
         <?php if (isset($error_message)) : ?>

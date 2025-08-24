@@ -274,3 +274,36 @@ function isDataChanged(array $updatedDataArray, array $originalDataArray): bool
 
     return $isChanged;
 }
+
+/**
+ * Get icon html by extension
+ *
+ * @param string $extension
+ * @return string
+ */
+function getIconHtmlByExtension(string $extension = ''): string
+{
+    switch (strtolower($extension)) {
+        case 'jpg':
+        case 'jpeg':
+        case 'png':
+            return '<i class="iconoir-media-image"></i>';
+        case 'pdf':
+            return '<i class="iconoir-page"></i>';
+        case 'doc':
+        case 'docx':
+            return '<i class="iconoir-google-docs"></i>';
+        case 'zip':
+            return '<i class="iconoir-attachment"></i>';
+        case 'xls':
+        case 'xlsx':
+            return '<i class="iconoir-doc-star"></i>';
+        case 'csv':
+            return '<i class="iconoir-code-brackets"></i>';
+        case 'ppt':
+        case 'pptx':
+            return '<i class="iconoir-multiple-pages"></i>';
+        default:
+            return '<i class="iconoir-folder"></i>';
+    }
+}

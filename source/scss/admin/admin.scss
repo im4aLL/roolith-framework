@@ -6,27 +6,38 @@
     --r-layout-secondary-background-color: var(--r-global-background-color);
 }
 
-.block-header,
-.layout-secondary {
-    .breadcrumb {
-        padding-top: 0;
+.table {
+    margin: rem(20) 0;
+}
+
+.file-manager-breadcrumb {
+    margin: rem(20) 0;
+}
+
+.file-manager-table {
+    th,
+    td {
+        vertical-align: middle;
     }
 }
 
-.layout-secondary {
-    .form {
-        padding-top: 1.25rem;
+.file-manager-label {
+    display: inline-flex;
+    align-items: center;
+    gap: rem(5);
+    color: var(--r-global-font-color);
+
+    i {
+        color: var(--r-global-font-color);
     }
 
-    .block-filter .form {
-        padding-top: 0;
-    }
-}
+    &:hover {
+        color: var(--r-color-primary);
 
-.form--inline {
-    display: flex;
-    align-items: flex-end;
-    gap: 0.625rem;
+        i {
+            color: var(--r-color-primary);
+        }
+    }
 }
 
 .form__image-list {

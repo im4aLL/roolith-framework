@@ -6,23 +6,23 @@
 
     <!-- right -->
     <div class="layout-secondary">
-        <!-- breadcrumb -->
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="<?= route('admin.home') ?>">Dashboard</a></li>
-            <li class="breadcrumb-item active">Messages</li>
-        </ol>
-        <!-- breadcrumb -->
+        <div class="block-header">
+            <!-- breadcrumb -->
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="<?= route('admin.home') ?>">Dashboard</a></li>
+                <li class="breadcrumb-item active">Messages</li>
+            </ol>
+            <!-- breadcrumb -->
 
-        <!-- block header container -->
-        <div class="block-header-container">
-            <div class="block-header-primary">
-                <h5 class="block-header-title">Messages (<?= $total ?>)</h5>
-                <p class="block-header-subtitle">All message sent from your site</p>
+            <!-- block header container -->
+            <div class="block-header-container">
+                <div class="block-header-primary">
+                    <h5 class="block-header-title">Messages (<?= $total ?>)</h5>
+                    <p class="block-header-subtitle">All message sent from your site</p>
+                </div>
             </div>
+            <!-- block header container -->
         </div>
-        <!-- block header container -->
-
-        <div class="spacer-20"></div>
 
         <!-- content -->
         <div class="table-responsive">

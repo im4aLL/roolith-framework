@@ -42,8 +42,8 @@
         <!-- block header -->
 
         <!-- filter -->
-        <div class="block-filter">
-            <form action="" class="form block-filter-form" method="get">
+        <div class="block-inline">
+            <form action="" class="form block-inline-form" method="get">
                 <div class="form-field form-field-search">
                     <span class="form-field-search-icon"><i class="icon icon-search"></i></span>
                     <input type="text" name="filter[title]" class="form-input" placeholder="Search ..." value="<?= $filterInput['title'] ?? '' ?>" />
@@ -67,7 +67,7 @@
                     </select>
                 </div>
 
-                <div class="block-filter-button-group">
+                <div class="block-inline-button-group">
                     <button type="submit" class="button button-primary">Filter</button>
                     <?php if (isset($filterInput)) : ?>
                         <a href="<?= route('admin.pages.index') ?>" class="button button-outline">Reset filter</a>

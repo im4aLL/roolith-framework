@@ -6,39 +6,41 @@
 
     <!-- right -->
     <div class="layout-secondary">
-        <!-- breadcrumb -->
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="<?= route('admin.home') ?>">Dashboard</a></li>
-            <li class="breadcrumb-item active">Modules</li>
-        </ol>
-        <!-- breadcrumb -->
+        <div class="block-header">
+            <!-- breadcrumb -->
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="<?= route('admin.home') ?>">Dashboard</a></li>
+                <li class="breadcrumb-item active">Modules</li>
+            </ol>
+            <!-- breadcrumb -->
 
-        <!-- block header container -->
-        <div class="block-header-container">
-            <div class="block-header-primary">
-                <h5 class="block-header-title">Modules (<?= $total ?>)</h5>
-                <p class="block-header-subtitle">Manage page modules or sections</p>
+            <!-- block header container -->
+            <div class="block-header-container">
+                <div class="block-header-primary">
+                    <h5 class="block-header-title">Modules (<?= $total ?>)</h5>
+                    <p class="block-header-subtitle">Manage page modules or sections</p>
+                </div>
+                <div class="block-header-secondary">
+                    <!-- action menu -->
+                    <nav class="action-menu action-menu-primary">
+                        <ul class="action-menu-list">
+                            <li class="action-menu-item">
+                                <a href="<?= route('admin.modules.create') ?>" class="action-menu-link">
+                                    <i class="iconoir-plus-square action-menu-icon"></i>
+                                    <span class="action-menu-label">Add new</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                    <!-- action menu -->
+                </div>
             </div>
-            <div class="block-header-secondary">
-                <!-- action menu -->
-                <nav class="action-menu action-menu-primary">
-                    <ul class="action-menu-list">
-                        <li class="action-menu-item">
-                            <a href="<?= route('admin.modules.create') ?>" class="action-menu-link">
-                                <i class="iconoir-plus-square action-menu-icon"></i>
-                                <span class="action-menu-label">Add new</span>
-                            </a>
-                        </li>
-                    </ul>
-                </nav>
-                <!-- action menu -->
-            </div>
+            <!-- block header container -->
         </div>
-        <!-- block header container -->
 
         <!-- filter -->
-        <div class="block-filter">
-            <form action="" class="form block-filter-form" method="get">
+        <div class="block-inline">
+            <form action="" class="form block-inline-form" method="get">
                 <div class="form-field form-field-search">
                     <span class="form-field-search-icon"><i class="icon icon-search"></i></span>
                     <input type="text" name="filter[title]" class="form-input" placeholder="Search ..." value="<?= $filterInput['title'] ?? '' ?>" />
@@ -63,7 +65,7 @@
                     </select>
                 </div>
 
-                <div class="block-filter-button-group">
+                <div class="block-inline-button-group">
                     <button type="submit" class="button button-primary">Filter</button>
                     <?php if (isset($filterInput)) : ?>
                         <a href="<?= route('admin.modules.index') ?>" class="button button-outline">Reset filter</a>
