@@ -18,6 +18,10 @@
                 register: () => null,
             };
         }
+
+        window['ROOLITH_CONFIG'] = {
+            uiStateAjaxUrl: '<?= route('admin.ui.states') ?>',
+        };
     </script>
 </head>
-<body>
+<body class="<?= getUiStateByKey('theme') ?? null ?>">

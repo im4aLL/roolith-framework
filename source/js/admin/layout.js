@@ -29,6 +29,11 @@ export class Layout {
                             (isCompact ? "expanded" : "collapsed")
                     );
                 });
+
+            // store the ui state
+            this._storeUiState({
+                compact: isCompact ? "compact" : "expanded",
+            });
         });
     }
 
@@ -37,18 +42,6 @@ export class Layout {
         const lightModeIcon = "iconoir-half-moon";
         const darkModeIcon = "iconoir-sun-light";
         const darkModeClass = "theme-dark";
-        const storageKey = "theme";
-
-        // Check for saved theme preference in localStorage
-        const savedTheme = localStorage.getItem(storageKey);
-        if (savedTheme) {
-            document.body.classList.add(savedTheme);
-            const icon = document
-                .getElementById("js-toggle-mode")
-                .querySelector("i");
-            icon.className =
-                savedTheme === darkModeClass ? lightModeIcon : darkModeIcon;
-        }
 
         // Add event listener for dark mode toggle
         const toggleDarkModeEl = document.getElementById("js-toggle-mode");
@@ -65,13 +58,23 @@ export class Layout {
                 icon.className = lightModeIcon;
             }
 
-            // store the theme preference in localStorage
-            localStorage.setItem(
-                storageKey,
-                document.body.classList.contains(darkModeClass)
+            // store the ui state
+            this._storeUiState({
+                theme: document.body.classList.contains(darkModeClass)
                     ? darkModeClass
-                    : ""
-            );
+                    : "",
+            });
+        });
+    }
+
+    _storeUiState(data) {
+        const url = window.ROOLITH_CONFIG.uiStateAjaxUrl;
+
+        $.ajax({
+            url,
+            method: "POST",
+            data,
+            dataType: "json",
         });
     }
 }

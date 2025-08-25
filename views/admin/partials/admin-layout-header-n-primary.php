@@ -33,8 +33,8 @@
         </a>
 
         <button class="layout-header-sidebar-toggle" id="js-layout-header-sidebar-toggle">
-            <i class="iconoir-transition-left-solid" data-show-when="expanded"></i>
-            <i class="iconoir-transition-right-solid is-hidden" data-show-when="collapsed"></i>
+            <i class="iconoir-transition-left-solid<?= getUiStateByKey('compact') == 'compact' ? ' is-hidden' : null ?>" data-show-when="expanded"></i>
+            <i class="iconoir-transition-right-solid<?= getUiStateByKey('compact') == 'compact' ? null : ' is-hidden' ?>" data-show-when="collapsed"></i>
         </button>
     </div>
     <!-- logo -->
@@ -84,7 +84,7 @@
         <div class="avatar layout-header-avatar">
             <figure class="avatar-fig rounded-circle">
                 <img
-                    src="https://gravatar.com/avatar/000000000000000000000000000000000000000000000000000000"
+                    src="<?= getGravatarUrl() ?>"
                     alt="" />
             </figure>
             <a href="#" class="avatar-label">

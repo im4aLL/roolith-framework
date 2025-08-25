@@ -1,7 +1,7 @@
 <?php $this->inject('admin/partials/admin-header') ?>
 
 <!-- main -->
-<main class="layout" id="js-layout">
+<main class="layout<?= getUiStateByKey('compact') == 'compact' ? ' layout-compact' : null ?>" id="js-layout">
     <?php $this->inject('admin/partials/admin-layout-header-n-primary') ?>
 
     <!-- right -->
@@ -13,6 +13,8 @@
             <li class="breadcrumb-item active"><?= $message->reference ?></li>
         </ol>
         <!-- breadcrumb -->
+
+        <div class="spacer-20"></div>
 
         <!-- block header container -->
         <div class="block-header-container">

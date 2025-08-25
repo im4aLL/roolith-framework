@@ -78,6 +78,11 @@ $router->group(['middleware' => AdminAuthMiddleware::class, 'urlPrefix' => '/adm
      * Message
      */
     $router->crud('/messages', AdminMessageController::class);
+
+    /**
+     * UI states
+     */
+    $router->post('/ui-states', AdminMiscController::class . '@storeUiStates')->name('ui.states');
 });
 
 /**

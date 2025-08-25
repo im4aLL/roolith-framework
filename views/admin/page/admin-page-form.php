@@ -18,6 +18,8 @@
 </div>
 <!-- block header container -->
 
+<div class="spacer-20"></div>
+
 <form action="<?= $form_action_url ?>" method="<?= $form_action_url_method ?>" class="form" data-ajax="true">
     <div class="form-field">
         <label for="title" class="form-label">Title</label>

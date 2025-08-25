@@ -9,7 +9,7 @@ if (is_array($activeRouteNameArray) && isset($activeRouteNameArray[1])) {
 ?>
 
 <!-- sidebar nav -->
-<nav class="sidebar-nav" id="js-sidebar-nav-list">
+<nav class="sidebar-nav<?= getUiStateByKey('compact') == 'compact' ? ' sidebar-nav-compact' : null ?>" id="js-sidebar-nav-list">
     <!-- group -->
     <div class="sidebar-nav-group">
         <div class="sidebar-nav-header">General</div>

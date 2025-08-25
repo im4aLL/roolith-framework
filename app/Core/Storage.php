@@ -33,6 +33,17 @@ class Storage
     }
 
     /**
+     * Get cookie by name
+     *
+     * @param string $name
+     * @return mixed
+     */
+    public static function getCookie(string $name): mixed
+    {
+        return $_COOKIE[$name] ?? null;
+    }
+
+    /**
      * Set session
      *
      * @param $name

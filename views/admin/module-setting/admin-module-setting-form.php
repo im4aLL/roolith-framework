@@ -12,6 +12,8 @@
 </div>
 <!-- block header container -->
 
+<div class="spacer-20"></div>
+
 <form action="<?= $form_action_url ?>" method="<?= $form_action_url_method ?>" class="form">
     <?php if (isset($error_message)) : ?>
         <div class="message message-danger"><?= $error_message ?></div>

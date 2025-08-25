@@ -1,7 +1,7 @@
 <?php $this->inject('admin/partials/admin-header') ?>
 
 <!-- main -->
-<main class="layout" id="js-layout">
+<main class="layout<?= getUiStateByKey('compact') == 'compact' ? ' layout-compact' : null ?>" id="js-layout">
     <?php $this->inject('admin/partials/admin-layout-header-n-primary') ?>
 
     <!-- right -->
@@ -14,29 +14,31 @@
         </ol>
         <!-- breadcrumb -->
 
+        <div class="spacer-20"></div>
+
         <!-- content -->
         <?php if (isset($setting_load_error_message)) : ?>
             <div class="message message-danger"><?= $setting_load_error_message ?></div>
         <?php endif; ?>
 
         <!-- actions -->
-        <div class="form__actions">
-            <form method="get" class="form form--inline">
-                <div class="form-field">
-                    <label for="module_setting_id" class="form-label">Select a module settings</label>
-                    <select name="module_setting_id" id="module_setting_id" class="form-select">
-                        <option></option>
-                        <?php foreach ($moduleSettings as $moduleSetting): ?>
-                            <option value="<?= $moduleSetting->id ?>" <?= isset($moduleSettingData) && $moduleSettingData->id == $moduleSetting->id ? 'selected' : '' ?>><?= $moduleSetting->name ?></option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <div class="form-field">
-                    <button type="submit" class="button">Load selected module</button>
-                </div>
-            </form>
-        </div>
+        <form method="get" class="form block-inline-form">
+            <div class="form-field">
+                <label for="module_setting_id" class="form-label">Select a module settings</label>
+                <select name="module_setting_id" id="module_setting_id" class="form-select">
+                    <option></option>
+                    <?php foreach ($moduleSettings as $moduleSetting): ?>
+                        <option value="<?= $moduleSetting->id ?>" <?= isset($moduleSettingData) && $moduleSettingData->id == $moduleSetting->id ? 'selected' : '' ?>><?= $moduleSetting->name ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div class="form-field">
+                <button type="submit" class="button">Load selected module</button>
+            </div>
+        </form>
         <!-- actions -->
+
+        <div class="spacer-20"></div>
 
         <?php if (isset($moduleSettingData)) : ?>
             <form action="<?= route('admin.modules.store') ?>" method="post" class="form" enctype="multipart/form-data" data-ajax="true">

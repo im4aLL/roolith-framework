@@ -1,5 +1,6 @@
 <?php
 
+use App\Core\Storage;
 use App\Utils\Str;
 use Carbon\Carbon;
 use App\Core\RouterFactory;
@@ -244,6 +245,17 @@ function diffForHumans(string $dateString): string
 }
 
 /**
+ * To date time string
+ *
+ * @param string $dateString
+ * @return string
+ */
+function toDateTimeString(string $dateString): string
+{
+    return Carbon::parse($dateString)->toDayDateTimeString();
+}
+
+/**
  * Get module image URL
  *
  * @param string $imageName
@@ -276,34 +288,45 @@ function isDataChanged(array $updatedDataArray, array $originalDataArray): bool
 }
 
 /**
- * Get icon html by extension
+ * Get icon HTML by extension
  *
  * @param string $extension
  * @return string
  */
 function getIconHtmlByExtension(string $extension = ''): string
 {
-    switch (strtolower($extension)) {
-        case 'jpg':
-        case 'jpeg':
-        case 'png':
-            return '<i class="iconoir-media-image"></i>';
-        case 'pdf':
-            return '<i class="iconoir-page"></i>';
-        case 'doc':
-        case 'docx':
-            return '<i class="iconoir-google-docs"></i>';
-        case 'zip':
-            return '<i class="iconoir-attachment"></i>';
-        case 'xls':
-        case 'xlsx':
-            return '<i class="iconoir-doc-star"></i>';
-        case 'csv':
-            return '<i class="iconoir-code-brackets"></i>';
-        case 'ppt':
-        case 'pptx':
-            return '<i class="iconoir-multiple-pages"></i>';
-        default:
-            return '<i class="iconoir-folder"></i>';
-    }
+    return match (strtolower($extension)) {
+        'jpg', 'jpeg', 'png' => '<i class="iconoir-media-image"></i>',
+        'pdf' => '<i class="iconoir-page"></i>',
+        'doc', 'docx' => '<i class="iconoir-google-docs"></i>',
+        'zip' => '<i class="iconoir-attachment"></i>',
+        'xls', 'xlsx' => '<i class="iconoir-doc-star"></i>',
+        'csv' => '<i class="iconoir-code-brackets"></i>',
+        'ppt', 'pptx' => '<i class="iconoir-multiple-pages"></i>',
+        default => '<i class="iconoir-folder"></i>',
+    };
+}
+
+/**
+ * Get ui state by key
+ *
+ * @param string $key
+ * @return mixed
+ */
+function getUiStateByKey(string $key): mixed
+{
+    return Storage::getCookie($key);
+}
+
+/**
+ * Get gravatar url
+ *
+ * @return string
+ */
+function getGravatarUrl(): string
+{
+    $email = Storage::getSession(APP_ADMIN_SESSION_KEY);
+    $hash = hash('sha256', strtolower(trim($email)));
+
+    return "https://www.gravatar.com/avatar/$hash";
 }

@@ -1,7 +1,7 @@
 <?php $this->inject('admin/partials/admin-header') ?>
 
 <!-- main -->
-<main class="layout" id="js-layout">
+<main class="layout<?= getUiStateByKey('compact') == 'compact' ? ' layout-compact' : null ?>" id="js-layout">
     <?php $this->inject('admin/partials/admin-layout-header-n-primary') ?>
 
     <!-- right -->

@@ -4,7 +4,9 @@ namespace App\Controllers\Admin;
 
 use App\Controllers\Controller;
 use App\Core\Request;
+use App\Core\Storage;
 use App\Utils\FileManager;
+use Carbon\Carbon;
 
 class AdminMiscController extends Controller
 {
@@ -86,5 +88,19 @@ class AdminMiscController extends Controller
         }
 
         return $message;
+    }
+
+    /**
+     * Store UI states
+     *
+     * @return void
+     */
+    public function storeUiStates(): void
+    {
+        $states = Request::all();
+
+        foreach ($states as $stateKey => $stateValue) {
+            Storage::setCookie($stateKey, $stateValue, Carbon::now()->addYear());
+        }
     }
 }

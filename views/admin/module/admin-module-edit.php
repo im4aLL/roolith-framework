@@ -1,6 +1,6 @@
 <?php $this->inject('admin/partials/admin-header') ?>
 
-<main class="layout" id="js-layout">
+<main class="layout<?= getUiStateByKey('compact') == 'compact' ? ' layout-compact' : null ?>" id="js-layout">
     <?php $this->inject('admin/partials/admin-layout-header-n-primary') ?>
 
     <!-- right -->
@@ -13,6 +13,8 @@
         </ol>
         <!-- breadcrumb -->
 
+        <div class="spacer-20"></div>
+
         <!-- block header container -->
         <div class="block-header-container">
             <div class="block-header-primary">
@@ -24,6 +26,8 @@
             </div>
         </div>
         <!-- block header container -->
+
+        <div class="spacer-20"></div>
 
         <!-- content -->
         <?php if (isset($moduleSettingData)) : ?>
