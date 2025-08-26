@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers\Admin;
 
-use App\Controllers\Controller;
 use App\Core\ApiResponseTransformer;
 use App\Core\Exceptions\Exception;
 use App\Core\LazyLoad;
@@ -16,7 +15,7 @@ use App\Models\Admin\AdminPageModule;
 use App\Models\Admin\AdminUser;
 use App\Utils\_;
 
-class AdminPageController extends Controller
+class AdminPageController extends AdminBaseController
 {
     /**
      * Show a list of pages with pagination

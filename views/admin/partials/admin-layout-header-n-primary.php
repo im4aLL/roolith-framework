@@ -88,11 +88,10 @@
                     alt="" />
             </figure>
             <a href="#" class="avatar-label">
-                Killmonger
-                <span>@killmonger</span>
+                <?= $global['user']->name ?>
             </a>
             <div class="avatar-primary-block">
-                <span>Administrator</span>
+                <span><?= $global['user']->role ?></span>
                 <a href="<?= route('admin.auth.logout') ?>">Sign out</a>
             </div>
         </div>

@@ -1,14 +1,13 @@
 <?php
 namespace App\Controllers\Admin;
 
-use App\Controllers\Controller;
 use App\Core\ApiResponseTransformer;
 use App\Core\Request;
 use App\Core\Rules;
 use App\Core\Validator;
 use App\Models\Admin\AdminSetting;
 
-class AdminSettingController extends Controller
+class AdminSettingController extends AdminBaseController
 {
     public function index(): bool|string
     {

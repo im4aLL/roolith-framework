@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers\Admin;
 
-use App\Controllers\Controller;
 use App\Core\ApiResponseTransformer;
 use App\Core\Exceptions\Exception;
 use App\Core\Request;
@@ -10,7 +9,7 @@ use App\Core\Storage;
 use App\Core\Validator;
 use App\Models\Admin\AdminModuleSetting;
 
-class AdminModuleSettingController extends Controller
+class AdminModuleSettingController extends AdminBaseController
 {
     private string $formErrorKey = 'module_settings_error';
 

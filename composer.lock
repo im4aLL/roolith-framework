@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "046e0dc73f0eb5eef9078dae1f966e0e",
+    "content-hash": "d571f09cc8baa6d4cd1e7edc06d244b6",
     "packages": [
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -908,16 +908,16 @@
         },
         {
             "name": "roolith/router",
-            "version": "1.0.15",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/im4aLL/roolith-router.git",
-                "reference": "cea45203d51166c45fbebfdefa44884233a3a9c5"
+                "reference": "2ec21d55461d3a9a961e681fb200d06d697be4cc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/im4aLL/roolith-router/zipball/cea45203d51166c45fbebfdefa44884233a3a9c5",
-                "reference": "cea45203d51166c45fbebfdefa44884233a3a9c5",
+                "url": "https://api.github.com/repos/im4aLL/roolith-router/zipball/2ec21d55461d3a9a961e681fb200d06d697be4cc",
+                "reference": "2ec21d55461d3a9a961e681fb200d06d697be4cc",
                 "shasum": ""
             },
             "require": {
@@ -947,9 +947,9 @@
             "description": "Simple PHP router",
             "support": {
                 "issues": "https://github.com/im4aLL/roolith-router/issues",
-                "source": "https://github.com/im4aLL/roolith-router/tree/1.0.15"
+                "source": "https://github.com/im4aLL/roolith-router/tree/1.1.0"
             },
-            "time": "2025-07-12T08:07:03+00:00"
+            "time": "2025-08-26T02:56:46+00:00"
         },
         {
             "name": "roolith/template-engine",
@@ -1341,7 +1341,9 @@
     "stability-flags": {},
     "prefer-stable": false,
     "prefer-lowest": false,
-    "platform": {},
+    "platform": {
+        "php": ">=8.0"
+    },
     "platform-dev": {},
     "plugin-api-version": "2.6.0"
 }

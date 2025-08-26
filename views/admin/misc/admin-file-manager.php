@@ -41,7 +41,8 @@
 
         <div class="fm__content">
             <?php if ($message): ?>
-                <p class="fm__message"><?= htmlspecialchars($message) ?></p>
+                <div class="message"><?= htmlspecialchars($message) ?></div>
+                <div class="spacer-10"></div>
             <?php endif; ?>
 
             <div class="block-grid">

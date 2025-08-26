@@ -2,7 +2,6 @@
 
 namespace App\Controllers\Admin;
 
-use App\Controllers\Controller;
 use App\Models\Admin\AdminCategory;
 use App\Models\Admin\AdminMessage;
 use App\Models\Admin\AdminModule;
@@ -11,7 +10,7 @@ use App\Models\Admin\AdminPage;
 use App\Models\Admin\AdminUser;
 use Carbon\Carbon;
 
-class AdminController extends Controller
+class AdminController extends AdminBaseController
 {
     public function index(): bool|string
     {

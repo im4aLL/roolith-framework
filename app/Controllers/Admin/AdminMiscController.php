@@ -2,13 +2,12 @@
 
 namespace App\Controllers\Admin;
 
-use App\Controllers\Controller;
 use App\Core\Request;
 use App\Core\Storage;
 use App\Utils\FileManager;
 use Carbon\Carbon;
 
-class AdminMiscController extends Controller
+class AdminMiscController extends AdminBaseController
 {
     /**
      * Basic file manager page

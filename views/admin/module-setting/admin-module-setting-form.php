@@ -53,8 +53,7 @@
                                 </div>
                             </div>
                             <div class="block-repeater-secondary">
-                                <button class="button button-outline button-danger button-icon js-remove-field" type="button">
-                                    <i class="iconoir-xmark"></i>
+                                <button class="button button-outline button-danger button-text js-remove-field" type="button">
                                     Remove
                                 </button>
                             </div>
@@ -85,8 +84,7 @@
                             </div>
                         </div>
                         <div class="block-repeater-secondary">
-                            <button class="button button-outline button-danger button-icon js-remove-field" type="button">
-                                <i class="iconoir-xmark"></i>
+                            <button class="button button-outline button-danger button-text js-remove-field" type="button">
                                 Remove
                             </button>
                         </div>

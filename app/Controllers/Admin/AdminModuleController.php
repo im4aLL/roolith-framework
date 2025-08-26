@@ -2,9 +2,7 @@
 
 namespace App\Controllers\Admin;
 
-use App\Controllers\Controller;
 use App\Core\ApiResponseTransformer;
-use App\Core\Interfaces\FileInterface;
 use App\Core\Interfaces\ValidatorInterface;
 use App\Core\LazyLoad;
 use App\Core\Request;
@@ -19,7 +17,7 @@ use App\Models\Admin\AdminPageCategory;
 use App\Models\Admin\AdminUser;
 use App\Utils\_;
 
-class AdminModuleController extends Controller
+class AdminModuleController extends AdminBaseController
 {
     private string $_uploadDir = APP_ADMIN_FILE_MANAGER_MODULE_DATA_DIR;
     private array $_acceptedImages = APP_ADMIN_ALLOWED_IMAGE_TYPES;

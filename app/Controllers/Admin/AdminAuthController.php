@@ -1,7 +1,6 @@
 <?php
 namespace App\Controllers\Admin;
 
-use App\Controllers\Controller;
 use App\Core\Request;
 use App\Core\Rules;
 use App\Core\SessionRateLimiter;
@@ -9,7 +8,7 @@ use App\Core\Storage;
 use App\Core\Validator;
 use App\Models\Admin\AdminUser;
 
-class AdminAuthController extends Controller
+class AdminAuthController extends AdminBaseController
 {
     private AdminUser $user;
     private Validator $validator;
