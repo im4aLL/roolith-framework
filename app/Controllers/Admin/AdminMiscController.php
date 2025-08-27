@@ -4,7 +4,7 @@ namespace App\Controllers\Admin;
 
 use App\Core\Request;
 use App\Core\Storage;
-use App\Utils\FileManager;
+use App\Utils\Admin\FileManager;
 use Carbon\Carbon;
 
 class AdminMiscController extends AdminBaseController

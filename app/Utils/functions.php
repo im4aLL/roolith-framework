@@ -182,7 +182,7 @@ function isProductionEnvironment(): bool
  */
 function getIpAddress(): mixed
 {
-    $ipAddress = 'UNKNOWN';
+    $ipAddress = '127.0.0.1';
 
     if (isset($_SERVER['HTTP_CLIENT_IP'])) {
         $ipAddress = $_SERVER['HTTP_CLIENT_IP'];

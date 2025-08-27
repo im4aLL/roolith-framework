@@ -1,7 +1,9 @@
 <?php
-namespace App\Utils;
 
-class FileManager {
+namespace App\Utils\Admin;
+
+class FileManager
+{
     private string $basePath;
     private array $allowedExtensions = ['txt', 'pdf', 'jpg', 'jpeg', 'png', 'gif', 'doc', 'docx', 'zip', 'ppt', 'pptx', 'xls', 'xlsx'];
     private int $maxFileSize = 5 * 1024 * 1024; // 5MB
