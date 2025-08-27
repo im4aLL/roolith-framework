@@ -257,6 +257,16 @@ class AdminAnalytics extends Model
         return self::raw()->query($queryString)->get();
     }
 
+    /**
+     * Get top sources
+     *
+     * @param int $limit
+     * @return array{
+     *     source: string,
+     *     visits: int,
+     *     unique_visitors: int
+     * }
+     */
     public function getTopSources(int $limit = 10): array
     {
         $queryString = "
@@ -280,6 +290,17 @@ class AdminAnalytics extends Model
         return self::raw()->query($queryString)->get();
     }
 
+    /**
+     * Get location stats
+     *
+     * @param int $limit
+     * @return array{
+     *     country: string,
+     *     pageviews: int,
+     *     unique_visitors: int,
+     *     visits: int
+     * }
+     */
     public function getLocationStats(int $limit = 10): array
     {
         $queryString = "
@@ -298,6 +319,17 @@ class AdminAnalytics extends Model
         return self::raw()->query($queryString)->get();
     }
 
+    /**
+     * Get device stats
+     *
+     * @return array{
+     *     device: string,
+     *     os: string,
+     *     browser: string,
+     *     pageviews: int,
+     *     unique_visitors: int
+     * }
+     */
     public function getDeviceStats(): array
     {
         $queryString = "
@@ -333,11 +365,22 @@ class AdminAnalytics extends Model
         return self::raw()->query($queryString)->get();
     }
 
+    /**
+     * Get period name
+     *
+     * @return string
+     */
     public function getPeriodName(): string
     {
         return $this->_currentPeriodStart->format('M j') . ' - ' . $this->_currentPeriodEnd->format('M j, Y');
     }
 
+    /**
+     * Get stats for a custom period
+     *
+     * @param string $period
+     * @return array
+     */
     // $todayStats = $analytics->getCustomPeriodStats('today');
     // $monthStats = $analytics->getCustomPeriodStats('this_month');
     public function getCustomPeriodStats(string $period): array
@@ -356,6 +399,12 @@ class AdminAnalytics extends Model
         return $this->_getPeriodStats($start, $end);
     }
 
+    /**
+     * Get hourly stats for a day
+     *
+     * @param Carbon $date
+     * @return array
+     */
     // $analytics->getHourlyTrends(Carbon::yesterday());
     public function getHourlyTrends(?Carbon $date = null): array
     {
