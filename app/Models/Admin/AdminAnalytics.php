@@ -2,6 +2,7 @@
 
 namespace App\Models\Admin;
 
+use App\Core\Storage;
 use Carbon\Carbon;
 use App\Models\Model;
 
@@ -9,28 +10,124 @@ class AdminAnalytics extends Model
 {
     protected string $table = 'analytics';
 
-    private int $_totalPeriodInDays = 30;
-    private Carbon $_currentPeriodStart;
-    private Carbon $_currentPeriodEnd;
-    private Carbon $_previousPeriodStart;
-    private Carbon $_previousPeriodEnd;
+    private Carbon|null $_currentPeriodStart = null;
+    private Carbon|null $_currentPeriodEnd = null;
+    private Carbon|null $_previousPeriodStart = null;
+    private Carbon|null $_previousPeriodEnd = null;
+    public array $periods = ['today', 'yesterday', 'last_7_days', 'this_month', 'last_month', 'last_6_month', 'this_year', 'lifetime'];
+    public string $defaultPeriod = 'last_month';
+    private string $_periodSessionKey = 'analytics_period';
 
     public function __construct()
     {
-        $this->_setPeriods();
+        if (!Storage::hasSession($this->_periodSessionKey)) {
+            $this->setPeriod($this->defaultPeriod);
+        } else {
+            $data = Storage::getSession($this->_periodSessionKey);
+
+            if ($data['currentPeriodEnd'] && $data['currentPeriodStart']) {
+                $this->_currentPeriodEnd = Carbon::parse($data['currentPeriodEnd']);
+                $this->_currentPeriodStart = Carbon::parse($data['currentPeriodStart']);
+                $this->_previousPeriodEnd = Carbon::parse($data['previousPeriodEnd']);
+                $this->_previousPeriodStart = Carbon::parse($data['previousPeriodStart']);
+            } else {
+                $this->_currentPeriodEnd = null;
+                $this->_currentPeriodStart = null;
+                $this->_previousPeriodEnd = null;
+                $this->_previousPeriodStart = null;
+            }
+        }
     }
 
     /**
-     * Set periods
-     *
-     * @return void
+     * @param string $period
+     * @return array{
+     *     currentPeriodStart: string,
+     *     currentPeriodEnd: string,
+     *     previousPeriodStart: string,
+     *     previousPeriodEnd: string
+     * }
      */
-    private function _setPeriods(): void
+    public function setPeriod(string $period): array
     {
-        $this->_currentPeriodEnd = Carbon::now();
-        $this->_currentPeriodStart = Carbon::now()->subDays($this->_totalPeriodInDays);
-        $this->_previousPeriodEnd = $this->_currentPeriodStart->copy()->subDay();
-        $this->_previousPeriodStart = $this->_previousPeriodEnd->copy()->subDays($this->_totalPeriodInDays);
+        if (!in_array($period, $this->periods)) {
+            $period = $this->defaultPeriod;
+        }
+
+        [$start, $end] = match ($period) {
+            'today' => [Carbon::today(), Carbon::now()],
+            'yesterday' => [Carbon::yesterday(), Carbon::yesterday()->endOfDay()],
+            'last_7_days' => [Carbon::now()->subDays(7), Carbon::now()],
+            'this_month' => [Carbon::now()->startOfMonth(), Carbon::now()],
+            'last_month' => [Carbon::now()->subMonth()->startOfMonth(), Carbon::now()->subMonth()->endOfMonth()],
+            'last_6_month' => [Carbon::now()->subMonths(6)->startOfMonth(), Carbon::now()],
+            'this_year' => [Carbon::now()->startOfYear(), Carbon::now()],
+            'lifetime' => [null, null],
+            default => [Carbon::now()->subDays(30), Carbon::now()]
+        };
+
+        $this->_currentPeriodEnd = $end;
+        $this->_currentPeriodStart = $start;
+
+        if ($period === 'today' || $period === 'yesterday') {
+            $this->_previousPeriodEnd = $this->_currentPeriodStart->copy()->subDay()->endOfDay();
+            $this->_previousPeriodStart = $this->_previousPeriodEnd->copy()->startOfDay();
+        } else if ($period === 'last_7_days') {
+            $this->_previousPeriodEnd = $this->_currentPeriodStart->copy()->subDay()->endOfDay();
+            $this->_previousPeriodStart = $this->_previousPeriodEnd->copy()->subDays(7)->startOfDay();
+        } else if ($period === 'this_month' || $period === 'last_month') {
+            $this->_previousPeriodEnd = $this->_currentPeriodStart->copy()->subMonth()->endOfMonth();
+            $this->_previousPeriodStart = $this->_previousPeriodEnd->copy()->startOfMonth();
+        } else if ($period === 'last_6_month') {
+            $this->_previousPeriodEnd = $this->_currentPeriodStart->copy()->subDay()->endOfDay();
+            $this->_previousPeriodStart = $this->_previousPeriodEnd->copy()->subMonths(6)->startOfDay();
+        } else if ($period === 'this_year') {
+            $this->_previousPeriodEnd = $this->_currentPeriodStart->copy()->subYear()->endOfYear();
+            $this->_previousPeriodStart = $this->_previousPeriodEnd->copy()->startOfYear();
+        } else if ($period === 'lifetime') {
+            $this->_previousPeriodEnd = null;
+            $this->_previousPeriodStart = null;
+        }
+
+        $data = [
+            'currentPeriodStart' => $this->_currentPeriodStart?->toDateTimeString(),
+            'currentPeriodEnd' => $this->_currentPeriodEnd?->toDateTimeString(),
+            'previousPeriodStart' => $this->_previousPeriodStart?->toDateTimeString(),
+            'previousPeriodEnd' => $this->_previousPeriodEnd?->toDateTimeString(),
+        ];
+
+        Storage::setSession($this->_periodSessionKey, $data);
+
+        return $data;
+    }
+
+    /**
+     * Set period by start and end date
+     *
+     * @param Carbon $start
+     * @param Carbon $end
+     * @return array
+     */
+    public function setPeriodByDate(Carbon $start, Carbon $end): array
+    {
+        $this->_currentPeriodStart = $start;
+        $this->_currentPeriodEnd = $end;
+
+        $diffInDays = $this->_currentPeriodStart->diffInDays($this->_currentPeriodEnd);
+
+        $this->_previousPeriodEnd = $this->_currentPeriodStart->copy()->subDays($diffInDays);
+        $this->_previousPeriodStart = $this->_previousPeriodEnd->copy()->subDays($diffInDays);
+
+        $data = [
+            'currentPeriodStart' => $this->_currentPeriodStart->toDateTimeString(),
+            'currentPeriodEnd' => $this->_currentPeriodEnd->toDateTimeString(),
+            'previousPeriodStart' => $this->_previousPeriodStart->toDateTimeString(),
+            'previousPeriodEnd' => $this->_previousPeriodEnd->toDateTimeString(),
+        ];
+
+        Storage::setSession($this->_periodSessionKey, $data);
+
+        return $data;
     }
 
     /**
@@ -80,7 +177,7 @@ class AdminAnalytics extends Model
 
         // Average session duration (simplified - time between first and last page in session)
         $avgDurationQueryString = "
-            SELECT AVG(TIMESTAMPDIFF(MINUTE, first_page, last_page)) as avg_duration
+            SELECT AVG(TIMESTAMPDIFF(SECOND, first_page, last_page)) as avg_duration
             FROM (
                 SELECT
                     session_id,
@@ -160,63 +257,35 @@ class AdminAnalytics extends Model
      */
     private function _calculateChange(int|float $old, int|float $new): float
     {
-        return match (true) {
-            $old == 0 => $new > 0 ? 100 : 0,
-            default => round((($new - $old) / $old) * 100, 1)
-        };
+        // Handle a special case: no previous value
+        if ($old === 0) {
+            return $new > 0 ? 100.0 : 0.0;
+        }
+
+        // Calculate percentage change
+        $difference = $new - $old;
+        $percentChange = ($difference / $old) * 100;
+
+        return round($percentChange, 1);
     }
 
     /**
      * Get overview stats
      *
-     * @return array{
-     *     current: array{
-     *         unique_visitors: int,
-     *         total_visits: int,
-     *         pageviews: int,
-     *         pages_per_visit: float,
-     *         bounce_rate: float,
-     *         avg_duration: float
-     *     },
-     *     previous: array{
-     *         unique_visitors: int,
-     *         total_visits: int,
-     *         pageviews: int,
-     *         pages_per_visit: float,
-     *         bounce_rate: float,
-     *         avg_duration: float
-     *     },
-     *     lifetime: array{
-     *         unique_visitors: int,
-     *         total_visits: int,
-     *         pageviews: int,
-     *         days_tracking: int,
-     *         avg_visitors_per_day: float,
-     *         avg_visits_per_day: float,
-     *         avg_pageviews_per_day: float,
-     *         first_visit: string,
-     *         last_visit: string
-     *     },
-     *     changes: array{
-     *         unique_visitors: float,
-     *         total_visits: float,
-     *         pageviews: float,
-     *         bounce_rate: float,
-     *         avg_duration: float,
-     *         pages_per_visit: float
-     *     }
-     * }
+     * @return array
      */
     public function getOverviewStats(): array
     {
+        if (!$this->_currentPeriodStart && !$this->_currentPeriodEnd) {
+            return $this->_getLifetimeStats();
+        }
+
         $current = $this->_getPeriodStats($this->_currentPeriodStart, $this->_currentPeriodEnd);
         $previous = $this->_getPeriodStats($this->_previousPeriodStart, $this->_previousPeriodEnd);
-        $lifetime = $this->_getLifetimeStats();
 
         return [
             'current' => $current,
             'previous' => $previous,
-            'lifetime' => $lifetime,
             'changes' => [
                 'unique_visitors' => $this->_calculateChange($previous['unique_visitors'], $current['unique_visitors']),
                 'total_visits' => $this->_calculateChange($previous['total_visits'], $current['total_visits']),
@@ -224,7 +293,9 @@ class AdminAnalytics extends Model
                 'bounce_rate' => $this->_calculateChange($previous['bounce_rate'], $current['bounce_rate']),
                 'avg_duration' => $this->_calculateChange($previous['avg_duration'], $current['avg_duration']),
                 'pages_per_visit' => $this->_calculateChange($previous['pages_per_visit'], $current['pages_per_visit'])
-            ]
+            ],
+            'start_date' => $this->_currentPeriodStart->toDateTimeString(),
+            'end_date' => $this->_currentPeriodEnd->toDateTimeString(),
         ];
     }
 
@@ -232,11 +303,7 @@ class AdminAnalytics extends Model
      * Get top pages
      *
      * @param int $limit
-     * @return array{
-     *     page_url: string,
-     *     pageviews: int,
-     *     unique_visitors: int
-     * }
+     * @return array
      */
     public function getTopPages(int $limit = 10): array
     {
@@ -246,24 +313,26 @@ class AdminAnalytics extends Model
                 COUNT(*) as pageviews,
                 COUNT(DISTINCT visitor_id) as unique_visitors
             FROM " . $this->table . "
-            WHERE visit_time BETWEEN '" . $this->_currentPeriodStart->toDateTimeString() . "' AND '" . $this->_currentPeriodEnd->toDateTimeString() . "'
+            ".$this->_getVisitTimeCondition()."
             GROUP BY page_url
             ORDER BY pageviews DESC
             LIMIT $limit
         ";
 
-        return self::raw()->query($queryString)->get();
+        $data = self::raw()->query($queryString)->get();
+
+        return [
+            'data' => $data,
+            'start_date' => $this->_currentPeriodStart->toDateTimeString(),
+            'end_date' => $this->_currentPeriodEnd->toDateTimeString(),
+        ];
     }
 
     /**
      * Get top sources
      *
      * @param int $limit
-     * @return array{
-     *     source: string,
-     *     visits: int,
-     *     unique_visitors: int
-     * }
+     * @return array
      */
     public function getTopSources(int $limit = 10): array
     {
@@ -279,25 +348,26 @@ class AdminAnalytics extends Model
                 COUNT(*) as visits,
                 COUNT(DISTINCT visitor_id) as unique_visitors
             FROM " . $this->table . "
-            WHERE visit_time BETWEEN '" . $this->_currentPeriodStart->toDateTimeString() . "' AND '" . $this->_currentPeriodEnd->toDateTimeString() . "'
+            ".$this->_getVisitTimeCondition()."
             GROUP BY source
             ORDER BY visits DESC
             LIMIT $limit
         ";
 
-        return self::raw()->query($queryString)->get();
+        $data = self::raw()->query($queryString)->get();
+
+        return [
+            'data' => $data,
+            'start_date' => $this->_currentPeriodStart->toDateTimeString(),
+            'end_date' => $this->_currentPeriodEnd->toDateTimeString(),
+        ];
     }
 
     /**
      * Get location stats
      *
      * @param int $limit
-     * @return array{
-     *     country: string,
-     *     pageviews: int,
-     *     unique_visitors: int,
-     *     visits: int
-     * }
+     * @return array
      */
     public function getLocationStats(int $limit = 10): array
     {
@@ -308,25 +378,25 @@ class AdminAnalytics extends Model
                 COUNT(DISTINCT visitor_id) as unique_visitors,
                 COUNT(DISTINCT session_id) as visits
             FROM " . $this->table . "
-            WHERE visit_time BETWEEN '" . $this->_currentPeriodStart->toDateTimeString() . "' AND '" . $this->_currentPeriodEnd->toDateTimeString() . "'
+            ".$this->_getVisitTimeCondition()."
             GROUP BY country
             ORDER BY pageviews DESC
             LIMIT $limit
         ";
 
-        return self::raw()->query($queryString)->get();
+        $data = self::raw()->query($queryString)->get();
+
+        return [
+            'data' => $data,
+            'start_date' => $this->_currentPeriodStart->toDateTimeString(),
+            'end_date' => $this->_currentPeriodEnd->toDateTimeString(),
+        ];
     }
 
     /**
      * Get device stats
      *
-     * @return array{
-     *     device: string,
-     *     os: string,
-     *     browser: string,
-     *     pageviews: int,
-     *     unique_visitors: int
-     * }
+     * @return array
      */
     public function getDeviceStats(): array
     {
@@ -338,23 +408,24 @@ class AdminAnalytics extends Model
                 COUNT(*) as pageviews,
                 COUNT(DISTINCT visitor_id) as unique_visitors
             FROM " . $this->table . "
-            WHERE visit_time BETWEEN '" . $this->_currentPeriodStart->toDateTimeString() . "' AND '" . $this->_currentPeriodEnd->toDateTimeString() . "'
+            ".$this->_getVisitTimeCondition()."
             GROUP BY device, os, browser
             ORDER BY pageviews DESC
         ";
 
-        return self::raw()->query($queryString)->get();
+        $data = self::raw()->query($queryString)->get();
+
+        return [
+            'data' => $data,
+            'start_date' => $this->_currentPeriodStart->toDateTimeString(),
+            'end_date' => $this->_currentPeriodEnd->toDateTimeString(),
+        ];
     }
 
     /**
      * Get daily trends
      *
-     * @return array{
-     *     date: string,
-     *     pageviews: int,
-     *     unique_visitors: int,
-     *     visits: int
-     * }
+     * @return array
      */
     public function getDailyTrends(): array
     {
@@ -365,12 +436,32 @@ class AdminAnalytics extends Model
                 COUNT(DISTINCT visitor_id) as unique_visitors,
                 COUNT(DISTINCT session_id) as visits
             FROM " . $this->table . "
-            WHERE visit_time BETWEEN '" . $this->_currentPeriodStart->toDateTimeString() . "' AND '" . $this->_currentPeriodEnd->toDateTimeString() . "'
+            ".$this->_getVisitTimeCondition()."
             GROUP BY DATE(visit_time)
             ORDER BY date
         ";
 
-        return self::raw()->query($queryString)->get();
+        $data = self::raw()->query($queryString)->get();
+
+        return [
+            'data' => $data,
+            'start_date' => $this->_currentPeriodStart->toDateTimeString(),
+            'end_date' => $this->_currentPeriodEnd->toDateTimeString(),
+        ];
+    }
+
+    /**
+     * Get visit time condition query string
+     *
+     * @return string
+     */
+    private function _getVisitTimeCondition(): string
+    {
+        if (!$this->_currentPeriodStart && !$this->_currentPeriodEnd) {
+            return '';
+        }
+
+        return " WHERE visit_time BETWEEN '" . $this->_currentPeriodStart->toDateTimeString() . "' AND '" . $this->_currentPeriodEnd->toDateTimeString() . "'";
     }
 
     /**
@@ -389,29 +480,6 @@ class AdminAnalytics extends Model
             'end' =>  $this->_currentPeriodEnd->format('M j, Y'),
             'label' => $this->_currentPeriodStart->format('M j'). ' - ' .  $this->_currentPeriodEnd->format('M j, Y')
         ];
-    }
-
-    /**
-     * Get stats for a custom period
-     *
-     * @param string $period
-     * @return array
-     */
-    // $todayStats = $analytics->getCustomPeriodStats('today');
-    // $monthStats = $analytics->getCustomPeriodStats('this_month');
-    public function getCustomPeriodStats(string $period): array
-    {
-        [$start, $end] = match ($period) {
-            'today' => [Carbon::today(), Carbon::now()],
-            'yesterday' => [Carbon::yesterday(), Carbon::yesterday()->endOfDay()],
-            'last_7_days' => [Carbon::now()->subDays(7), Carbon::now()],
-            'this_month' => [Carbon::now()->startOfMonth(), Carbon::now()],
-            'last_month' => [Carbon::now()->subMonth()->startOfMonth(), Carbon::now()->subMonth()->endOfMonth()],
-            'this_year' => [Carbon::now()->startOfYear(), Carbon::now()],
-            default => [Carbon::now()->subDays(30), Carbon::now()]
-        };
-
-        return $this->_getPeriodStats($start, $end);
     }
 
     /**
@@ -437,6 +505,11 @@ class AdminAnalytics extends Model
             ORDER BY hour
         ";
 
-        return self::raw()->query($queryString)->get();
+        $data = self::raw()->query($queryString)->get();
+
+        return [
+            'data' => $data,
+            'date' => $date->toDateTimeString(),
+        ];
     }
 }

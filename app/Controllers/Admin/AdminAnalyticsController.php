@@ -17,74 +17,89 @@ class AdminAnalyticsController extends AdminBaseController
         $this->analytics = $analytics;
     }
 
-    public function index()
+    public function index(): array
     {
         $data = $this->analytics->getOverviewStats();
 
         return ApiResponseTransformer::success($data);
     }
 
-    public function topPages()
+    public function topPages(): array
     {
         $data = $this->analytics->getTopPages();
 
         return ApiResponseTransformer::success($data);
     }
 
-    public function topSources()
+    public function topSources(): array
     {
         $data = $this->analytics->getTopSources();
 
         return ApiResponseTransformer::success($data);
     }
 
-    public function locationStats()
+    public function locationStats(): array
     {
         $data = $this->analytics->getLocationStats();
 
         return ApiResponseTransformer::success($data);
     }
 
-    public function deviceStats()
+    public function deviceStats(): array
     {
         $data = $this->analytics->getDeviceStats();
 
         return ApiResponseTransformer::success($data);
     }
 
-    public function dailyTrends()
+    public function dailyTrends(): array
     {
         $data = $this->analytics->getDailyTrends();
 
         return ApiResponseTransformer::success($data);
     }
 
-    public function periodName()
+    public function periodName(): array
     {
         $data = $this->analytics->getPeriodName();
 
         return ApiResponseTransformer::success($data);
     }
 
-    public function customPeriodStats()
-    {
-        $period = Request::input('period');
-
-        // validate period name
-        if (!in_array($period, ['today', 'yesterday', 'last_7_days', 'this_month', 'last_month', 'this_year'])) {
-            return ApiResponseTransformer::error(null, 'Invalid period name.');
-        }
-
-        $data = $this->analytics->getCustomPeriodStats($period);
-
-        return ApiResponseTransformer::success($data);
-    }
-
-    public function hourlyTrends()
+    public function hourlyTrends(): array
     {
         $date = Request::input('date');
         $data = $this->analytics->getHourlyTrends(Carbon::parse($date));
 
         return ApiResponseTransformer::success($data);
+    }
+
+    public function setPeriod(): array
+    {
+        $period = Request::input('period');
+
+        if ($period) {
+            if (!in_array($period, $this->analytics->periods)) {
+                return ApiResponseTransformer::error(null, 'Invalid period name.');
+            }
+
+            return ApiResponseTransformer::success($this->analytics->setPeriod($period));
+        }
+
+        $start = Request::input('start');
+        $end = Request::input('end');
+
+        if (!$start || !$end) {
+            return ApiResponseTransformer::error(null, 'Invalid period.');
+        }
+
+        $startDateTime = Carbon::parse($start);
+        $endDateTime = Carbon::parse($end);
+
+        if ($endDateTime->lte($startDateTime)) {
+            return ApiResponseTransformer::error(null, 'End date must be after start date.');
+        }
+
+        return ApiResponseTransformer::success($this->analytics->setPeriodByDate($startDateTime, $endDateTime));
     }
 }

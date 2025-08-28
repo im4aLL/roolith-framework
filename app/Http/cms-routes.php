@@ -95,7 +95,7 @@ $router->group(['middleware' => AdminAuthMiddleware::class, 'urlPrefix' => '/adm
         $router->get('/analytics/daily-trends', AdminAnalyticsController::class . '@dailyTrends')->name('analytics.dailyTrends');
         $router->get('/analytics/hourly-trends', AdminAnalyticsController::class . '@hourlyTrends')->name('analytics.hourlyTrends');
         $router->get('/analytics/period', AdminAnalyticsController::class . '@periodName')->name('analytics.periodName');
-        $router->get('/analytics/custom-period', AdminAnalyticsController::class . '@customPeriodStats')->name('analytics.customPeriodStats');
+        $router->get('/analytics/set-period', AdminAnalyticsController::class . '@setPeriod')->name('analytics.setPeriod');
     }
 });
 
