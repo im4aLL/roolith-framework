@@ -13,7 +13,7 @@
     "require": {
         "roolith/cache": "1.0.2",
         "roolith/config": "1.0.1",
-        "roolith/database": "1.2.0",
+        "roolith/database": "1.3.0",
         "roolith/event": "1.0.1",
         "roolith/generator": "1.0.3",
         "roolith/router": "1.1.0",

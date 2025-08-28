@@ -4,15 +4,15 @@ namespace App\Utils\Admin;
 
 class CountryDetector
 {
-    public static $defaultCountry = 'CA';
+    public static string $defaultCountry = 'CA';
 
     /**
      * Get user country code
      *
-     * @param null|string $ip
+     * @param string|null $ip
      * @return string
      */
-    public static function getUserCountryCode($ip = null): string
+    public static function getUserCountryCode(string $ip = null): string
     {
         if (!$ip) {
             $ip = getIpAddress();

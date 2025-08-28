@@ -81,6 +81,11 @@ $router->group(['middleware' => AdminAuthMiddleware::class, 'urlPrefix' => '/adm
      * UI states
      */
     $router->post('/ui-states', AdminMiscController::class . '@storeUiStates')->name('ui.states');
+
+    /**
+     * Dashboard
+     */
+    $router->get('/analytics', \App\Controllers\Admin\AdminAnalyticsController::class . '@index')->name('analytics.index');
 });
 
 /**

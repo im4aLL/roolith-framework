@@ -9,7 +9,7 @@ class AdminAnalytics extends Model
 {
     protected string $table = 'analytics';
 
-    private $_totalPeriodInDays = 30;
+    private int $_totalPeriodInDays = 30;
     private Carbon $_currentPeriodStart;
     private Carbon $_currentPeriodEnd;
     private Carbon $_previousPeriodStart;
@@ -17,8 +17,6 @@ class AdminAnalytics extends Model
 
     public function __construct()
     {
-        parent::__construct();
-
         $this->_setPeriods();
     }
 
@@ -60,25 +58,25 @@ class AdminAnalytics extends Model
                 COUNT(DISTINCT session_id) as total_visits,
                 COUNT(*) as pageviews
             FROM " . $this->table . "
-            WHERE visit_time BETWEEN $startDateStr AND $endDateStr";
+            WHERE visit_time BETWEEN '$startDateStr' AND '$endDateStr'";
         $basic = self::raw()->query($basicQueryString)->first();
 
         // Pages per visit
         $pagesPerVisit = $basic->total_visits > 0 ? round($basic->pageviews / $basic->total_visits, 2) : 0;
 
-        // Bounce rate (sessions with only 1 page view)
+        // Bounce rate (sessions with only 1-page view)
         $bounceRateQueryString = "
             SELECT COUNT(*) as bounce_sessions
             FROM (
                 SELECT session_id, COUNT(*) as page_count
                 FROM " . $this->table . "
-                WHERE visit_time BETWEEN $startDateStr AND $endDateStr
+                WHERE visit_time BETWEEN '$startDateStr' AND '$endDateStr'
                 GROUP BY session_id
                 HAVING page_count = 1
             ) bounce
         ";
         $bounces = self::raw()->query($bounceRateQueryString)->first()->bounce_sessions ?? 0;
-        $bounceRate = $basic['total_visits'] > 0 ? round(($bounces / $basic['total_visits']) * 100, 1) : 0;
+        $bounceRate = $basic->total_visits > 0 ? round(($bounces / $basic->total_visits) * 100, 1) : 0;
 
         // Average session duration (simplified - time between first and last page in session)
         $avgDurationQueryString = "
@@ -89,7 +87,7 @@ class AdminAnalytics extends Model
                     MIN(visit_time) as first_page,
                     MAX(visit_time) as last_page
                 FROM " . $this->table . "
-                WHERE visit_time BETWEEN $startDateStr AND $endDateStr
+                WHERE visit_time BETWEEN '$startDateStr' AND '$endDateStr'
                 GROUP BY session_id
                 HAVING COUNT(*) > 1
             ) sessions
@@ -135,7 +133,7 @@ class AdminAnalytics extends Model
         ";
         $basic = self::raw()->query($queryString)->first();
 
-        // Calculate days since first visit
+        // Calculate days since the first visit
         $firstVisit = Carbon::parse($basic->first_visit);
         $now = Carbon::now();
         $daysSinceStart = $firstVisit->diffInDays($now) + 1; // +1 to include today
@@ -145,11 +143,11 @@ class AdminAnalytics extends Model
             'total_visits' => (int) $basic->total_visits,
             'pageviews' => (int) $basic->pageviews,
             'days_tracking' => $daysSinceStart,
-            'avg_visitors_per_day' => $daysSinceStart > 0 ? round($basic['unique_visitors'] / $daysSinceStart, 1) : 0,
-            'avg_visits_per_day' => $daysSinceStart > 0 ? round($basic['total_visits'] / $daysSinceStart, 1) : 0,
-            'avg_pageviews_per_day' => $daysSinceStart > 0 ? round($basic['pageviews'] / $daysSinceStart, 1) : 0,
+            'avg_visitors_per_day' => $daysSinceStart > 0 ? round($basic->unique_visitors / $daysSinceStart, 1) : 0,
+            'avg_visits_per_day' => $daysSinceStart > 0 ? round($basic->total_visits / $daysSinceStart, 1) : 0,
+            'avg_pageviews_per_day' => $daysSinceStart > 0 ? round($basic->pageviews / $daysSinceStart, 1) : 0,
             'first_visit' => $firstVisit->toDateTimeString(),
-            'last_visit' => $basic['last_visit'] ? Carbon::parse($basic['last_visit'])->toDateTimeString() : null,
+            'last_visit' => $basic->last_visit ? Carbon::parse($basic->last_visit)->toDateTimeString() : null,
         ];
     }
 
@@ -248,7 +246,7 @@ class AdminAnalytics extends Model
                 COUNT(*) as pageviews,
                 COUNT(DISTINCT visitor_id) as unique_visitors
             FROM " . $this->table . "
-            WHERE visit_time BETWEEN " . $this->_currentPeriodStart->toDateTimeString() . " AND " . $this->_currentPeriodEnd->toDateTimeString() . "
+            WHERE visit_time BETWEEN '" . $this->_currentPeriodStart->toDateTimeString() . "' AND '" . $this->_currentPeriodEnd->toDateTimeString() . "'
             GROUP BY page_url
             ORDER BY pageviews DESC
             LIMIT $limit
@@ -281,7 +279,7 @@ class AdminAnalytics extends Model
                 COUNT(*) as visits,
                 COUNT(DISTINCT visitor_id) as unique_visitors
             FROM " . $this->table . "
-            WHERE visit_time BETWEEN " . $this->_currentPeriodStart->toDateTimeString() . " AND " . $this->_currentPeriodEnd->toDateTimeString() . "
+            WHERE visit_time BETWEEN '" . $this->_currentPeriodStart->toDateTimeString() . "' AND '" . $this->_currentPeriodEnd->toDateTimeString() . "'
             GROUP BY source
             ORDER BY visits DESC
             LIMIT $limit
@@ -309,8 +307,8 @@ class AdminAnalytics extends Model
                 COUNT(*) as pageviews,
                 COUNT(DISTINCT visitor_id) as unique_visitors,
                 COUNT(DISTINCT session_id) as visits
-            FROM analytics
-            WHERE visit_time BETWEEN " . $this->_currentPeriodStart->toDateTimeString() . " AND " . $this->_currentPeriodEnd->toDateTimeString() . "
+            FROM " . $this->table . "
+            WHERE visit_time BETWEEN '" . $this->_currentPeriodStart->toDateTimeString() . "' AND '" . $this->_currentPeriodEnd->toDateTimeString() . "'
             GROUP BY country
             ORDER BY pageviews DESC
             LIMIT $limit
@@ -339,8 +337,8 @@ class AdminAnalytics extends Model
                 browser,
                 COUNT(*) as pageviews,
                 COUNT(DISTINCT visitor_id) as unique_visitors
-            FROM analytics
-            WHERE visit_time BETWEEN " . $this->_currentPeriodStart->toDateTimeString() . " AND " . $this->_currentPeriodEnd->toDateTimeString() . "
+            FROM " . $this->table . "
+            WHERE visit_time BETWEEN '" . $this->_currentPeriodStart->toDateTimeString() . "' AND '" . $this->_currentPeriodEnd->toDateTimeString() . "'
             GROUP BY device, os, browser
             ORDER BY pageviews DESC
         ";
@@ -348,6 +346,16 @@ class AdminAnalytics extends Model
         return self::raw()->query($queryString)->get();
     }
 
+    /**
+     * Get daily trends
+     *
+     * @return array{
+     *     date: string,
+     *     pageviews: int,
+     *     unique_visitors: int,
+     *     visits: int
+     * }
+     */
     public function getDailyTrends(): array
     {
         $queryString = "
@@ -356,8 +364,8 @@ class AdminAnalytics extends Model
                 COUNT(*) as pageviews,
                 COUNT(DISTINCT visitor_id) as unique_visitors,
                 COUNT(DISTINCT session_id) as visits
-            FROM analytics
-            WHERE visit_time BETWEEN " . $this->_currentPeriodStart->toDateTimeString() . " AND " . $this->_currentPeriodEnd->toDateTimeString() . "
+            FROM " . $this->table . "
+            WHERE visit_time BETWEEN '" . $this->_currentPeriodStart->toDateTimeString() . "' AND '" . $this->_currentPeriodEnd->toDateTimeString() . "'
             GROUP BY DATE(visit_time)
             ORDER BY date
         ";
@@ -368,11 +376,19 @@ class AdminAnalytics extends Model
     /**
      * Get period name
      *
-     * @return string
+     * @return array{
+     *     start: string,
+     *     end: string,
+     *     label: string
+     * }
      */
-    public function getPeriodName(): string
+    public function getPeriodName(): array
     {
-        return $this->_currentPeriodStart->format('M j') . ' - ' . $this->_currentPeriodEnd->format('M j, Y');
+        return [
+            'start' =>  $this->_currentPeriodStart->format('M j, Y'),
+            'end' =>  $this->_currentPeriodEnd->format('M j, Y'),
+            'label' => $this->_currentPeriodStart->format('M j'). ' - ' .  $this->_currentPeriodEnd->format('M j, Y')
+        ];
     }
 
     /**
@@ -389,7 +405,6 @@ class AdminAnalytics extends Model
             'today' => [Carbon::today(), Carbon::now()],
             'yesterday' => [Carbon::yesterday(), Carbon::yesterday()->endOfDay()],
             'last_7_days' => [Carbon::now()->subDays(7), Carbon::now()],
-            'last_30_days' => [Carbon::now()->subDays(30), Carbon::now()],
             'this_month' => [Carbon::now()->startOfMonth(), Carbon::now()],
             'last_month' => [Carbon::now()->subMonth()->startOfMonth(), Carbon::now()->subMonth()->endOfMonth()],
             'this_year' => [Carbon::now()->startOfYear(), Carbon::now()],
@@ -402,7 +417,7 @@ class AdminAnalytics extends Model
     /**
      * Get hourly stats for a day
      *
-     * @param Carbon $date
+     * @param Carbon|null $date
      * @return array
      */
     // $analytics->getHourlyTrends(Carbon::yesterday());
@@ -417,7 +432,7 @@ class AdminAnalytics extends Model
                 COUNT(DISTINCT visitor_id) as unique_visitors,
                 COUNT(DISTINCT session_id) as visits
             FROM " . $this->table . "
-            WHERE DATE(visit_time) = " . $date->toDateString() . "
+            WHERE DATE(visit_time) = '" . $date->toDateString() . "'
             GROUP BY HOUR(visit_time)
             ORDER BY hour
         ";

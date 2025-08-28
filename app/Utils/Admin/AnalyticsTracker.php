@@ -52,7 +52,7 @@ class AnalyticsTracker
      *
      * @return string
      */
-    private function _generateId()
+    private function _generateId(): string
     {
         return md5(uniqid(rand(), true));
     }
@@ -71,21 +71,37 @@ class AnalyticsTracker
 
         // Device detection
         if (preg_match('/Mobile|Android|iPhone|iPad/', $userAgent)) {
-            $device = preg_match('/iPad/', $userAgent) ? 'Tablet' : 'Mobile';
+            $device = str_contains($userAgent, 'iPad') ? 'Tablet' : 'Mobile';
         }
 
         // OS detection
-        if (preg_match('/Windows/', $userAgent)) $os = 'Windows';
-        elseif (preg_match('/Mac/', $userAgent)) $os = 'macOS';
-        elseif (preg_match('/Linux/', $userAgent)) $os = 'Linux';
-        elseif (preg_match('/Android/', $userAgent)) $os = 'Android';
-        elseif (preg_match('/iOS|iPhone|iPad/', $userAgent)) $os = 'iOS';
+        if (str_contains($userAgent, 'Windows')) {
+            $os = 'Windows';
+        } elseif (str_contains($userAgent, 'Macintosh') || str_contains($userAgent, 'Mac OS')) {
+            $os = 'macOS';
+        } elseif (str_contains($userAgent, 'Linux')) {
+            $os = 'Linux';
+        } elseif (str_contains($userAgent, 'Android')) {
+            $os = 'Android';
+        } elseif (preg_match('/iOS|iPhone|iPad/', $userAgent)) {
+            $os = 'iOS';
+        }
 
-        // Browser detection
-        if (preg_match('/Chrome/', $userAgent)) $browser = 'Chrome';
-        elseif (preg_match('/Firefox/', $userAgent)) $browser = 'Firefox';
-        elseif (preg_match('/Safari/', $userAgent)) $browser = 'Safari';
-        elseif (preg_match('/Edge/', $userAgent)) $browser = 'Edge';
+        // Browser detection (specific before generic!)
+        if (stripos($userAgent, 'OPR') !== false || stripos($userAgent, 'Opera') !== false) {
+            $browser = 'Opera';
+        } elseif (stripos($userAgent, 'YaBrowser') !== false) {
+            $browser = 'Yandex';
+        } elseif (stripos($userAgent, 'Edg') !== false) {
+            $browser = 'Edge';
+        } elseif (stripos($userAgent, 'Firefox') !== false) {
+            $browser = 'Firefox';
+        } elseif (stripos($userAgent, 'Safari') !== false && stripos($userAgent, 'Chrome') === false) {
+            // Safari but not Chrome (since Chrome UA also contains Safari)
+            $browser = 'Safari';
+        } elseif (stripos($userAgent, 'Chrome') !== false) {
+            $browser = 'Chrome';
+        }
 
         return compact('device', 'os', 'browser');
     }
