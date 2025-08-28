@@ -1,4 +1,5 @@
 <?php
+
 use App\Controllers\WelcomeController;
 use App\Core\RouterFactory;
 use Roolith\Configuration\Config;
@@ -15,7 +16,7 @@ try {
 /**
  * Demo routes
  */
-$router->get('/', function() {
+$router->get('/', function () {
     return 'Welcome to Roolith Framework!';
 });
 

@@ -86,17 +86,17 @@ $router->group(['middleware' => AdminAuthMiddleware::class, 'urlPrefix' => '/adm
     /**
      * Analytics
      */
-    if (APP_ANALYTICS_ENABLED) {
-        $router->get('/analytics', AdminAnalyticsController::class . '@index')->name('analytics.index');
-        $router->get('/analytics/top-pages', AdminAnalyticsController::class . '@topPages')->name('analytics.topPages');
-        $router->get('/analytics/top-sources', AdminAnalyticsController::class . '@topSources')->name('analytics.topSources');
-        $router->get('/analytics/location-stats', AdminAnalyticsController::class . '@locationStats')->name('analytics.locationStats');
-        $router->get('/analytics/device-stats', AdminAnalyticsController::class . '@deviceStats')->name('analytics.deviceStats');
-        $router->get('/analytics/daily-trends', AdminAnalyticsController::class . '@dailyTrends')->name('analytics.dailyTrends');
-        $router->get('/analytics/hourly-trends', AdminAnalyticsController::class . '@hourlyTrends')->name('analytics.hourlyTrends');
-        $router->get('/analytics/period', AdminAnalyticsController::class . '@periodName')->name('analytics.periodName');
-        $router->get('/analytics/set-period', AdminAnalyticsController::class . '@setPeriod')->name('analytics.setPeriod');
-    }
+    $router->get('/analytics', AdminAnalyticsController::class . '@index')->name('analytics.index');
+    $router->get('/analytics/overview', AdminAnalyticsController::class . '@overview')->name('analytics.overview');
+    $router->get('/analytics/overview/lifetime', AdminAnalyticsController::class . '@lifetimeOverview')->name('analytics.overview.lifetime');
+    $router->get('/analytics/top-pages', AdminAnalyticsController::class . '@topPages')->name('analytics.topPages');
+    $router->get('/analytics/top-sources', AdminAnalyticsController::class . '@topSources')->name('analytics.topSources');
+    $router->get('/analytics/location-stats', AdminAnalyticsController::class . '@locationStats')->name('analytics.locationStats');
+    $router->get('/analytics/device-stats', AdminAnalyticsController::class . '@deviceStats')->name('analytics.deviceStats');
+    $router->get('/analytics/daily-trends', AdminAnalyticsController::class . '@dailyTrends')->name('analytics.dailyTrends');
+    $router->get('/analytics/hourly-trends', AdminAnalyticsController::class . '@hourlyTrends')->name('analytics.hourlyTrends');
+    $router->get('/analytics/period', AdminAnalyticsController::class . '@periodName')->name('analytics.periodName');
+    $router->get('/analytics/set-period', AdminAnalyticsController::class . '@setPeriod')->name('analytics.setPeriod');
 });
 
 /**

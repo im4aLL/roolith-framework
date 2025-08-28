@@ -14,7 +14,7 @@ export class SiteSettings {
     _onBlurInput() {
         const self = this;
 
-        $(this.containerSelector).on("blur", ".form-input", function () {
+        $(this.containerSelector).on("blur", ".block-repeater .form-input", function () {
             const $section = $(this).closest(".block-repeater-item");
             const item = $section.find(".form-input[name='item']").val();
             const value = $section.find(".form-input[name='value']").val();
@@ -49,7 +49,7 @@ export class SiteSettings {
             data: settings.data,
             dataType: "json",
             success: function (data) {
-                const { status, payload, message } = data;
+                const {status, payload, message} = data;
 
                 if (status === "success" && settings.method === "POST") {
                     settings.element.attr("data-id", payload.id);
@@ -89,7 +89,7 @@ export class SiteSettings {
                     method: "DELETE",
                     dataType: "json",
                     success: function (data) {
-                        const { status, payload, message } = data;
+                        const {status, payload, message} = data;
 
                         if (status === "success") {
                             $section.remove();

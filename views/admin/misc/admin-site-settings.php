@@ -26,7 +26,38 @@
         </div>
 
         <!-- content -->
-        <div class="form-field" id="site-settings-field-container" data-action-url="<?= route('admin.siteSettings.store') ?>">
+        <div class="form-field" id="site-settings-field-container"
+             data-action-url="<?= route('admin.siteSettings.store') ?>">
+
+            <!-- Analytics -->
+            <div class="block-enable">
+                <div class="box">
+                    <div class="box-header">Enable or Disable Analytics</div>
+                    <div class="box-body">
+                        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Excepturi eius magnam, possimus
+                        aliquam, ipsum cumque, nostrum vel eos enim quaerat ipsa sequi. Officiis fugiat omnis
+                        similique nihil doloribus unde ratione?
+                    </div>
+                    <div class="box-footer">
+                        <div class="form-switch">
+                            <label for="enable" class="form-switch-label">
+                                <input type="checkbox" name="switch" id="enable" class="form-switch-input"/>
+                                <span class="form-switch-slider"></span>
+
+                                <span class="form-switch-slider-text">Enable</span>
+                            </label>
+                        </div>
+
+                        <a href="#" class="button button-text button-link button-icon">
+                            Learn more
+                            <i class="iconoir-open-new-window"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="spacer-20"></div>
+            <!-- Analytics -->
+
             <div class="block-repeater">
                 <label class="block-repeater-label form-label">Custom Fields</label>
 
@@ -37,15 +68,18 @@
                             <div class="block-repeater-primary">
                                 <div class="form-field">
                                     <label class="form-label">Item</label>
-                                    <input type="text" class="form-input" name="item" value="<?= $row->item ?>" placeholder="item" />
+                                    <input type="text" class="form-input" name="item" value="<?= $row->item ?>"
+                                           placeholder="item"/>
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Value</label>
-                                    <input type="text" class="form-input" name="value" value="<?= $row->value ?>" placeholder="value" />
+                                    <input type="text" class="form-input" name="value" value="<?= $row->value ?>"
+                                           placeholder="value"/>
                                 </div>
                             </div>
                             <div class="block-repeater-secondary">
-                                <button class="button button-outline button-danger button-text js-alt-remove-field" type="button">
+                                <button class="button button-outline button-danger button-text js-alt-remove-field"
+                                        type="button">
                                     Remove
                                 </button>
                             </div>
@@ -56,15 +90,16 @@
                         <div class="block-repeater-primary">
                             <div class="form-field">
                                 <label class="form-label">Item</label>
-                                <input type="text" class="form-input" name="item" placeholder="item" />
+                                <input type="text" class="form-input" name="item" placeholder="item"/>
                             </div>
                             <div class="form-field">
                                 <label class="form-label">Value</label>
-                                <input type="text" class="form-input" name="value" placeholder="value" />
+                                <input type="text" class="form-input" name="value" placeholder="value"/>
                             </div>
                         </div>
                         <div class="block-repeater-secondary">
-                            <button class="button button-outline button-danger button-text js-alt-remove-field" type="button">
+                            <button class="button button-outline button-danger button-text js-alt-remove-field"
+                                    type="button">
                                 Remove
                             </button>
                         </div>

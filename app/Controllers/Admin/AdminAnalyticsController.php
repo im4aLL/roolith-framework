@@ -10,6 +10,7 @@ use Carbon\Carbon;
 class AdminAnalyticsController extends AdminBaseController
 {
     private AdminAnalytics $analytics;
+
     public function __construct(AdminAnalytics $analytics)
     {
         parent::__construct();
@@ -20,6 +21,24 @@ class AdminAnalyticsController extends AdminBaseController
     public function index(): array
     {
         $data = $this->analytics->getOverviewStats();
+
+        return ApiResponseTransformer::success($data);
+    }
+
+    public function overview(): array
+    {
+        $data = $this->analytics->getOverviewStats();
+
+        if (!$data) {
+            return ApiResponseTransformer::error(null, "Overview is not available in lifetime period");
+        }
+
+        return ApiResponseTransformer::success($data);
+    }
+
+    public function lifetimeOverview(): array
+    {
+        $data = $this->analytics->getLifetimeStats();
 
         return ApiResponseTransformer::success($data);
     }

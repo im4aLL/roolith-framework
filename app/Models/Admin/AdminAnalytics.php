@@ -40,6 +40,8 @@ class AdminAnalytics extends Model
     }
 
     /**
+     * Set period
+     *
      * @param string $period
      * @return array{
      *     currentPeriodStart: string,
@@ -216,7 +218,7 @@ class AdminAnalytics extends Model
      *     last_visit: string
      * }
      */
-    private function _getLifetimeStats(): array
+    public function getLifetimeStats(): array
     {
         // Basic counts for all time
         $queryString = "
@@ -272,12 +274,12 @@ class AdminAnalytics extends Model
     /**
      * Get overview stats
      *
-     * @return array
+     * @return array|bool
      */
-    public function getOverviewStats(): array
+    public function getOverviewStats(): array|bool
     {
         if (!$this->_currentPeriodStart && !$this->_currentPeriodEnd) {
-            return $this->_getLifetimeStats();
+            return false;
         }
 
         $current = $this->_getPeriodStats($this->_currentPeriodStart, $this->_currentPeriodEnd);
