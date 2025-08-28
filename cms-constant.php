@@ -21,3 +21,8 @@ const APP_ADMIN_FILE_MANAGER_MODULE_DATA_DIR = APP_ADMIN_FILE_MANAGER_DIR . 'upl
  */
 const APP_ADMIN_ALLOWED_IMAGE_TYPES = ['jpg', 'jpeg', 'png'];
 const APP_ADMIN_ALLOWED_FILE_TYPES = ['pdf', 'doc', 'docx', 'zip', 'xls', 'xlsx', 'csv', 'ppt', 'pptx'];
+
+/**
+ * Analytics
+ */
+const APP_ANALYTICS_ENABLED = true;

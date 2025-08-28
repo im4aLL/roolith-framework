@@ -14,6 +14,7 @@ use App\Controllers\Content\CategoryController;
 use App\Controllers\Content\PageController;
 use App\Core\RouterFactory;
 use App\Middlewares\Admin\AdminAuthMiddleware;
+use App\Controllers\Admin\AdminAnalyticsController;
 
 $router = RouterFactory::getInstance();
 
@@ -83,9 +84,19 @@ $router->group(['middleware' => AdminAuthMiddleware::class, 'urlPrefix' => '/adm
     $router->post('/ui-states', AdminMiscController::class . '@storeUiStates')->name('ui.states');
 
     /**
-     * Dashboard
+     * Analytics
      */
-    $router->get('/analytics', \App\Controllers\Admin\AdminAnalyticsController::class . '@index')->name('analytics.index');
+    if (APP_ANALYTICS_ENABLED) {
+        $router->get('/analytics', AdminAnalyticsController::class . '@index')->name('analytics.index');
+        $router->get('/analytics/top-pages', AdminAnalyticsController::class . '@topPages')->name('analytics.topPages');
+        $router->get('/analytics/top-sources', AdminAnalyticsController::class . '@topSources')->name('analytics.topSources');
+        $router->get('/analytics/location-stats', AdminAnalyticsController::class . '@locationStats')->name('analytics.locationStats');
+        $router->get('/analytics/device-stats', AdminAnalyticsController::class . '@deviceStats')->name('analytics.deviceStats');
+        $router->get('/analytics/daily-trends', AdminAnalyticsController::class . '@dailyTrends')->name('analytics.dailyTrends');
+        $router->get('/analytics/hourly-trends', AdminAnalyticsController::class . '@hourlyTrends')->name('analytics.hourlyTrends');
+        $router->get('/analytics/period', AdminAnalyticsController::class . '@periodName')->name('analytics.periodName');
+        $router->get('/analytics/custom-period', AdminAnalyticsController::class . '@customPeriodStats')->name('analytics.customPeriodStats');
+    }
 });
 
 /**
