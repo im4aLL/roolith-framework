@@ -56,6 +56,10 @@ class AdminBaseController extends Controller
     private function _getMediaFolderSize(): string {
         $size = 0;
 
+        if (!is_dir(APP_ADMIN_FILE_MANAGER_DIR)) {
+            return '0 B';
+        }
+
         foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator(APP_ADMIN_FILE_MANAGER_DIR, FilesystemIterator::SKIP_DOTS)) as $file) {
             $size += $file->getSize();
         }
