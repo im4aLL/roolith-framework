@@ -42,10 +42,7 @@
                         </label>
                     </div>
 
-                    <a href="#" class="button button-text button-link button-icon">
-                        Learn more
-                        <i class="iconoir-open-new-window"></i>
-                    </a>
+                    <p class="dimmed">Last updated on <strong><?= $analyticsFeature && $analyticsFeature->updated_at ? diffForHumans($analyticsFeature->updated_at) : 'N/A' ?></strong></p>
                 </div>
             </div>
         </div>
