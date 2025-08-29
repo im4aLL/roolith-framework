@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controllers\Admin;
 
 use App\Core\ApiResponseTransformer;
@@ -96,5 +97,33 @@ class AdminSettingController extends AdminBaseController
         }
 
         return ApiResponseTransformer::success(null, "Setting deleted successfully.");
+    }
+
+    /**
+     * Turn on or off a feature in site settings
+     *
+     * @param  string $name
+     * @return array
+     */
+    public function toggleFeature(string $name): array
+    {
+        $value = Request::input('value') ? true : false;
+        $feature = AdminSetting::orm()->where('type', 'feature')->where('item', $name)->first();
+
+        if ($feature) {
+            $update = AdminSetting::orm()->update(["value" => $value], ["item", $name]);
+
+            if ($update->success()) {
+                return ApiResponseTransformer::success(null, "$name is set to $value");
+            }
+        } else {
+            $insert = AdminSetting::orm()->insert(["item" => $name, "value" => $value]);
+
+            if ($insert->success()) {
+                return ApiResponseTransformer::success(null, "$name is added to settings and set to $value");
+            }
+        }
+
+        return ApiResponseTransformer::error(null, "Unable to add or update settings");
     }
 }

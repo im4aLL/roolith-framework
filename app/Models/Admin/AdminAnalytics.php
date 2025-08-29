@@ -260,7 +260,7 @@ class AdminAnalytics extends Model
     private function _calculateChange(int|float $old, int|float $new): float
     {
         // Handle a special case: no previous value
-        if ($old === 0) {
+        if ($old == 0) {
             return $new > 0 ? 100.0 : 0.0;
         }
 
@@ -315,7 +315,7 @@ class AdminAnalytics extends Model
                 COUNT(*) as pageviews,
                 COUNT(DISTINCT visitor_id) as unique_visitors
             FROM " . $this->table . "
-            ".$this->_getVisitTimeCondition()."
+            " . $this->_getVisitTimeCondition() . "
             GROUP BY page_url
             ORDER BY pageviews DESC
             LIMIT $limit
@@ -350,7 +350,7 @@ class AdminAnalytics extends Model
                 COUNT(*) as visits,
                 COUNT(DISTINCT visitor_id) as unique_visitors
             FROM " . $this->table . "
-            ".$this->_getVisitTimeCondition()."
+            " . $this->_getVisitTimeCondition() . "
             GROUP BY source
             ORDER BY visits DESC
             LIMIT $limit
@@ -380,7 +380,7 @@ class AdminAnalytics extends Model
                 COUNT(DISTINCT visitor_id) as unique_visitors,
                 COUNT(DISTINCT session_id) as visits
             FROM " . $this->table . "
-            ".$this->_getVisitTimeCondition()."
+            " . $this->_getVisitTimeCondition() . "
             GROUP BY country
             ORDER BY pageviews DESC
             LIMIT $limit
@@ -410,7 +410,7 @@ class AdminAnalytics extends Model
                 COUNT(*) as pageviews,
                 COUNT(DISTINCT visitor_id) as unique_visitors
             FROM " . $this->table . "
-            ".$this->_getVisitTimeCondition()."
+            " . $this->_getVisitTimeCondition() . "
             GROUP BY device, os, browser
             ORDER BY pageviews DESC
         ";
@@ -438,7 +438,7 @@ class AdminAnalytics extends Model
                 COUNT(DISTINCT visitor_id) as unique_visitors,
                 COUNT(DISTINCT session_id) as visits
             FROM " . $this->table . "
-            ".$this->_getVisitTimeCondition()."
+            " . $this->_getVisitTimeCondition() . "
             GROUP BY DATE(visit_time)
             ORDER BY date
         ";
@@ -480,7 +480,7 @@ class AdminAnalytics extends Model
         return [
             'start' =>  $this->_currentPeriodStart->format('M j, Y'),
             'end' =>  $this->_currentPeriodEnd->format('M j, Y'),
-            'label' => $this->_currentPeriodStart->format('M j'). ' - ' .  $this->_currentPeriodEnd->format('M j, Y')
+            'label' => $this->_currentPeriodStart->format('M j') . ' - ' .  $this->_currentPeriodEnd->format('M j, Y')
         ];
     }
 

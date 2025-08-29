@@ -26,22 +26,19 @@
         </div>
 
         <!-- content -->
-        <div class="form-field" id="site-settings-field-container"
-             data-action-url="<?= route('admin.siteSettings.store') ?>">
+        <div class="form-field" id="site-settings-field-container" data-action-url="<?= route('admin.siteSettings.store') ?>">
 
             <!-- Analytics -->
             <div class="block-enable">
                 <div class="box">
-                    <div class="box-header">Enable or Disable Analytics</div>
+                    <div class="box-header">Enable or disable Analytics</div>
                     <div class="box-body">
-                        Lorem ipsum dolor sit amet consectetur, adipisicing elit. Excepturi eius magnam, possimus
-                        aliquam, ipsum cumque, nostrum vel eos enim quaerat ipsa sequi. Officiis fugiat omnis
-                        similique nihil doloribus unde ratione?
+                        By enabling analytics, you can view key statistics like total visitors, trends over time, top pages, top sources, visitor locations, and device types. You can also customize the time period to analyze the data that matters most.
                     </div>
                     <div class="box-footer">
                         <div class="form-switch">
                             <label for="enable" class="form-switch-label">
-                                <input type="checkbox" name="switch" id="enable" class="form-switch-input"/>
+                                <input type="checkbox" name="enable_analytics" id="enable" class="form-switch-input" />
                                 <span class="form-switch-slider"></span>
 
                                 <span class="form-switch-slider-text">Enable</span>
@@ -55,51 +52,47 @@
                     </div>
                 </div>
             </div>
-            <div class="spacer-20"></div>
             <!-- Analytics -->
 
+            <div class="spacer-20"></div>
+
+            <!-- block repeater -->
             <div class="block-repeater">
                 <label class="block-repeater-label form-label">Custom Fields</label>
 
                 <ul class="block-repeater-list">
                     <?php foreach ($settingsData as $row) : ?>
                         <li class="block-repeater-item" data-id="<?= $row->id ?>">
-                            <button class="block-repeater-sort">⋮⋮</button>
                             <div class="block-repeater-primary">
                                 <div class="form-field">
                                     <label class="form-label">Item</label>
-                                    <input type="text" class="form-input" name="item" value="<?= $row->item ?>"
-                                           placeholder="item"/>
+                                    <input type="text" class="form-input" name="item" value="<?= $row->item ?>" placeholder="item" />
                                 </div>
                                 <div class="form-field">
                                     <label class="form-label">Value</label>
-                                    <input type="text" class="form-input" name="value" value="<?= $row->value ?>"
-                                           placeholder="value"/>
+                                    <input type="text" class="form-input" name="value" value="<?= $row->value ?>" placeholder="value" />
                                 </div>
                             </div>
                             <div class="block-repeater-secondary">
-                                <button class="button button-outline button-danger button-text js-alt-remove-field"
-                                        type="button">
+                                <button class="button button-outline button-danger button-text js-alt-remove-field" type="button">
                                     Remove
                                 </button>
                             </div>
                         </li>
                     <?php endforeach; ?>
                     <li class="block-repeater-item">
-                        <button class="block-repeater-sort">⋮⋮</button>
                         <div class="block-repeater-primary">
                             <div class="form-field">
                                 <label class="form-label">Item</label>
-                                <input type="text" class="form-input" name="item" placeholder="item"/>
+                                <input type="text" class="form-input" name="item" placeholder="item" />
                             </div>
                             <div class="form-field">
                                 <label class="form-label">Value</label>
-                                <input type="text" class="form-input" name="value" placeholder="value"/>
+                                <input type="text" class="form-input" name="value" placeholder="value" />
                             </div>
                         </div>
                         <div class="block-repeater-secondary">
-                            <button class="button button-outline button-danger button-text js-alt-remove-field"
-                                    type="button">
+                            <button class="button button-outline button-danger button-text js-alt-remove-field" type="button">
                                 Remove
                             </button>
                         </div>
@@ -111,6 +104,10 @@
                     Add More Fields
                 </button>
             </div>
+            <!-- block repeater -->
+
+
+
         </div>
         <!-- content -->
     </div>

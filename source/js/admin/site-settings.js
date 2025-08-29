@@ -7,11 +7,20 @@ export class SiteSettings {
     }
 
     _init() {
-        this._onBlurInput();
+        this._onBlurInputForRepeater();
         this._deleteHandler();
+        this._enableDisableFields();
     }
 
-    _onBlurInput() {
+    _enableDisableFields() {
+        const self = this;
+
+        $(this.containerSelector).on("change", ".form-switch-input", function () {
+            console.log($(this).attr("name"), $(this).is(":checked"));
+        });
+    }
+
+    _onBlurInputForRepeater() {
         const self = this;
 
         $(this.containerSelector).on("blur", ".block-repeater .form-input", function () {
@@ -49,7 +58,7 @@ export class SiteSettings {
             data: settings.data,
             dataType: "json",
             success: function (data) {
-                const {status, payload, message} = data;
+                const { status, payload, message } = data;
 
                 if (status === "success" && settings.method === "POST") {
                     settings.element.attr("data-id", payload.id);
@@ -66,42 +75,38 @@ export class SiteSettings {
     _deleteHandler() {
         const self = this;
 
-        $(this.containerSelector).on(
-            "click",
-            ".js-alt-remove-field",
-            function (e) {
-                e.stopImmediatePropagation();
+        $(this.containerSelector).on("click", ".js-alt-remove-field", function (e) {
+            e.stopImmediatePropagation();
 
-                if (!confirm("Are you sure?")) {
-                    return;
-                }
-
-                const $section = $(this).closest(".block-repeater-item");
-                const id = $section.data("id");
-
-                if (!id) {
-                    alert("You don't have to remove this");
-                    return;
-                }
-
-                $.ajax({
-                    url: self.actionUrl + "/" + id,
-                    method: "DELETE",
-                    dataType: "json",
-                    success: function (data) {
-                        const {status, payload, message} = data;
-
-                        if (status === "success") {
-                            $section.remove();
-                        } else if (status === "error") {
-                            alert(message);
-                        }
-                    },
-                    error: function () {
-                        alert("Something went wrong");
-                    },
-                });
+            if (!confirm("Are you sure?")) {
+                return;
             }
-        );
+
+            const $section = $(this).closest(".block-repeater-item");
+            const id = $section.data("id");
+
+            if (!id) {
+                alert("You don't have to remove this");
+                return;
+            }
+
+            $.ajax({
+                url: self.actionUrl + "/" + id,
+                method: "DELETE",
+                dataType: "json",
+                success: function (data) {
+                    const { status, payload, message } = data;
+
+                    if (status === "success") {
+                        $section.remove();
+                    } else if (status === "error") {
+                        alert(message);
+                    }
+                },
+                error: function () {
+                    alert("Something went wrong");
+                },
+            });
+        });
     }
 }
