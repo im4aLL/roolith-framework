@@ -25,36 +25,36 @@
             <!-- block header container -->
         </div>
 
-        <!-- content -->
-        <div class="form-field" id="site-settings-field-container" data-action-url="<?= route('admin.siteSettings.store') ?>">
+        <!-- Analytics -->
+        <div class="block-enable" data-action-url="<?= route('admin.siteSettings.toggle') ?>">
+            <div class="box">
+                <div class="box-header">Enable or disable Analytics</div>
+                <div class="box-body">
+                    By enabling analytics, you can view key statistics like total visitors, trends over time, top pages, top sources, visitor locations, and device types. You can also customize the time period to analyze the data that matters most.
+                </div>
+                <div class="box-footer">
+                    <div class="form-switch">
+                        <label for="enable" class="form-switch-label">
+                            <input type="checkbox" name="enable-analytics" id="enable" class="form-switch-input" <?= $analyticsFeature && $analyticsFeature->value == 'true' ? 'checked' : '' ?> />
+                            <span class="form-switch-slider"></span>
 
-            <!-- Analytics -->
-            <div class="block-enable">
-                <div class="box">
-                    <div class="box-header">Enable or disable Analytics</div>
-                    <div class="box-body">
-                        By enabling analytics, you can view key statistics like total visitors, trends over time, top pages, top sources, visitor locations, and device types. You can also customize the time period to analyze the data that matters most.
+                            <span class="form-switch-slider-text">Enable</span>
+                        </label>
                     </div>
-                    <div class="box-footer">
-                        <div class="form-switch">
-                            <label for="enable" class="form-switch-label">
-                                <input type="checkbox" name="enable_analytics" id="enable" class="form-switch-input" />
-                                <span class="form-switch-slider"></span>
 
-                                <span class="form-switch-slider-text">Enable</span>
-                            </label>
-                        </div>
-
-                        <a href="#" class="button button-text button-link button-icon">
-                            Learn more
-                            <i class="iconoir-open-new-window"></i>
-                        </a>
-                    </div>
+                    <a href="#" class="button button-text button-link button-icon">
+                        Learn more
+                        <i class="iconoir-open-new-window"></i>
+                    </a>
                 </div>
             </div>
-            <!-- Analytics -->
+        </div>
+        <!-- Analytics -->
 
-            <div class="spacer-20"></div>
+        <div class="spacer-20"></div>
+
+        <!-- content -->
+        <div class="form-field" id="site-settings-field-container" data-action-url="<?= route('admin.siteSettings.store') ?>">
 
             <!-- block repeater -->
             <div class="block-repeater">

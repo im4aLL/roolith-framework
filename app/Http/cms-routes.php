@@ -70,7 +70,7 @@ $router->group(['middleware' => AdminAuthMiddleware::class, 'urlPrefix' => '/adm
      */
     $router->get('/site-settings', AdminSettingController::class . '@index')->name('siteSettings');
     $router->post('/site-settings', AdminSettingController::class . '@store')->name('siteSettings.store');
-    $router->post('/site-settings/feature/{param}', AdminSettingController::class . '@toggleFeature')->name('siteSettings.toogle');
+    $router->post('/site-settings/feature', AdminSettingController::class . '@toggleFeature')->name('siteSettings.toggle');
     $router->put('/site-settings/{param}', AdminSettingController::class . '@update')->name('siteSettings.update');
     $router->delete('/site-settings/{param}', AdminSettingController::class . '@destroy')->name('siteSettings.destroy');
 

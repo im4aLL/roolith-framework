@@ -7,16 +7,22 @@ use App\Core\Request;
 use App\Core\Rules;
 use App\Core\Validator;
 use App\Models\Admin\AdminSetting;
+use App\Utils\Collection;
 
 class AdminSettingController extends AdminBaseController
 {
     public function index(): bool|string
     {
-        $settingsData = AdminSetting::all();
+        $all = AdminSetting::all();
+
+        $collection = Collection::make($all);
+        $settingsData = $collection->where('type', '==', 'general');
+        $analyticsFeature = $collection->where('item', '==', 'enable-analytics')->first();
 
         $data = [
             'title' => 'Site Settings',
             'settingsData' => $settingsData,
+            'analyticsFeature' => $analyticsFeature,
         ];
 
         return $this->view('admin/misc/admin-site-settings', $data);
@@ -102,25 +108,26 @@ class AdminSettingController extends AdminBaseController
     /**
      * Turn on or off a feature in site settings
      *
-     * @param  string $name
      * @return array
      */
-    public function toggleFeature(string $name): array
+    public function toggleFeature(): array
     {
-        $value = Request::input('value') ? true : false;
-        $feature = AdminSetting::orm()->where('type', 'feature')->where('item', $name)->first();
+        $value = Request::input('value');
+        $item = Request::input('item');
+
+        $feature = AdminSetting::orm()->where('type', 'feature')->where('item', $item)->first();
 
         if ($feature) {
-            $update = AdminSetting::orm()->update(["value" => $value], ["item", $name]);
+            $update = AdminSetting::orm()->update(["value" => $value], ["item" => $item]);
 
             if ($update->success()) {
-                return ApiResponseTransformer::success(null, "$name is set to $value");
+                return ApiResponseTransformer::success(null, "$item is set to $value");
             }
         } else {
-            $insert = AdminSetting::orm()->insert(["item" => $name, "value" => $value]);
+            $insert = AdminSetting::orm()->insert(["item" => $item, "value" => $value, "type" => 'feature']);
 
             if ($insert->success()) {
-                return ApiResponseTransformer::success(null, "$name is added to settings and set to $value");
+                return ApiResponseTransformer::success(null, "$item is added to settings and set to $value");
             }
         }
 

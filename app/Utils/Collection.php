@@ -139,7 +139,7 @@ class Collection implements IteratorAggregate, Countable, ArrayAccess
     public function first(callable $callback = null): mixed
     {
         if ($callback === null) {
-            return $this->items[0] ?? null;
+            return array_values($this->items)[0] ?? null;
         }
 
         foreach ($this->items as $item) {

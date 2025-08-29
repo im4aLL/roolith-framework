@@ -15,8 +15,39 @@ export class SiteSettings {
     _enableDisableFields() {
         const self = this;
 
-        $(this.containerSelector).on("change", ".form-switch-input", function () {
-            console.log($(this).attr("name"), $(this).is(":checked"));
+        $(".block-enable").on("change", ".form-switch-input", function () {
+            const blockEnableEl = $(this).closest(".block-enable");
+            const actionUrl = blockEnableEl.data("action-url");
+
+            const data = {
+                item: $(this).attr("name"),
+                value: $(this).is(":checked") ? "true" : "false",
+                actionUrl,
+            };
+
+            self._submitEnableDisable(data);
+        });
+    }
+
+    _submitEnableDisable(data) {
+        $.ajax({
+            url: data.actionUrl,
+            method: "POST",
+            data: {
+                item: data.item,
+                value: data.value,
+            },
+            dataType: "json",
+            success: function (data) {
+                const { status, message } = data;
+
+                if (status === "error") {
+                    alert(message);
+                }
+            },
+            error: function () {
+                alert("Something went wrong");
+            },
         });
     }
 
