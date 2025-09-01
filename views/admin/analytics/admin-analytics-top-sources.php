@@ -13,49 +13,62 @@
                 <div class="block-stat-table-header">Page Views</div>
                 <div class="block-stat-table-header">Unique Visitor</div>
             </div>
-            <div class="block-stat-table-body">
-                <div class="block-stat-table-row">
-                    <div class="block-stat-table-cell is-left is-primary">
-                        <a href="" class="block-stat-table-text">/home</a>
-                        <div class="block-stat-table-indicator" style="width: 100%"></div>
-                    </div>
-                    <div class="block-stat-table-cell">100k</div>
-                    <div class="block-stat-table-cell">12</div>
-                </div>
-                <div class="block-stat-table-row">
-                    <div class="block-stat-table-cell is-left is-primary">
-                        <a href="" class="block-stat-table-text">/about</a>
-                        <div class="block-stat-table-indicator" style="width: 70%"></div>
-                    </div>
-                    <div class="block-stat-table-cell">70k</div>
-                    <div class="block-stat-table-cell">32</div>
-                </div>
-                <div class="block-stat-table-row">
-                    <div class="block-stat-table-cell is-left is-primary">
-                        <a href="" class="block-stat-table-text">/contact</a>
-                        <div class="block-stat-table-indicator" style="width: 50%"></div>
-                    </div>
-                    <div class="block-stat-table-cell">50k</div>
-                    <div class="block-stat-table-cell">11</div>
-                </div>
-                <div class="block-stat-table-row">
-                    <div class="block-stat-table-cell is-left is-primary">
-                        <a href="" class="block-stat-table-text">/terms</a>
-                        <div class="block-stat-table-indicator" style="width: 30%"></div>
-                    </div>
-                    <div class="block-stat-table-cell">30k</div>
-                    <div class="block-stat-table-cell">3</div>
-                </div>
-                <div class="block-stat-table-row">
-                    <div class="block-stat-table-cell is-left is-primary">
-                        <a href="" class="block-stat-table-text">/privacy</a>
-                        <div class="block-stat-table-indicator" style="width: 20%"></div>
-                    </div>
-                    <div class="block-stat-table-cell">20k</div>
-                    <div class="block-stat-table-cell">2</div>
-                </div>
-            </div>
+            <div class="block-stat-table-body" id="analytics-top-sources-body"></div>
         </div>
     </div>
     <!-- block analytics body -->
 </div>
+
+<template id="analytics-top-sources-row">
+    <div class="block-stat-table-row">
+        <div class="block-stat-table-cell is-left is-primary">
+            <a href="" class="block-stat-table-text">{source}</a>
+            <div class="block-stat-table-indicator" style="width: {width}%"></div>
+        </div>
+        <div class="block-stat-table-cell">{visits}</div>
+        <div class="block-stat-table-cell">{unique_visitors}</div>
+    </div>
+</template>
+
+<script>
+    (() => {
+        const logPrefix = 'Analytics top sources ';
+
+        function render(payload) {
+            const { data } = payload;
+
+            const maxValue = Math.max(...data.map(row => row.visits));
+            const template = $('#analytics-top-sources-row').html();
+            let html = '';
+
+            $.each(data, function(index, row) {
+                row.width = maxValue > 0 ? row.visits / maxValue * 100 : 0;
+                html += parseTemplate(template, row);
+            });
+
+            $('#analytics-top-sources-body').html(html);
+        }
+
+        function getData() {
+            $.ajax({
+                url: '<?= route('admin.analytics.topSources') ?>',
+                type: 'GET',
+                dataType: 'json',
+            })
+                .done(function(response) {
+                    if (response.status === 'success') {
+                        render(response.payload);
+                    } else {
+                        console.error(`$(logPrefix) api failed`);
+                    }
+                })
+                .fail(function() {
+                    console.error(`$(logPrefix) failed`);
+                });
+        }
+
+        $(() => {
+            getData();
+        });
+    })();
+</script>

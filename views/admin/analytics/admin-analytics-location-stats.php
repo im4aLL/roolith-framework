@@ -7,7 +7,21 @@
 
     <!-- block analytics body -->
     <div class="block-analytics-body">
-        <p>map here?</p>
+        <?php $this->inject('admin/analytics/admin-analytics-map') ?>
     </div>
     <!-- block analytics body -->
 </div>
+
+<script>
+    (() => {
+        function example() {
+
+        }
+
+        $(() => {
+            example();
+
+            $('#AF').css('fill', 'red');
+        });
+    })();
+</script>
