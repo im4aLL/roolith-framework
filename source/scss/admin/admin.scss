@@ -6,10 +6,12 @@
     --r-layout-secondary-background-color: var(--r-global-background-color);
 }
 
+// basic
 .table {
     margin: rem(20) 0;
 }
 
+// file manager
 .file-manager-breadcrumb {
     margin: rem(20) 0;
 }
@@ -142,4 +144,14 @@
             background-color: #06c;
         }
     }
+}
+
+// Analytics
+.block-stat-table-text {
+    position: relative;
+    z-index: 1;
+}
+
+.block-stat-table-indicator {
+    z-index: 0;
 }

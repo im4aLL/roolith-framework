@@ -8,8 +8,22 @@ import { DeleteFile } from "./delete-file";
 import { SiteSettings } from "./site-settings";
 import { PasswordToggle } from "./password-toggle";
 import { Layout } from "./layout";
+import { Event } from "./event";
 
 window.$ = window.jQuery = $;
+window["Event"] = Event;
+window["parseTemplate"] = (template, data) => {
+    return template.replace(/\{([\w\.]*)\}/g, (match, key) => {
+        const keys = key.split(".");
+        let v = data[keys.shift()];
+
+        for (const k of keys) {
+            v = v?.[k];
+        }
+
+        return v !== undefined && v !== null ? v : "";
+    });
+};
 
 $(function () {
     new SerializeObject();
@@ -29,8 +43,6 @@ $(function () {
     new Repeater();
     new DeleteFile();
     new SiteSettings();
-
-    // new
     new PasswordToggle();
     new Layout();
 });

@@ -14,8 +14,8 @@ class AdminAnalytics extends Model
     private Carbon|null $_currentPeriodEnd = null;
     private Carbon|null $_previousPeriodStart = null;
     private Carbon|null $_previousPeriodEnd = null;
-    public array $periods = ['today', 'yesterday', 'last_7_days', 'this_month', 'last_month', 'last_6_month', 'this_year', 'lifetime'];
-    public string $defaultPeriod = 'last_month';
+    public array $periods = ['today', 'yesterday', 'last_7_days', 'this_month', 'last_month', 'last_6_months', 'this_year', 'lifetime'];
+    public string $defaultPeriod = 'this_month';
     private string $_periodSessionKey = 'analytics_period';
 
     public function __construct()
@@ -62,7 +62,7 @@ class AdminAnalytics extends Model
             'last_7_days' => [Carbon::now()->subDays(7), Carbon::now()],
             'this_month' => [Carbon::now()->startOfMonth(), Carbon::now()],
             'last_month' => [Carbon::now()->subMonth()->startOfMonth(), Carbon::now()->subMonth()->endOfMonth()],
-            'last_6_month' => [Carbon::now()->subMonths(6)->startOfMonth(), Carbon::now()],
+            'last_6_months' => [Carbon::now()->subMonths(6)->startOfMonth(), Carbon::now()],
             'this_year' => [Carbon::now()->startOfYear(), Carbon::now()],
             'lifetime' => [null, null],
             default => [Carbon::now()->subDays(30), Carbon::now()]
@@ -80,7 +80,7 @@ class AdminAnalytics extends Model
         } else if ($period === 'this_month' || $period === 'last_month') {
             $this->_previousPeriodEnd = $this->_currentPeriodStart->copy()->subMonth()->endOfMonth();
             $this->_previousPeriodStart = $this->_previousPeriodEnd->copy()->startOfMonth();
-        } else if ($period === 'last_6_month') {
+        } else if ($period === 'last_6_months') {
             $this->_previousPeriodEnd = $this->_currentPeriodStart->copy()->subDay()->endOfDay();
             $this->_previousPeriodStart = $this->_previousPeriodEnd->copy()->subMonths(6)->startOfDay();
         } else if ($period === 'this_year') {
@@ -96,6 +96,7 @@ class AdminAnalytics extends Model
             'currentPeriodEnd' => $this->_currentPeriodEnd?->toDateTimeString(),
             'previousPeriodStart' => $this->_previousPeriodStart?->toDateTimeString(),
             'previousPeriodEnd' => $this->_previousPeriodEnd?->toDateTimeString(),
+            'periodName' => $period,
         ];
 
         Storage::setSession($this->_periodSessionKey, $data);
@@ -125,6 +126,7 @@ class AdminAnalytics extends Model
             'currentPeriodEnd' => $this->_currentPeriodEnd->toDateTimeString(),
             'previousPeriodStart' => $this->_previousPeriodStart->toDateTimeString(),
             'previousPeriodEnd' => $this->_previousPeriodEnd->toDateTimeString(),
+            'periodName' => 'custom',
         ];
 
         Storage::setSession($this->_periodSessionKey, $data);
@@ -400,18 +402,23 @@ class AdminAnalytics extends Model
      *
      * @return array
      */
-    public function getDeviceStats(): array
+    public function getDeviceStats(string $deviceType = ''): array
     {
+        $columnName = match ($deviceType) {
+            'size' => 'device',
+            'os' => 'os',
+            'browser' => 'browser',
+            default => 'browser',
+        };
+
         $queryString = "
             SELECT
-                device,
-                os,
-                browser,
+                $columnName,
                 COUNT(*) as pageviews,
                 COUNT(DISTINCT visitor_id) as unique_visitors
             FROM " . $this->table . "
             " . $this->_getVisitTimeCondition() . "
-            GROUP BY device, os, browser
+            GROUP BY $columnName
             ORDER BY pageviews DESC
         ";
 
@@ -472,15 +479,33 @@ class AdminAnalytics extends Model
      * @return array{
      *     start: string,
      *     end: string,
-     *     label: string
+     *     label: string,
+     *     name: string
      * }
      */
     public function getPeriodName(): array
     {
+        $name = 'custom';
+        if (Storage::hasSession($this->_periodSessionKey)) {
+            $sessionData = Storage::getSession($this->_periodSessionKey);
+
+            $name = $sessionData['periodName'];
+        }
+
+        if (!$this->_currentPeriodStart && !$this->_currentPeriodEnd) {
+            return [
+                'start' => null,
+                'end' => null,
+                'label' => null,
+                'name' => $name,
+            ];
+        }
+
         return [
-            'start' =>  $this->_currentPeriodStart->format('M j, Y'),
-            'end' =>  $this->_currentPeriodEnd->format('M j, Y'),
-            'label' => $this->_currentPeriodStart->format('M j') . ' - ' .  $this->_currentPeriodEnd->format('M j, Y')
+            'start' => $this->_currentPeriodStart->format('M j, Y'),
+            'end' => $this->_currentPeriodEnd->format('M j, Y'),
+            'label' => $this->_currentPeriodStart->format('M j') . ' - ' .  $this->_currentPeriodEnd->format('M j, Y'),
+            'name' => $name,
         ];
     }
 

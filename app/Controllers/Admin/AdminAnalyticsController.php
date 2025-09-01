@@ -18,11 +18,13 @@ class AdminAnalyticsController extends AdminBaseController
         $this->analytics = $analytics;
     }
 
-    public function index(): array
+    public function index()
     {
-        $data = $this->analytics->getOverviewStats();
+        $data = [
+            'title' => 'Analytics',
+        ];
 
-        return ApiResponseTransformer::success($data);
+        return $this->view('admin/analytics/admin-analytics', $data);
     }
 
     public function overview(): array
@@ -66,7 +68,8 @@ class AdminAnalyticsController extends AdminBaseController
 
     public function deviceStats(): array
     {
-        $data = $this->analytics->getDeviceStats();
+        $type = Request::input('by') ?? '';
+        $data = $this->analytics->getDeviceStats($type);
 
         return ApiResponseTransformer::success($data);
     }
@@ -87,7 +90,7 @@ class AdminAnalyticsController extends AdminBaseController
 
     public function hourlyTrends(): array
     {
-        $date = Request::input('date');
+        $date = Request::input('date') ?? Carbon::now()->toDateString();
         $data = $this->analytics->getHourlyTrends(Carbon::parse($date));
 
         return ApiResponseTransformer::success($data);
