@@ -9,7 +9,8 @@ if (is_array($activeRouteNameArray) && isset($activeRouteNameArray[1])) {
 ?>
 
 <!-- sidebar nav -->
-<nav class="sidebar-nav<?= getUiStateByKey('compact') == 'compact' ? ' sidebar-nav-compact' : null ?>" id="js-sidebar-nav-list">
+<nav class="sidebar-nav<?= getUiStateByKey('compact') == 'compact' ? ' sidebar-nav-compact' : null ?>"
+    id="js-sidebar-nav-list">
     <!-- group -->
     <div class="sidebar-nav-group">
         <div class="sidebar-nav-header">General</div>
@@ -25,40 +26,50 @@ if (is_array($activeRouteNameArray) && isset($activeRouteNameArray[1])) {
                 <a href="<?= route('admin.pages.index') ?>" class="sidebar-nav-list-link">
                     <i class="iconoir-multiple-pages"></i>
                     <span class="sidebar-nav-list-label">Pages</span>
-                    <span class="sidebar-nav-list-badge badge"><?= $global['page_count'] ?></span>
+                    <span class="sidebar-nav-list-badge badge">
+                        <?= $global['page_count'] ?>
+                    </span>
                 </a>
             </li>
             <li class="sidebar-nav-list-item<?= $activeRouteName === 'categories' ? ' is-active' : '' ?>">
                 <a href="<?= route('admin.categories.index') ?>" class="sidebar-nav-list-link">
                     <i class="iconoir-keyframes"></i>
                     <span class="sidebar-nav-list-label">Categories</span>
-                    <span class="sidebar-nav-list-badge badge"><?= $global['category_count'] ?></span>
+                    <span class="sidebar-nav-list-badge badge">
+                        <?= $global['category_count'] ?>
+                    </span>
                 </a>
             </li>
             <li class="sidebar-nav-list-item<?= $activeRouteName === 'modules' ? ' is-active' : '' ?>">
                 <a href="<?= route('admin.modules.index') ?>" class="sidebar-nav-list-link">
                     <i class="iconoir-xray-view"></i>
                     <span class="sidebar-nav-list-label">Modules</span>
-                    <span class="sidebar-nav-list-badge badge"><?= $global['module_count'] ?></span>
+                    <span class="sidebar-nav-list-badge badge">
+                        <?= $global['module_count'] ?>
+                    </span>
                 </a>
             </li>
             <li class="sidebar-nav-list-item<?= $activeRouteName === 'file' ? ' is-active' : '' ?>">
                 <a href="<?= route('admin.file.manager') ?>" class="sidebar-nav-list-link">
                     <i class="iconoir-folder"></i>
                     <span class="sidebar-nav-list-label">File Manager</span>
-                    <span class="sidebar-nav-list-badge badge"><?= $global['media_size'] ?></span>
+                    <span class="sidebar-nav-list-badge badge">
+                        <?= $global['media_size'] ?>
+                    </span>
                 </a>
             </li>
             <li class="sidebar-nav-list-item<?= $activeRouteName === 'messages' ? ' is-active' : '' ?>">
                 <a href="<?= route('admin.messages.index') ?>" class="sidebar-nav-list-link">
                     <i class="iconoir-message"></i>
                     <span class="sidebar-nav-list-label">Messages</span>
-                    <span class="sidebar-nav-list-badge badge"><?= $global['unread_message_count'] ?></span>
+                    <span class="sidebar-nav-list-badge badge">
+                        <?= $global['unread_message_count'] ?>
+                    </span>
                 </a>
             </li>
             <li class="sidebar-nav-list-item<?= $activeRouteName === 'analytics' ? ' is-active' : '' ?>">
                 <a href="<?= route('admin.analytics.index') ?>" class="sidebar-nav-list-link">
-                    <i class="iconoir-reports-solid"></i>
+                    <i class="iconoir-graph-up"></i>
                     <span class="sidebar-nav-list-label">Analytics</span>
                 </a>
             </li>
@@ -75,7 +86,9 @@ if (is_array($activeRouteNameArray) && isset($activeRouteNameArray[1])) {
                 <a href="<?= route('admin.module-settings.index') ?>" class="sidebar-nav-list-link">
                     <i class="iconoir-rubik-cube"></i>
                     <span class="sidebar-nav-list-label">Module Settings</span>
-                    <span class="sidebar-nav-list-badge badge"><?= $global['module_settings_count'] ?></span>
+                    <span class="sidebar-nav-list-badge badge">
+                        <?= $global['module_settings_count'] ?>
+                    </span>
                 </a>
             </li>
             <li class="sidebar-nav-list-item<?= $activeRouteName === 'siteSettings' ? ' is-active' : '' ?>">
