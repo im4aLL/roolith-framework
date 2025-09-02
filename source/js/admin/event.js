@@ -1,3 +1,23 @@
+/*
+Event.listeners(['login', 'logout'], (eventName, value) => {
+    console.log(`${eventName} event triggered!`);
+    console.log(value);
+});
+
+Event.dispatch('login', 'hadi');
+Event.dispatch('logout', {
+    c: 3
+});
+
+Event.listen('purchase', (name, orderNumber) => {
+    console.log(`${orderNumber} has been purchased!`);
+});
+
+setTimeout(() => {
+    Event.dispatch('purchase', 'ABC-123');
+}, 5000);
+*/
+
 export class Event {
     static events = [];
     static defaultEventName = null;

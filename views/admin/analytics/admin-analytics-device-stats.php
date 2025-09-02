@@ -113,6 +113,10 @@
         $(() => {
             getData();
             differentDeviceStatTypeHandler();
+
+            Event.listen('periodChange', () => {
+                getData();
+            });
         });
     })();
 </script>

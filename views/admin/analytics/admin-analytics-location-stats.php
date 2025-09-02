@@ -72,6 +72,14 @@
 
         $(() => {
             getData();
+
+            Event.listen('periodChange', () => {
+                $('#svg-world-map path').removeAttr('data-pageviews').removeAttr('data-unique-visitors').removeAttr('data-visits').css({
+                    fill: '',
+                });
+
+                getData();
+            });
         });
     })();
 </script>

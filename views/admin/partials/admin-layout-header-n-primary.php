@@ -73,7 +73,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#" class="nav-link">
+                <a href="<?= route('admin.analytics.index') ?>" class="nav-link">
                     <i class="iconoir-graph-up"></i>
                 </a>
             </li>

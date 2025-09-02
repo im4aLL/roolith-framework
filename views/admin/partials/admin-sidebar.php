@@ -56,6 +56,12 @@ if (is_array($activeRouteNameArray) && isset($activeRouteNameArray[1])) {
                     <span class="sidebar-nav-list-badge badge"><?= $global['unread_message_count'] ?></span>
                 </a>
             </li>
+            <li class="sidebar-nav-list-item<?= $activeRouteName === 'analytics' ? ' is-active' : '' ?>">
+                <a href="<?= route('admin.analytics.index') ?>" class="sidebar-nav-list-link">
+                    <i class="iconoir-reports-solid"></i>
+                    <span class="sidebar-nav-list-label">Analytics</span>
+                </a>
+            </li>
         </ul>
     </div>
     <!-- group -->

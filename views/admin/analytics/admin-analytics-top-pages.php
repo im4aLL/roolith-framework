@@ -35,7 +35,9 @@
         const logPrefix = 'Analytics top pages ';
 
         function render(payload) {
-            const { data } = payload;
+            const {
+                data
+            } = payload;
 
             const maxValue = Math.max(...data.map(row => row.pageviews));
             const template = $('#analytics-top-pages-row').html();
@@ -53,10 +55,10 @@
 
         function getData() {
             $.ajax({
-                url: '<?= route('admin.analytics.topPages') ?>',
-                type: 'GET',
-                dataType: 'json',
-            })
+                    url: '<?= route('admin.analytics.topPages') ?>',
+                    type: 'GET',
+                    dataType: 'json',
+                })
                 .done(function(response) {
                     if (response.status === 'success') {
                         render(response.payload);
@@ -71,6 +73,10 @@
 
         $(() => {
             getData();
+
+            Event.listen('periodChange', () => {
+                getData();
+            });
         });
     })();
 </script>

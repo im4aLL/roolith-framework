@@ -167,10 +167,10 @@
 
         const getLifetimeDataAndRender = () => {
             $.ajax({
-                url: apiUrlLifetime,
-                type: 'GET',
-                dataType: 'json',
-            })
+                    url: apiUrlLifetime,
+                    type: 'GET',
+                    dataType: 'json',
+                })
                 .done(function(response) {
                     if (response.status === 'success') {
                         renderLifetime(response.payload);
@@ -197,10 +197,10 @@
             }
 
             $.ajax({
-                url: apiUrl,
-                type: 'GET',
-                dataType: 'json',
-            })
+                    url: apiUrl,
+                    type: 'GET',
+                    dataType: 'json',
+                })
                 .done(function(response) {
                     if (response.status === 'success') {
                         render(response.payload);
@@ -225,13 +225,14 @@
                 event.preventDefault();
 
                 $.ajax({
-                    url: $(linkEl).attr('href'),
-                    type: 'GET',
-                    dataType: 'json'
-                })
+                        url: $(linkEl).attr('href'),
+                        type: 'GET',
+                        dataType: 'json'
+                    })
                     .done(function(response) {
                         if (response.status === 'success') {
                             getDataAndRender(response.payload.periodName);
+                            Event.dispatch('periodChange', response.payload.periodName);
 
                             $periodEl.find('.quick-menu-item').removeClass('active');
                             $(linkEl).closest('.quick-menu-item').addClass('active');
@@ -247,10 +248,10 @@
 
         const getPeriodAndMarkActive = (callback) => {
             $.ajax({
-                url: '<?= route('admin.analytics.periodName') ?>',
-                type: 'GET',
-                dataType: 'json'
-            })
+                    url: '<?= route('admin.analytics.periodName') ?>',
+                    type: 'GET',
+                    dataType: 'json'
+                })
                 .done(function(response) {
                     $('#overview-period').find('.quick-menu-item').removeClass('active');
                     $('#overview-period').find(`.quick-menu-item[data-period="${response.payload.name}"]`).addClass('active');

@@ -119,6 +119,10 @@
 
         $(() => {
             getData();
+
+            Event.listen('periodChange', () => {
+                getData();
+            });
         });
     })();
 </script>

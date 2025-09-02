@@ -40,15 +40,24 @@ export class SvgMap {
             const uniqueVisitors = $(pathEl).data("unique-visitors");
             const visits = $(pathEl).data("visits");
 
-            return `
-                <div class="svg-tooltip-content">
-                    <div class="svg-tooltip-content-hl">${countryName}</div>
+            let html = `<div class="svg-tooltip-content">`;
+            html += `<div class="svg-tooltip-content-hl">${countryName}</div>`;
 
-                    Pageviews: ${pageViews}
-                    Unique: ${uniqueVisitors}
-                    Visits: ${visits}
-                </div>
-            `;
+            if (pageViews) {
+                html += `<div>Pageviews: ${pageViews}</div>`;
+            }
+
+            if (uniqueVisitors) {
+                html += `<div>Unique: ${uniqueVisitors}</div>`;
+            }
+
+            if (visits) {
+                html += `<div>Visits: ${visits}</div>`;
+            }
+
+            html += `</div>`;
+
+            return html;
         };
 
         $("#svg-world-map path").on({
