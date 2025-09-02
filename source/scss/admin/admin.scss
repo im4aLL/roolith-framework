@@ -1,4 +1,5 @@
 @use "../../../node_modules/roolith-css/src/sass/function" as *;
+@use "../../../node_modules/roolith-css/src/sass/mixin";
 @use "../../../node_modules/roolith-css/src/sass/roolith";
 
 :root {
@@ -154,4 +155,62 @@
 
 .block-stat-table-indicator {
     z-index: 0;
+}
+
+// map
+.svg-map-container {
+    --svg-map-fill-color: var(--r-color-dark-lighten-80);
+    --svg-map-fill-hover-color: var(--r-color-dark-lighten-60);
+    --svg-map-stroke-color: var(--r-color-white);
+
+    .theme-dark & {
+        --svg-map-fill-color: var(--r-color-dark-lighten-10);
+        --svg-map-fill-hover-color: var(--r-color-dark-lighten-15);
+        --svg-map-stroke-color: var(--r-color-dark);
+    }
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    path {
+        fill: var(--svg-map-fill-color);
+        stroke: var(--svg-map-stroke-color);
+        @include mixin.transition("fill");
+
+        &:hover {
+            fill: var(--svg-map-fill-hover-color);
+        }
+    }
+}
+
+.svg-tooltip {
+    position: fixed;
+    pointer-events: none;
+    background: var(--r-tooltip-bg-color);
+    color: var(--r-tooltip-text-color);
+    padding: rem(6) rem(8);
+    border-radius: var(--r-global-border-radius);
+    font-size: rem(12);
+    line-height: 1.2;
+    white-space: nowrap;
+    transform: translateY(-110%);
+    transition: opacity 120ms ease, transform 120ms ease;
+    opacity: 0;
+    z-index: 1000;
+
+    &.show {
+        opacity: 1;
+        transform: translateY(-120%);
+    }
+}
+
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: rem(50);
+}
+
+.analytics-grid-item-full {
+    grid-column: 1 / -1;
 }

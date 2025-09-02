@@ -1,20 +1,4 @@
-<style>
-    .svg-map-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    path {
-        fill: lightgray;
-        stroke: white;
-    }
-
-    path:hover {
-        fill: gray;
-    }
-</style>
-
+<div id="map-tooltip" class="svg-tooltip"></div>
 <div class="svg-map-container" id="svg-world-map">
     <svg enable_background="new 0 0 1000 647" height="647px" pretty_print="False"
         style="stroke-linejoin: round; stroke:#000; fill: none;" version="1.1" viewBox="0 0 1000 647" width="1000px"

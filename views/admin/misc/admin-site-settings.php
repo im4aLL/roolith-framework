@@ -42,7 +42,7 @@
                         </label>
                     </div>
 
-                    <p class="dimmed">Last updated on <strong><?= $analyticsFeature && $analyticsFeature->updated_at ? diffForHumans($analyticsFeature->updated_at) : 'N/A' ?></strong></p>
+                    <p class="dimmed">Last updated <strong><?= $analyticsFeature && $analyticsFeature->updated_at ? diffForHumans($analyticsFeature->updated_at) : 'N/A' ?></strong></p>
                 </div>
             </div>
         </div>

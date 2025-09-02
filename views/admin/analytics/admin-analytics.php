@@ -27,16 +27,32 @@
             <!-- block header container -->
         </div>
 
-        <?php $this->inject('admin/analytics/admin-analytics-overview') ?>
-        <?php $this->inject('admin/analytics/admin-analytics-top-pages') ?>
-        <?php $this->inject('admin/analytics/admin-analytics-top-sources') ?>
-        <?php $this->inject('admin/analytics/admin-analytics-location-stats') ?>
-        <?php $this->inject('admin/analytics/admin-analytics-device-stats') ?>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-        <hr>
+        <div class="analytics-grid">
+            <div class="analytics-grid-item analytics-grid-item-full">
+                <?php $this->inject('admin/analytics/admin-analytics-overview') ?>
+            </div>
+            <div class="analytics-grid-item analytics-grid-item-full">
+                <?php $this->inject('admin/analytics/admin-analytics-top-pages') ?>
+            </div>
+            <div class="analytics-grid-item">
+                <?php $this->inject('admin/analytics/admin-analytics-top-sources') ?>
+            </div>
+            <div class="analytics-grid-item">
+                <?php $this->inject('admin/analytics/admin-analytics-device-stats') ?>
+            </div>
+            <div class="analytics-grid-item analytics-grid-item-full">
+                <?php $this->inject('admin/analytics/admin-analytics-location-stats') ?>
+            </div>
+            <div class="analytics-grid-item analytics-grid-item-full">
+                <?php $this->inject('admin/analytics/admin-analytics-daily-trends') ?>
+            </div>
+            <div class="analytics-grid-item analytics-grid-item-full">
+                <?php $this->inject('admin/analytics/admin-analytics-hourly-trends') ?>
+            </div>
+        </div>
 
-        <?php $this->inject('admin/analytics/admin-analytics-daily-trends') ?>
-        <?php $this->inject('admin/analytics/admin-analytics-hourly-trends') ?>
     </div>
     <!-- right -->
 </main>

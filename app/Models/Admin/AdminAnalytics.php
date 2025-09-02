@@ -327,8 +327,8 @@ class AdminAnalytics extends Model
 
         return [
             'data' => $data,
-            'start_date' => $this->_currentPeriodStart->toDateTimeString(),
-            'end_date' => $this->_currentPeriodEnd->toDateTimeString(),
+            'start_date' => $this->_currentPeriodStart?->toDateTimeString(),
+            'end_date' => $this->_currentPeriodEnd?->toDateTimeString(),
         ];
     }
 
@@ -362,8 +362,8 @@ class AdminAnalytics extends Model
 
         return [
             'data' => $data,
-            'start_date' => $this->_currentPeriodStart->toDateTimeString(),
-            'end_date' => $this->_currentPeriodEnd->toDateTimeString(),
+            'start_date' => $this->_currentPeriodStart?->toDateTimeString(),
+            'end_date' => $this->_currentPeriodEnd?->toDateTimeString(),
         ];
     }
 
@@ -392,8 +392,8 @@ class AdminAnalytics extends Model
 
         return [
             'data' => $data,
-            'start_date' => $this->_currentPeriodStart->toDateTimeString(),
-            'end_date' => $this->_currentPeriodEnd->toDateTimeString(),
+            'start_date' => $this->_currentPeriodStart?->toDateTimeString(),
+            'end_date' => $this->_currentPeriodEnd?->toDateTimeString(),
         ];
     }
 
@@ -426,8 +426,8 @@ class AdminAnalytics extends Model
 
         return [
             'data' => $data,
-            'start_date' => $this->_currentPeriodStart->toDateTimeString(),
-            'end_date' => $this->_currentPeriodEnd->toDateTimeString(),
+            'start_date' => $this->_currentPeriodStart?->toDateTimeString(),
+            'end_date' => $this->_currentPeriodEnd?->toDateTimeString(),
         ];
     }
 
@@ -454,8 +454,8 @@ class AdminAnalytics extends Model
 
         return [
             'data' => $data,
-            'start_date' => $this->_currentPeriodStart->toDateTimeString(),
-            'end_date' => $this->_currentPeriodEnd->toDateTimeString(),
+            'start_date' => $this->_currentPeriodStart?->toDateTimeString(),
+            'end_date' => $this->_currentPeriodEnd?->toDateTimeString(),
         ];
     }
 
