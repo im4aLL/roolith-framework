@@ -2,6 +2,10 @@
     <!-- block analytics header -->
     <div class="block-analytics-header">
         <h6 class="block-analytics-hl">Hourly Trends</h6>
+
+        <div class="form-field form-datepicker form-datepicker-js small">
+            <input type="text" class="form-input" id="hourly-trend-datepicker-js" />
+        </div>
     </div>
     <!-- block analytics header -->
 
@@ -11,6 +15,9 @@
     </div>
     <!-- block analytics body -->
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/js-datepicker@5.18.4/dist/datepicker.min.js"></script>
+<link href="https://cdn.jsdelivr.net/npm/js-datepicker@5.18.4/dist/datepicker.min.css" rel="stylesheet">
 
 <script>
     (() => {
@@ -29,29 +36,29 @@
             data: {
                 labels: labels,
                 datasets: [{
-                        label: 'Pageviews',
-                        data: pageviews,
-                        borderColor: '#3b82f6',
-                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    },
-                    {
-                        label: 'Unique Visitors',
-                        data: visitors,
-                        borderColor: '#8b5cf6',
-                        backgroundColor: 'rgba(139, 92, 246, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    },
-                    {
-                        label: 'Visits',
-                        data: visits,
-                        borderColor: '#0ea5e9',
-                        backgroundColor: 'rgba(14, 165, 233, 0.1)',
-                        fill: true,
-                        tension: 0.4
-                    }
+                    label: 'Pageviews',
+                    data: pageviews,
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                },
+                {
+                    label: 'Unique Visitors',
+                    data: visitors,
+                    borderColor: '#8b5cf6',
+                    backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                },
+                {
+                    label: 'Visits',
+                    data: visits,
+                    borderColor: '#0ea5e9',
+                    backgroundColor: 'rgba(14, 165, 233, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }
                 ]
             },
             options: {
@@ -110,12 +117,13 @@
             chart.update();
         }
 
-        function getData() {
+        function getData(data = {}) {
             $.ajax({
-                    url: '<?= route('admin.analytics.hourlyTrends') ?>',
-                    type: 'GET',
-                    dataType: 'json',
-                })
+                url: '<?= route('admin.analytics.hourlyTrends') ?>',
+                type: 'GET',
+                dataType: 'json',
+                data
+            })
                 .done(function(response) {
                     if (response.status === 'success') {
                         updateChart(response.payload);
@@ -129,6 +137,15 @@
         }
 
         $(() => {
+            const datePicker = datepicker('#hourly-trend-datepicker-js', {
+                position: 'br',
+                onSelect: (instance, date) => {
+                    const data = date.toISOString().slice(0, 10);
+                    getData({ date: data });
+                },
+                dateSelected: new Date(),
+            });
+
             getData();
         });
     })();

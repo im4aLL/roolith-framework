@@ -74,11 +74,13 @@
                     <i class="iconoir-settings"></i>
                 </a>
             </li>
-            <li class="nav-item">
-                <a href="<?= route('admin.analytics.index') ?>" class="nav-link">
-                    <i class="iconoir-graph-up"></i>
-                </a>
-            </li>
+            <?php if ($global['isAnalyticsEnabled']) : ?>
+                <li class="nav-item">
+                    <a href="<?= route('admin.analytics.index') ?>" class="nav-link">
+                        <i class="iconoir-graph-up"></i>
+                    </a>
+                </li>
+            <?php endif; ?>
         </ul>
         <!-- nav -->
 

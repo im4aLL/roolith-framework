@@ -43,6 +43,8 @@ export class SiteSettings {
 
                 if (status === "error") {
                     alert(message);
+                } else {
+                    location.reload();
                 }
             },
             error: function () {

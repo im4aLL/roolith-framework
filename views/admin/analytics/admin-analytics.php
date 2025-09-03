@@ -21,7 +21,7 @@
                     <h5 class="block-header-title">
                         <?= $this->escape('title') ?>
                     </h5>
-                    <p class="block-header-subtitle">Analytics</p>
+                    <p class="block-header-subtitle">Monitor your website's key metrics at a glance</p>
                 </div>
             </div>
             <!-- block header container -->

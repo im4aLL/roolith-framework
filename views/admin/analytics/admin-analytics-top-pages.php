@@ -46,7 +46,7 @@
 
             $.each(data, function(index, row) {
                 row.width = maxValue > 0 ? row.pageviews / maxValue * 100 : 0;
-                row.link = baseUrl + row.page_url;
+                row.link = baseUrl + row.page_url.substring(1);
                 html += parseTemplate(template, row);
             });
 
@@ -55,10 +55,10 @@
 
         function getData() {
             $.ajax({
-                    url: '<?= route('admin.analytics.topPages') ?>',
-                    type: 'GET',
-                    dataType: 'json',
-                })
+                url: '<?= route('admin.analytics.topPages') ?>',
+                type: 'GET',
+                dataType: 'json',
+            })
                 .done(function(response) {
                     if (response.status === 'success') {
                         render(response.payload);

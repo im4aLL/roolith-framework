@@ -8,7 +8,9 @@
         </div>
 
         <?php if (isset($error_message)) : ?>
-            <div class="message message-danger"><?= $error_message ?></div>
+        <div class="message message-danger">
+            <?= $error_message ?>
+        </div>
         <?php endif; ?>
 
         <form action="<?= route('admin.auth.verifyCredential') ?>" class="form" method="post">

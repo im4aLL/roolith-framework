@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controllers\Admin;
 
 use App\Core\Request;
@@ -69,13 +70,13 @@ class AdminAuthController extends AdminBaseController
             'password' => Rules::set()->isRequired(),
         ]);
 
+        if ($rateLimiter->tooManyAttempts()) {
+            return 'System is taking a coffee break after that login spam.';
+        }
+
         if ($this->validator->fails()) {
             Storage::temp('login_error', $this->validator->errors());
             redirectToRoute('admin.auth.login');
-        }
-
-        if ($rateLimiter->tooManyAttempts()) {
-            return 'System is taking a coffee break after that login spam.';
         }
 
         if ($this->user->isValidUser($data['email'], $data['password'])) {

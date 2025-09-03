@@ -22,7 +22,7 @@
 <template id="analytics-top-sources-row">
     <div class="block-stat-table-row">
         <div class="block-stat-table-cell is-left is-primary">
-            <a href="" class="block-stat-table-text">{source}</a>
+            <div class="block-stat-table-text">{source}</div>
             <div class="block-stat-table-indicator" style="width: {width}%"></div>
         </div>
         <div class="block-stat-table-cell">{visits}</div>
@@ -53,10 +53,10 @@
 
         function getData() {
             $.ajax({
-                    url: '<?= route('admin.analytics.topSources') ?>',
-                    type: 'GET',
-                    dataType: 'json',
-                })
+                url: '<?= route('admin.analytics.topSources') ?>',
+                type: 'GET',
+                dataType: 'json',
+            })
                 .done(function(response) {
                     if (response.status === 'success') {
                         render(response.payload);

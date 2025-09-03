@@ -67,12 +67,14 @@ if (is_array($activeRouteNameArray) && isset($activeRouteNameArray[1])) {
                     </span>
                 </a>
             </li>
-            <li class="sidebar-nav-list-item<?= $activeRouteName === 'analytics' ? ' is-active' : '' ?>">
-                <a href="<?= route('admin.analytics.index') ?>" class="sidebar-nav-list-link">
-                    <i class="iconoir-graph-up"></i>
-                    <span class="sidebar-nav-list-label">Analytics</span>
-                </a>
-            </li>
+            <?php if ($global['isAnalyticsEnabled']) : ?>
+                <li class="sidebar-nav-list-item<?= $activeRouteName === 'analytics' ? ' is-active' : '' ?>">
+                    <a href="<?= route('admin.analytics.index') ?>" class="sidebar-nav-list-link">
+                        <i class="iconoir-graph-up"></i>
+                        <span class="sidebar-nav-list-label">Analytics</span>
+                    </a>
+                </li>
+            <?php endif; ?>
         </ul>
     </div>
     <!-- group -->

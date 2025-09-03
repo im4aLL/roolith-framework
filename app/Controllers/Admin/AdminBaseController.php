@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controllers\Admin;
 
 use App\Controllers\Controller;
@@ -8,6 +9,7 @@ use App\Models\Admin\AdminMessage;
 use App\Models\Admin\AdminModule;
 use App\Models\Admin\AdminModuleSetting;
 use App\Models\Admin\AdminPage;
+use App\Models\Admin\AdminSetting;
 use App\Models\Admin\AdminUser;
 use FilesystemIterator;
 use RecursiveDirectoryIterator;
@@ -19,6 +21,12 @@ class AdminBaseController extends Controller
     {
         $count = $this->_getAllCounts();
 
+        $isAnalyticsEnabled = false;
+        $enableAnalytics = AdminSetting::orm()->where('item', 'enable-analytics')->first();
+        if ($enableAnalytics) {
+            $isAnalyticsEnabled = $enableAnalytics->value == 'true' ? true : false;
+        }
+
         $data['global'] = [
             'page_count' => $count->page_count,
             'category_count' => $count->category_count,
@@ -27,6 +35,7 @@ class AdminBaseController extends Controller
             'module_settings_count' => $count->module_settings_count,
             'media_size' => $this->_getMediaFolderSize(),
             'user' => AdminUser::current(),
+            'isAnalyticsEnabled' => $isAnalyticsEnabled,
         ];
 
         return parent::view($filename, $data);
@@ -41,11 +50,11 @@ class AdminBaseController extends Controller
     {
         $db = DatabaseFactory::getInstance();
         return $db->query("SELECT
-                        (SELECT COUNT(*) FROM ".AdminPage::tableName()." WHERE status = 'published') as page_count,
-                        (SELECT COUNT(*) FROM ".AdminCategory::tableName().") as category_count,
-                        (SELECT COUNT(*) FROM ".AdminModule::tableName()." WHERE status = 'published') as module_count,
-                        (SELECT COUNT(*) FROM ".AdminModuleSetting::tableName().") as module_settings_count,
-                        (SELECT COUNT(*) FROM ".AdminMessage::tableName()." WHERE is_seen = 0) as unread_message_count")->first();
+                        (SELECT COUNT(*) FROM " . AdminPage::tableName() . " WHERE status = 'published') as page_count,
+                        (SELECT COUNT(*) FROM " . AdminCategory::tableName() . ") as category_count,
+                        (SELECT COUNT(*) FROM " . AdminModule::tableName() . " WHERE status = 'published') as module_count,
+                        (SELECT COUNT(*) FROM " . AdminModuleSetting::tableName() . ") as module_settings_count,
+                        (SELECT COUNT(*) FROM " . AdminMessage::tableName() . " WHERE is_seen = 0) as unread_message_count")->first();
     }
 
     /**
@@ -53,7 +62,8 @@ class AdminBaseController extends Controller
      *
      * @return string
      */
-    private function _getMediaFolderSize(): string {
+    private function _getMediaFolderSize(): string
+    {
         $size = 0;
 
         if (!is_dir(APP_ADMIN_FILE_MANAGER_DIR)) {
@@ -73,7 +83,8 @@ class AdminBaseController extends Controller
      * @param int $bytes
      * @return string
      */
-    private function _formatSize(int $bytes): string {
+    private function _formatSize(int $bytes): string
+    {
         $units = ['B', 'KB', 'MB', 'GB', 'TB'];
         $i = 0;
 
