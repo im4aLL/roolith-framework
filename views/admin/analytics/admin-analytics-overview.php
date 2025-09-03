@@ -145,8 +145,22 @@
             });
         }
 
+        const formatTime = (seconds) => {
+            const hrs = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            const secs = Math.floor(seconds % 60);
+
+            let result = '';
+            if (hrs > 0) result += `${hrs}h `;
+            if (mins > 0 || hrs > 0) result += `${mins}m `;
+            result += `${secs}s`;
+
+            return result.trim();
+        }
+
         const render = (data) => {
             const template = $(templateEl).html();
+            data.current.avg_duration = formatTime(data.current.avg_duration);
             const html = parseTemplate(template, data);
 
             $(el).html(html).show();
