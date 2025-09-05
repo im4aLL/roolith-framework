@@ -14,6 +14,6 @@ try {
     $app->bootstrap()
         ->processRequest()
         ->complete();
-} catch (\App\Core\Exceptions\Exception | \Roolith\Configuration\Exception\InvalidArgumentException $e) {
+} catch (\App\Core\Exceptions\Exception|\Roolith\Configuration\Exception\InvalidArgumentException $e) {
     print $e->getMessage();
 }

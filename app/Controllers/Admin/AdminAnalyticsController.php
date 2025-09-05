@@ -18,7 +18,7 @@ class AdminAnalyticsController extends AdminBaseController
         $this->analytics = $analytics;
     }
 
-    public function index()
+    public function index(): bool|string
     {
         $data = [
             'title' => 'Analytics',

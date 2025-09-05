@@ -196,9 +196,9 @@ class AdminAnalytics extends Model
         $avgDuration = self::raw()->query($avgDurationQueryString)->first()->avg_duration ?? 0;
 
         return [
-            'unique_visitors' => (int) $basic->unique_visitors,
-            'total_visits' => (int) $basic->total_visits,
-            'pageviews' => (int) $basic->pageviews,
+            'unique_visitors' => (int)$basic->unique_visitors,
+            'total_visits' => (int)$basic->total_visits,
+            'pageviews' => (int)$basic->pageviews,
             'pages_per_visit' => $pagesPerVisit,
             'bounce_rate' => $bounceRate,
             'avg_duration' => round($avgDuration, 1)
@@ -240,9 +240,9 @@ class AdminAnalytics extends Model
         $daysSinceStart = $firstVisit->diffInDays($now) + 1; // +1 to include today
 
         return [
-            'unique_visitors' => (int) $basic->unique_visitors,
-            'total_visits' => (int) $basic->total_visits,
-            'pageviews' => (int) $basic->pageviews,
+            'unique_visitors' => (int)$basic->unique_visitors,
+            'total_visits' => (int)$basic->total_visits,
+            'pageviews' => (int)$basic->pageviews,
             'days_tracking' => $daysSinceStart,
             'avg_visitors_per_day' => $daysSinceStart > 0 ? round($basic->unique_visitors / $daysSinceStart, 1) : 0,
             'avg_visits_per_day' => $daysSinceStart > 0 ? round($basic->total_visits / $daysSinceStart, 1) : 0,
@@ -400,6 +400,7 @@ class AdminAnalytics extends Model
     /**
      * Get device stats
      *
+     * @param string $deviceType
      * @return array
      */
     public function getDeviceStats(string $deviceType = ''): array
@@ -407,7 +408,6 @@ class AdminAnalytics extends Model
         $columnName = match ($deviceType) {
             'size' => 'device',
             'os' => 'os',
-            'browser' => 'browser',
             default => 'browser',
         };
 
@@ -504,7 +504,7 @@ class AdminAnalytics extends Model
         return [
             'start' => $this->_currentPeriodStart->format('M j, Y'),
             'end' => $this->_currentPeriodEnd->format('M j, Y'),
-            'label' => $this->_currentPeriodStart->format('M j') . ' - ' .  $this->_currentPeriodEnd->format('M j, Y'),
+            'label' => $this->_currentPeriodStart->format('M j') . ' - ' . $this->_currentPeriodEnd->format('M j, Y'),
             'name' => $name,
         ];
     }

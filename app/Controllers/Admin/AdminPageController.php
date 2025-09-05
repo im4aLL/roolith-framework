@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Admin;
 
+use App\Controllers\Admin\Traits\AdminFilterTrait;
 use App\Core\ApiResponseTransformer;
 use App\Core\Exceptions\Exception;
 use App\Core\LazyLoad;
@@ -18,6 +19,8 @@ use App\Utils\_;
 
 class AdminPageController extends AdminBaseController
 {
+    use AdminFilterTrait;
+
     /**
      * Show a list of pages with pagination
      *
@@ -25,35 +28,12 @@ class AdminPageController extends AdminBaseController
      */
     public function index(): string|bool
     {
-        $filterInput = Request::input('filter');
-        $filterUrlString = null;
-
-        $selectArray = [
-            'field' => ['id']
-        ];
-
-        if ($filterInput) {
-            $whereConditions = [];
-
-            foreach ($filterInput as $key => $value) {
-                if (!$value) {
-                    continue;
-                }
-
-                if ($key == 'title') {
-                    $whereConditions[] = "$key LIKE '%$value%'";
-                } else {
-                    $whereConditions[] = "$key = '$value'";
-                }
-            }
-
-            $selectArray = [
-                'field' => ['id'],
-                'condition' => 'WHERE ' . implode(' AND ', $whereConditions)
-            ];
-
-            $filterUrlString = generateFilterUrlString($filterInput);
-        }
+        [
+            'selectArray' => $selectArray,
+            'filterUrlString' => $filterUrlString,
+            'filterInput' => $filterInput,
+            'whereConditions' => $whereConditions,
+        ] = $this->filterData();
 
         $total = AdminPage::orm()->select($selectArray)->count();
 

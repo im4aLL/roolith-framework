@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Admin;
 
+use App\Controllers\Admin\Traits\AdminFilterTrait;
 use App\Core\ApiResponseTransformer;
 use App\Core\Interfaces\ValidatorInterface;
 use App\Core\LazyLoad;
@@ -15,6 +16,8 @@ use App\Utils\_;
 
 class AdminModuleController extends AdminBaseController
 {
+    use AdminFilterTrait;
+
     private string $_uploadDir = APP_ADMIN_FILE_MANAGER_MODULE_DATA_DIR;
     private array $_acceptedImages = APP_ADMIN_ALLOWED_IMAGE_TYPES;
     private array $_acceptedFiles = APP_ADMIN_ALLOWED_FILE_TYPES;
@@ -26,35 +29,12 @@ class AdminModuleController extends AdminBaseController
      */
     public function index(): string|bool
     {
-        $filterInput = Request::input('filter');
-        $filterUrlString = null;
-
-        $selectArray = [
-            'field' => ['id']
-        ];
-
-        if ($filterInput) {
-            $whereConditions = [];
-
-            foreach ($filterInput as $key => $value) {
-                if (!$value) {
-                    continue;
-                }
-
-                if ($key == 'title') {
-                    $whereConditions[] = "$key LIKE '%$value%'";
-                } else {
-                    $whereConditions[] = "$key = '$value'";
-                }
-            }
-
-            $selectArray = [
-                'field' => ['id'],
-                'condition' => 'WHERE ' . implode(' AND ', $whereConditions)
-            ];
-
-            $filterUrlString = generateFilterUrlString($filterInput);
-        }
+        [
+            'selectArray' => $selectArray,
+            'filterUrlString' => $filterUrlString,
+            'filterInput' => $filterInput,
+            'whereConditions' => $whereConditions,
+        ] = $this->filterData();
 
         $total = AdminModule::orm()->select($selectArray)->count();
 
@@ -237,7 +217,9 @@ class AdminModuleController extends AdminBaseController
         return $uploaded;
     }
 
-    public function show($id) {}
+    public function show($id)
+    {
+    }
 
     public function edit($id): bool|string
     {
@@ -285,7 +267,7 @@ class AdminModuleController extends AdminBaseController
                 if ($originalFileData && strlen($originalFileData) > 0) {
                     if (is_array($file)) {
                         // add a newly added file to existing files
-                        $newFileData = array_merge((array) json_decode($originalFileData), $newlyUploadedFileData);
+                        $newFileData = array_merge((array)json_decode($originalFileData), $newlyUploadedFileData);
                     } else {
                         // delete the previous image and add a new file
                         $this->_deleteModuleDataFile($originalFileData);
@@ -304,7 +286,7 @@ class AdminModuleController extends AdminBaseController
         $moduleData = _::only($formData, $moduleDataFields);
         $otherFields = _::except($formData, $moduleDataFields);
 
-        $isModuleDataChanged = isDataChanged($moduleData, (array) $module);
+        $isModuleDataChanged = isDataChanged($moduleData, (array)$module);
 
         // update module data
         if ($isModuleDataChanged) {
@@ -365,7 +347,9 @@ class AdminModuleController extends AdminBaseController
         return $validator;
     }
 
-    public function destroy($id) {}
+    public function destroy($id)
+    {
+    }
 
     /**
      * Delete file and record
