@@ -1,6 +1,6 @@
 <!-- header -->
 <!-- is-sticky -->
-<header class="layout-header">
+<header class="layout-header is-sticky">
     <!-- logo -->
     <div class="layout-header-primary">
         <a href="<?= route('admin.home') ?>" class="layout-header-logo">
@@ -75,11 +75,11 @@
                 </a>
             </li>
             <?php if ($global['isAnalyticsEnabled']) : ?>
-                <li class="nav-item">
-                    <a href="<?= route('admin.analytics.index') ?>" class="nav-link">
-                        <i class="iconoir-graph-up"></i>
-                    </a>
-                </li>
+            <li class="nav-item">
+                <a href="<?= route('admin.analytics.index') ?>" class="nav-link">
+                    <i class="iconoir-graph-up"></i>
+                </a>
+            </li>
             <?php endif; ?>
         </ul>
         <!-- nav -->

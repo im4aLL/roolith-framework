@@ -229,3 +229,16 @@
         background: var(--r-color-light);
     }
 }
+
+// layout
+.layout-sidebar {
+    position: sticky;
+    top: var(--r-layout-header-height);
+    max-height: 100vh;
+    overflow-y: auto;
+    @include mixin.nice-scroll();
+
+    .theme-dark & {
+        @include mixin.nice-scroll(var(--r-color-light), var(--r-color-light-lighten-10));
+    }
+}
