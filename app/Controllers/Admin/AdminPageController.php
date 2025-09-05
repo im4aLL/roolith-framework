@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Controllers\Admin;
 
 use App\Core\ApiResponseTransformer;
@@ -25,6 +26,7 @@ class AdminPageController extends AdminBaseController
     public function index(): string|bool
     {
         $filterInput = Request::input('filter');
+        $filterUrlString = null;
 
         $selectArray = [
             'field' => ['id']
@@ -43,26 +45,27 @@ class AdminPageController extends AdminBaseController
                 } else {
                     $whereConditions[] = "$key = '$value'";
                 }
-
             }
 
             $selectArray = [
                 'field' => ['id'],
-                'condition' => 'WHERE '.implode(' AND ', $whereConditions)
+                'condition' => 'WHERE ' . implode(' AND ', $whereConditions)
             ];
+
+            $filterUrlString = generateFilterUrlString($filterInput);
         }
 
         $total = AdminPage::orm()->select($selectArray)->count();
 
         $queryString = 'SELECT * FROM ' . AdminPage::tableName() . ' ORDER by id DESC';
         if ($filterInput) {
-            $queryString = 'SELECT * FROM ' . AdminPage::tableName() . ' WHERE '.implode(' AND ', $whereConditions). ' ORDER by id DESC';
+            $queryString = 'SELECT * FROM ' . AdminPage::tableName() . ' WHERE ' . implode(' AND ', $whereConditions) . ' ORDER by id DESC';
         }
 
         $pagination = AdminPage::raw()->query($queryString)->paginate([
             'perPage' => APP_ADMIN_PAGINATION_PER_PAGE,
             'total' => $total,
-            'pageUrl' => route('admin.pages.index')
+            'pageUrl' => route('admin.pages.index') . ($filterUrlString ? "?$filterUrlString" : "")
         ]);
         $paginationData = $pagination->getDetails();
 
@@ -452,7 +455,7 @@ class AdminPageController extends AdminBaseController
         }
 
         foreach ($oldModuleArray as $index => $oldModuleId) {
-            if  ($oldModuleId != $newModuleArray[$index]) {
+            if ($oldModuleId != $newModuleArray[$index]) {
                 $isModuleChanged = true;
                 break;
             }

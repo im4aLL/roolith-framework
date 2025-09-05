@@ -41,7 +41,8 @@
                     borderColor: '#3b82f6',
                     backgroundColor: 'rgba(59, 130, 246, 0.1)',
                     fill: true,
-                    tension: 0.4
+                    tension: 0.4,
+                    borderWidth: 1
                 },
                 {
                     label: 'Unique Visitors',
@@ -49,7 +50,8 @@
                     borderColor: '#8b5cf6',
                     backgroundColor: 'rgba(139, 92, 246, 0.1)',
                     fill: true,
-                    tension: 0.4
+                    tension: 0.4,
+                    borderWidth: 1
                 },
                 {
                     label: 'Visits',
@@ -57,9 +59,9 @@
                     borderColor: '#0ea5e9',
                     backgroundColor: 'rgba(14, 165, 233, 0.1)',
                     fill: true,
-                    tension: 0.4
-                }
-                ]
+                    tension: 0.4,
+                    borderWidth: 1,
+                }]
             },
             options: {
                 responsive: true,

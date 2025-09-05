@@ -7,14 +7,10 @@ use App\Core\Interfaces\ValidatorInterface;
 use App\Core\LazyLoad;
 use App\Core\Request;
 use App\Core\Rules;
-use App\Core\Storage;
 use App\Core\Validator;
 use App\Models\Admin\AdminModuleSetting;
-use App\Models\Admin\AdminPage;
 use App\Models\Admin\AdminModule;
 use App\Models\Admin\AdminModuleData;
-use App\Models\Admin\AdminPageCategory;
-use App\Models\Admin\AdminUser;
 use App\Utils\_;
 
 class AdminModuleController extends AdminBaseController
@@ -31,6 +27,7 @@ class AdminModuleController extends AdminBaseController
     public function index(): string|bool
     {
         $filterInput = Request::input('filter');
+        $filterUrlString = null;
 
         $selectArray = [
             'field' => ['id']
@@ -49,26 +46,27 @@ class AdminModuleController extends AdminBaseController
                 } else {
                     $whereConditions[] = "$key = '$value'";
                 }
-
             }
 
             $selectArray = [
                 'field' => ['id'],
-                'condition' => 'WHERE '.implode(' AND ', $whereConditions)
+                'condition' => 'WHERE ' . implode(' AND ', $whereConditions)
             ];
+
+            $filterUrlString = generateFilterUrlString($filterInput);
         }
 
         $total = AdminModule::orm()->select($selectArray)->count();
 
         $queryString = 'SELECT * FROM ' . AdminModule::tableName() . ' ORDER by id DESC';
         if ($filterInput) {
-            $queryString = 'SELECT * FROM ' . AdminModule::tableName() . ' WHERE '.implode(' AND ', $whereConditions). ' ORDER by id DESC';
+            $queryString = 'SELECT * FROM ' . AdminModule::tableName() . ' WHERE ' . implode(' AND ', $whereConditions) . ' ORDER by id DESC';
         }
 
         $pagination = AdminModule::raw()->query($queryString)->paginate([
             'perPage' => APP_ADMIN_PAGINATION_PER_PAGE,
             'total' => $total,
-            'pageUrl' => route('admin.modules.index')
+            'pageUrl' => route('admin.modules.index') . ($filterUrlString ? "?$filterUrlString" : "")
         ]);
         $paginationData = $pagination->getDetails();
 

@@ -1,4 +1,5 @@
 <?php
+
 use App\Core\Storage;
 use Carbon\Carbon;
 
@@ -98,4 +99,21 @@ function getGravatarUrl(): string
     $hash = hash('sha256', strtolower(trim($email)));
 
     return "https://www.gravatar.com/avatar/$hash";
+}
+
+/**
+ * Generate filter url string
+ *
+ * @param array $array
+ * @return string
+ */
+function generateFilterUrlString(array $array): string
+{
+    $url_string_array = [];
+
+    foreach ($array as $param => $value) {
+        $url_string_array[] = "filter[$param]=$value";
+    }
+
+    return implode('&', $url_string_array);
 }

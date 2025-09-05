@@ -12,9 +12,9 @@
                 </a>
             </li>
             <?php foreach ($p_page_numbers as $pageNumber) : ?>
-                <li class="pagination-item is-number<?= $pageNumber == $p_data->currentPage ? ' pagination-item-active' : '' ?>">
-                    <a href="<?= $p_data->path ?>?page=<?= $pageNumber ?>" class="pagination-link">
-                        <?= $pageNumber ?>
+                <li
+                    class="pagination-item is-number<?= $pageNumber == $p_data->currentPage ? ' pagination-item-active' : '' ?>">
+                    <a href="<?= $p_data->path ?><?= str_contains($p_data->path, "?") ? "&" : "?" ?>page=<?= $pageNumber ?>" class="pagination-link"><?= $pageNumber ?>
                     </a>
                 </li>
             <?php endforeach; ?>
@@ -32,10 +32,15 @@
 
         <div class="pagination-meta">
             <div class="pagination-meta-label">
-                Total record <?= $p_data->total ?>. Showing page
-                <strong><?= $p_data->currentPage ?></strong>
+                Total record
+                <?= $p_data->total ?>. Showing page
+                <strong>
+                    <?= $p_data->currentPage ?>
+                </strong>
                 out of
-                <strong><?= $p_data->lastPage ?></strong>
+                <strong>
+                    <?= $p_data->lastPage ?>
+                </strong>
             </div>
         </div>
     </nav>
