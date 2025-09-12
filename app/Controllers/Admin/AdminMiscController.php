@@ -120,12 +120,11 @@ class AdminMiscController extends AdminBaseController
         }
 
         $results = [];
-        $results[] = ["label" => "Label 1", "link" => "/label1", "type" => "page"];
-        $results[] = ["label" => "Label 2", "link" => "/label2", "type" => "category"];
-        $results[] = ["label" => "Label 3", "link" => "/label3", "type" => "module"];
-        $results[] = ["label" => "Label 4", "link" => "/label4", "type" => "page"];
-
-        // Perform global search logic here
+        // $results[] = ["label" => "Label 1", "link" => "/label1", "type" => "page"];
+        // $results[] = ["label" => "Label 2", "link" => "/label2", "type" => "category"];
+        // $results[] = ["label" => "Label 3", "link" => "/label3", "type" => "module"];
+        // $results[] = ["label" => "Label 4", "link" => "/label4", "type" => "moduleSetting"];
+        // $results[] = ["label" => "Label 5", "link" => "/label5", "type" => "other"];
 
         return ApiResponseTransformer::success($results);
     }

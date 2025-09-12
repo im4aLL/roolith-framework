@@ -46,20 +46,13 @@
     <!-- header cta -->
     <div class="layout-header-secondary">
         <!-- search -->
-        <form action="" class="form layout-header-search">
-            <div class="form-field form-field-search loading hint">
+        <form action="<?= route("admin.global.search") ?>" class="form layout-header-search">
+            <div class="form-field form-field-search" id="global-search-input">
                 <span class="form-field-search-icon"><i class="icon icon-search"></i></span>
-                <input type="text" name="" class="form-input" placeholder="Search ..." />
+                <input type="text" name="q" class="form-input" placeholder="Search ..." />
                 <i class="form-field-search-loading-icon"></i>
 
-                <div class="form-field-search-hint">
-                    <ul>
-                        <li><a href="#">Afganistan</a></li>
-                        <li><a href="#">Srilanka <span class="badge badge-info">new</span></a></li>
-                        <li><a href="#">Bangladesh</a></li>
-                        <li><a href="#">United state</a></li>
-                    </ul>
-                </div>
+                <div class="form-field-search-hint"></div>
             </div>
         </form>
         <!-- search -->

@@ -124,7 +124,7 @@ $router->group(
         /**
          * Global search
          */
-        $router->get("/search", AdminMiscController::class . "@globalSearch")->name("search");
+        $router->get("/search", AdminMiscController::class . "@globalSearch")->name("global.search");
     },
 );
 

@@ -10,6 +10,7 @@ import { PasswordToggle } from "./password-toggle";
 import { Layout } from "./layout";
 import { Event } from "./event";
 import { SvgMap } from "./svg-map";
+import { GlobalSearch } from "./global-search";
 
 window.$ = window.jQuery = $;
 window["Event"] = Event;
@@ -47,4 +48,5 @@ $(function () {
     new PasswordToggle();
     new Layout();
     new SvgMap();
+    new GlobalSearch();
 });
