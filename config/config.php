@@ -3,26 +3,26 @@ return [
     /**
      * Base URL for app
      */
-    'baseUrl' => 'http://local.roolith-framework.me/',
+    "baseUrl" => "http://local.roolith-framework.me/",
 
     /**
      * Database configuration
      */
-    'database' => [
-        'host' => 'localhost',
-        'name' => 'roolith_cms',
-        'user' => 'root',
-        'pass' => '',
+    "database" => [
+        "host" => "localhost",
+        "name" => "roolith_cms",
+        "user" => "root",
+        "pass" => "hadi",
     ],
-//    'database' => null,
+    //    'database' => null,
 
     /**
      * For domain to have www or not www in domain
      */
-    'forceNonWww' => true,
+    "forceNonWww" => true,
 
     /**
      * Current app version
      */
-    'version' => time(),
+    "version" => time(),
 ];

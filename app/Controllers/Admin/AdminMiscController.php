@@ -2,6 +2,7 @@
 
 namespace App\Controllers\Admin;
 
+use App\Core\ApiResponseTransformer;
 use App\Core\Request;
 use App\Core\Storage;
 use App\Utils\Admin\FileManager;
@@ -22,20 +23,20 @@ class AdminMiscController extends AdminBaseController
         $currentPath = $fm->getCurrentPath();
 
         // Handle form submissions
-        $message = $this->handleFileManagerFormSubmission($fm);
+        $message = $this->_handleFileManagerFormSubmission($fm);
 
         // Get directory contents
         $contents = $fm->scanDirectory($currentPath);
 
         $data = [
-            'contents' => $contents,
-            'message' => $message,
-            'currentPath' => $currentPath,
-            'fm' => $fm,
-            'title' => 'File Manager',
+            "contents" => $contents,
+            "message" => $message,
+            "currentPath" => $currentPath,
+            "fm" => $fm,
+            "title" => "File Manager",
         ];
 
-        return $this->view('admin/misc/admin-file-manager', $data);
+        return $this->view("admin/misc/admin-file-manager", $data);
     }
 
     /**
@@ -44,44 +45,38 @@ class AdminMiscController extends AdminBaseController
      * @param FileManager $fileManager
      * @return string
      */
-    private function handleFileManagerFormSubmission(FileManager $fileManager): string
+    private function _handleFileManagerFormSubmission(FileManager $fileManager): string
     {
         $currentPath = $fileManager->getCurrentPath();
-        $message = '';
+        $message = "";
 
-        if (Request::method() !== 'POST') {
+        if (Request::method() !== "POST") {
             return $message;
         }
 
-        if (!Request::input('action')) {
+        if (!Request::input("action")) {
             return $message;
         }
 
-        switch (Request::input('action')) {
-            case 'create_folder':
-                if (!empty(Request::input('folder_name'))) {
-                    if ($fileManager->createDirectory($currentPath, Request::input('folder_name'))) {
-                        $message = 'Folder created successfully';
-                    } else {
-                        $message = 'Failed to create folder';
-                    }
+        switch (Request::input("action")) {
+            case "create_folder":
+                if (!empty(Request::input("folder_name"))) {
+                    $isCreated = $fileManager->createDirectory($currentPath, Request::input("folder_name"));
+                    $message = $isCreated ? "Folder created successfully" : "Failed to create folder";
                 }
                 break;
 
-            case 'upload_file':
-                if (isset($_FILES['file'])) {
-                    $result = $fileManager->uploadFile($currentPath, $_FILES['file']);
-                    $message = $result['message'];
+            case "upload_file":
+                if (isset($_FILES["file"])) {
+                    $result = $fileManager->uploadFile($currentPath, $_FILES["file"]);
+                    $message = $result["message"];
                 }
                 break;
 
-            case 'delete':
-                if (!empty(Request::input('item_path'))) {
-                    if ($fileManager->deleteItem(Request::input('item_path'))) {
-                        $message = 'Item deleted successfully';
-                    } else {
-                        $message = 'Failed to delete item';
-                    }
+            case "delete":
+                if (!empty(Request::input("item_path"))) {
+                    $isDeleted = $fileManager->deleteItem(Request::input("item_path"));
+                    $message = $isDeleted ? "Item deleted successfully" : "Failed to delete item";
                 }
                 break;
         }
@@ -101,5 +96,37 @@ class AdminMiscController extends AdminBaseController
         foreach ($states as $stateKey => $stateValue) {
             Storage::setCookie($stateKey, $stateValue, Carbon::now()->addYear());
         }
+    }
+
+    /**
+     * Global search
+     *
+     * @return array
+     */
+    public function globalSearch(): array
+    {
+        $minCharacterLength = 3;
+        $queryString = Request::input("q");
+
+        if (!$queryString) {
+            return ApiResponseTransformer::error(null, "No query string");
+        }
+
+        if (strlen($queryString) < $minCharacterLength) {
+            return ApiResponseTransformer::error(
+                null,
+                "Query string must be at least {$minCharacterLength} characters long",
+            );
+        }
+
+        $results = [];
+        $results[] = ["label" => "Label 1", "link" => "/label1", "type" => "page"];
+        $results[] = ["label" => "Label 2", "link" => "/label2", "type" => "category"];
+        $results[] = ["label" => "Label 3", "link" => "/label3", "type" => "module"];
+        $results[] = ["label" => "Label 4", "link" => "/label4", "type" => "page"];
+
+        // Perform global search logic here
+
+        return ApiResponseTransformer::success($results);
     }
 }

@@ -3,7 +3,7 @@
 <header class="layout-header is-sticky">
     <!-- logo -->
     <div class="layout-header-primary">
-        <a href="<?= route('admin.home') ?>" class="layout-header-logo">
+        <a href="<?= route("admin.home") ?>" class="layout-header-logo">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 239.7 68">
                 <path fill="var(--r-color-info)"
                     d="M81.6 42.5c0 4.2-.7 8.2-2.4 11.9-2.7 6-7.3 10.1-13.6 12.1-6.1 1.9-12.2 2-18.3.1-8.5-2.6-13.6-8.5-15.6-17.1-1.2-5.4-1.1-10.8.7-16.1 2.4-7.3 7.3-12.2 14.6-14.5 6.2-1.9 12.5-2 18.7.1 8.1 2.7 13 8.4 15 16.6.7 2.2.9 4.6.9 6.9zm-14.6.1c0-1.1 0-2.3-.2-3.4-.3-2.4-.8-4.8-2-7-2.1-4-6.2-5.8-10.6-4.9-3.5.7-5.8 3-7.1 6.2-1.3 3-1.6 6.1-1.6 9.3 0 3.3.4 6.5 1.8 9.5 2 4.3 5.9 6.4 10.5 5.7 3.5-.5 5.8-2.6 7.2-5.6 1.6-3.1 2-6.4 2-9.8z">
@@ -33,9 +33,11 @@
         </a>
 
         <button class="layout-header-sidebar-toggle" id="js-layout-header-sidebar-toggle">
-            <i class="iconoir-transition-left-solid<?= getUiStateByKey('compact') == 'compact' ? ' is-hidden' : null ?>"
+            <i class="iconoir-transition-left-solid<?= getUiStateByKey("compact") == "compact" ? " is-hidden" : null ?>"
                 data-show-when="expanded"></i>
-            <i class="iconoir-transition-right-solid<?= getUiStateByKey('compact') == 'compact' ? null : ' is-hidden' ?>"
+            <i class="iconoir-transition-right-solid<?= getUiStateByKey("compact") == "compact"
+                ? null
+                : " is-hidden" ?>"
                 data-show-when="collapsed"></i>
         </button>
     </div>
@@ -45,9 +47,19 @@
     <div class="layout-header-secondary">
         <!-- search -->
         <form action="" class="form layout-header-search">
-            <div class="form-field form-field-search">
+            <div class="form-field form-field-search loading hint">
                 <span class="form-field-search-icon"><i class="icon icon-search"></i></span>
                 <input type="text" name="" class="form-input" placeholder="Search ..." />
+                <i class="form-field-search-loading-icon"></i>
+
+                <div class="form-field-search-hint">
+                    <ul>
+                        <li><a href="#">Afganistan</a></li>
+                        <li><a href="#">Srilanka <span class="badge badge-info">new</span></a></li>
+                        <li><a href="#">Bangladesh</a></li>
+                        <li><a href="#">United state</a></li>
+                    </ul>
+                </div>
             </div>
         </form>
         <!-- search -->
@@ -60,23 +72,23 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="<?= route('admin.file.manager') ?>" class="nav-link">
+                <a href="<?= route("admin.file.manager") ?>" class="nav-link">
                     <i class="iconoir-folder"></i>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="<?= route('admin.messages.index') ?>" class="nav-link">
+                <a href="<?= route("admin.messages.index") ?>" class="nav-link">
                     <i class="iconoir-app-notification-solid"></i>
                 </a>
             </li>
             <li class="nav-item">
-                <a href="<?= route('admin.siteSettings') ?>" class="nav-link">
+                <a href="<?= route("admin.siteSettings") ?>" class="nav-link">
                     <i class="iconoir-settings"></i>
                 </a>
             </li>
-            <?php if ($global['isAnalyticsEnabled']) : ?>
+            <?php if ($global["isAnalyticsEnabled"]): ?>
             <li class="nav-item">
-                <a href="<?= route('admin.analytics.index') ?>" class="nav-link">
+                <a href="<?= route("admin.analytics.index") ?>" class="nav-link">
                     <i class="iconoir-graph-up"></i>
                 </a>
             </li>
@@ -90,13 +102,13 @@
                 <img src="<?= getGravatarUrl() ?>" alt="" />
             </figure>
             <a href="#" class="avatar-label">
-                <?= $global['user']->name ?>
+                <?= $global["user"]->name ?>
             </a>
             <div class="avatar-primary-block">
                 <span>
-                    <?= $global['user']->role ?>
+                    <?= $global["user"]->role ?>
                 </span>
-                <a href="<?= route('admin.auth.logout') ?>">Sign out</a>
+                <a href="<?= route("admin.auth.logout") ?>">Sign out</a>
             </div>
         </div>
         <!-- avatar -->
@@ -108,7 +120,7 @@
 <!-- left -->
 <div class="layout-primary">
     <aside class="layout-sidebar">
-        <?php $this->inject('admin/partials/admin-sidebar') ?>
+        <?php $this->inject("admin/partials/admin-sidebar"); ?>
     </aside>
 </div>
 <!-- left -->
