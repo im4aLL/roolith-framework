@@ -242,3 +242,8 @@
         @include mixin.nice-scroll(var(--r-color-light), var(--r-color-light-lighten-10));
     }
 }
+
+// form hint
+.form-field-search-hint li.active a {
+    background: var(--r-form-field-search-item-hover-background);
+}

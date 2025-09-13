@@ -6,7 +6,7 @@ use Roolith\Store\Interfaces\DatabaseInterface;
 
 class DatabaseFactory
 {
-    private static DatabaseInterface | null $db = null;
+    private static DatabaseInterface|null $db = null;
 
     private function __construct() {}
 

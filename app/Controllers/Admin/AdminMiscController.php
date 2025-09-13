@@ -5,6 +5,10 @@ namespace App\Controllers\Admin;
 use App\Core\ApiResponseTransformer;
 use App\Core\Request;
 use App\Core\Storage;
+use App\Models\Admin\AdminCategory;
+use App\Models\Admin\AdminModule;
+use App\Models\Admin\AdminModuleSetting;
+use App\Models\Admin\AdminPage;
 use App\Utils\Admin\FileManager;
 use Carbon\Carbon;
 
@@ -120,11 +124,42 @@ class AdminMiscController extends AdminBaseController
         }
 
         $results = [];
-        // $results[] = ["label" => "Label 1", "link" => "/label1", "type" => "page"];
-        // $results[] = ["label" => "Label 2", "link" => "/label2", "type" => "category"];
-        // $results[] = ["label" => "Label 3", "link" => "/label3", "type" => "module"];
-        // $results[] = ["label" => "Label 4", "link" => "/label4", "type" => "moduleSetting"];
-        // $results[] = ["label" => "Label 5", "link" => "/label5", "type" => "other"];
+
+        $pages = AdminPage::searchByTitle($queryString);
+        foreach ($pages as $page) {
+            $results[] = [
+                "label" => $page->title,
+                "link" => route("admin.pages.edit", ["param" => $page->id]),
+                "type" => "page",
+            ];
+        }
+
+        $categories = AdminCategory::searchByName($queryString);
+        foreach ($categories as $category) {
+            $results[] = [
+                "label" => $category->name,
+                "link" => route("admin.categories.edit", ["param" => $category->id]),
+                "type" => "category",
+            ];
+        }
+
+        $modules = AdminModule::searchByTitle($queryString);
+        foreach ($modules as $module) {
+            $results[] = [
+                "label" => $module->title,
+                "link" => route("admin.modules.edit", ["param" => $module->id]),
+                "type" => "module",
+            ];
+        }
+
+        $moduleSettings = AdminModuleSetting::searchByName($queryString);
+        foreach ($moduleSettings as $moduleSetting) {
+            $results[] = [
+                "label" => $moduleSetting->name,
+                "link" => route("admin.module_settings.edit", ["param" => $moduleSetting->id]),
+                "type" => "moduleSetting",
+            ];
+        }
 
         return ApiResponseTransformer::success($results);
     }

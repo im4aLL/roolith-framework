@@ -9,6 +9,7 @@ export class GlobalSearch {
             default: "badge-success",
         };
         this.hasHintData = false;
+        this.currentFocusIndex = -1;
 
         this.init();
     }
@@ -17,11 +18,13 @@ export class GlobalSearch {
         this.watchSearchInput();
         this.outsideClickHandler();
         this.insideClickHandler();
+        this.watchArrowKeyEventOnInput();
     }
 
     watchSearchInput() {
         const self = this;
         const actionUrl = this.$fieldEl.closest(".form").attr("action");
+        const debouncedSearch = self.debounce(self.searchByValue.bind(self), 300);
 
         this.$fieldEl.on("input", "input", function () {
             self.reset();
@@ -29,7 +32,7 @@ export class GlobalSearch {
             const value = $(this).val();
 
             if (value.length > 2) {
-                self.searchByValue(value, actionUrl);
+                debouncedSearch(value, actionUrl);
             }
         });
     }
@@ -105,6 +108,97 @@ export class GlobalSearch {
                 self.reset();
             } else {
                 self.$fieldEl.addClass("hint");
+            }
+        });
+    }
+
+    debounce(func, wait) {
+        let timeout;
+
+        return function (...args) {
+            const context = this;
+
+            if (timeout) {
+                clearTimeout(timeout);
+            }
+
+            timeout = setTimeout(() => func.apply(context, args), wait);
+        };
+    }
+
+    watchArrowKeyEventOnInput() {
+        const self = this;
+        const $hintEl = self.$fieldEl.find(".form-field-search-hint");
+
+        const setFocusToFirstHint = () => {
+            const $hints = $hintEl.find("li");
+            const $firstHint = $hints.first();
+
+            $hints.removeClass("active");
+            $firstHint.addClass("active");
+            self.currentFocusIndex = 0;
+        };
+
+        const setFocusToLastHint = () => {
+            const $hints = $hintEl.find("li");
+            const $lastHint = $hints.last();
+
+            $hints.removeClass("active");
+            $lastHint.addClass("active");
+            self.currentFocusIndex = $hints.length - 1;
+        };
+
+        const setFocusToNextHint = () => {
+            const $hints = $hintEl.find("li");
+            const $currentHint = self.currentFocusIndex === -1 ? $hints.last() : $hints.eq(self.currentFocusIndex);
+            const $nextHint = self.currentFocusIndex === -1 ? $hints.first() : $currentHint.next();
+
+            $currentHint.removeClass("active");
+            $nextHint.addClass("active");
+            self.currentFocusIndex++;
+
+            if (self.currentFocusIndex > $hints.length - 1) {
+                setFocusToFirstHint();
+            }
+        };
+
+        const setFocusToPreviousHint = () => {
+            const $hints = $hintEl.find("li");
+            const $currentHint = self.currentFocusIndex === -1 ? $hints.first() : $hints.eq(self.currentFocusIndex);
+            const $previousHint = self.currentFocusIndex === -1 ? $hints.last() : $currentHint.prev();
+
+            $currentHint.removeClass("active");
+            $previousHint.addClass("active");
+            self.currentFocusIndex--;
+
+            if (self.currentFocusIndex < 0) {
+                setFocusToLastHint();
+            }
+        };
+
+        this.$fieldEl.on("keydown", "input", function (event) {
+            switch (event.key) {
+                case "ArrowDown":
+                    setFocusToNextHint();
+                    break;
+                case "ArrowUp":
+                    setFocusToPreviousHint();
+                    break;
+                case "Enter": {
+                    event.preventDefault();
+
+                    const $activeHint = $hintEl.find("li.active");
+                    if ($activeHint.length === 0) {
+                        return;
+                    }
+
+                    const href = $activeHint.find("a").attr("href");
+                    if (!href) {
+                        return;
+                    }
+
+                    window.location.href = href;
+                }
             }
         });
     }

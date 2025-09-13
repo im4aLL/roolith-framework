@@ -16,14 +16,14 @@ class System
 
     public function __construct()
     {
-        require_once APP_ROOT . '/constant.php';
+        require_once APP_ROOT . "/constant.php";
 
-        $cmsConstantPath = APP_ROOT . '/cms-constant.php';
+        $cmsConstantPath = APP_ROOT . "/cms-constant.php";
         if (file_exists($cmsConstantPath)) {
             require_once $cmsConstantPath;
         }
 
-        require_once APP_ROOT . '/app/Utils/functions.php';
+        require_once APP_ROOT . "/app/Utils/functions.php";
 
         $this->db = null;
         $this->registerCustomError();
@@ -41,7 +41,7 @@ class System
         $this->preProcessor();
 
         try {
-            $dbConfig = Config::get('database');
+            $dbConfig = Config::get("database");
 
             try {
                 $this->connectToDatabase($dbConfig);
@@ -75,7 +75,7 @@ class System
      */
     public function processRequest(): static
     {
-        $router = require_once APP_ROOT . '/app/Http/routes.php';
+        $router = require_once APP_ROOT . "/app/Http/routes.php";
 
         $this->router($router);
 
@@ -136,11 +136,11 @@ class System
      */
     private function preProcessor(): void
     {
-        if (Config::get('forceNonWww')) {
+        if (Config::get("forceNonWww")) {
             PreProcessor::forceNonWww();
         }
 
-        if (Config::get('forceWww')) {
+        if (Config::get("forceWww")) {
             PreProcessor::forceWww();
         }
     }
@@ -153,15 +153,15 @@ class System
     private function registerCustomError(): void
     {
         if (isProductionEnvironment()) {
-            ini_set('display_errors', 0);
-            ini_set('log_errors', 1);
+            ini_set("display_errors", 0);
+            ini_set("log_errors", 1);
             error_reporting(E_ALL);
 
             return;
         }
 
-        $whoops = new \Whoops\Run;
-        $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler);
+        $whoops = new \Whoops\Run();
+        $whoops->pushHandler(new \Whoops\Handler\PrettyPageHandler());
         $whoops->register();
     }
 }

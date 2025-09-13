@@ -6,7 +6,7 @@ use App\Utils\_;
 
 class AdminModule extends Model
 {
-    protected string $table = 'modules';
+    protected string $table = "modules";
 
     /**
      * Get all unique groups
@@ -16,12 +16,32 @@ class AdminModule extends Model
     public static function getAllGroups(): array
     {
         $groups = [];
-        $data = self::raw()->query("SELECT DISTINCT(`group_name`) FROM `".self::tableName()."`")->get();
+        $data = self::raw()
+            ->query("SELECT DISTINCT(`group_name`) FROM `" . self::tableName() . "`")
+            ->get();
 
         foreach ($data as $row) {
             $groups[] = $row->group_name;
         }
 
         return _::compact($groups);
+    }
+
+    /**
+     * Search for modules by title.
+     *
+     * @param string $title The title to search for.
+     * @return array An array of modules that match the title.
+     */
+    public static function searchByTitle(string $title): array
+    {
+        return self::orm()
+            ->select([
+                "field" => ["id", "title"],
+                "condition" => "WHERE title LIKE '$title%'",
+                "limit" => "5",
+                "orderBy" => "title",
+            ])
+            ->get();
     }
 }

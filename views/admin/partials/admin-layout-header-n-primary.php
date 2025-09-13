@@ -49,7 +49,7 @@
         <form action="<?= route("admin.global.search") ?>" class="form layout-header-search">
             <div class="form-field form-field-search" id="global-search-input">
                 <span class="form-field-search-icon"><i class="icon icon-search"></i></span>
-                <input type="text" name="q" class="form-input" placeholder="Search ..." />
+                <input type="text" name="q" class="form-input" placeholder="Search ..." autocomplete="off" />
                 <i class="form-field-search-loading-icon"></i>
 
                 <div class="form-field-search-hint"></div>
