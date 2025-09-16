@@ -14,9 +14,9 @@ use Roolith\Configuration\Exception\InvalidArgumentException;
  */
 function p($any, bool $exit = false): void
 {
-    echo '<pre>';
+    echo "<pre>";
     print_r($any);
-    echo '</pre>';
+    echo "</pre>";
 
     if ($exit) {
         die();
@@ -32,7 +32,7 @@ function p($any, bool $exit = false): void
 function url($path): string
 {
     try {
-        return Config::get('baseUrl') . $path;
+        return Config::get("baseUrl") . $path;
     } catch (InvalidArgumentException $e) {
         return $path;
     }
@@ -84,7 +84,7 @@ function __($name): mixed
  */
 function redirect(string $url, int $statusCode = 303): void
 {
-    header('Location: ' . $url, true, $statusCode);
+    header("Location: {$url}", true, $statusCode);
 
     die();
 }
@@ -111,10 +111,10 @@ function redirectToRoute(string $routeName, array $settings = [], int $statusCod
  */
 function generateUniqueAlphaNumericNumber(): string
 {
-    $prefix  = substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 4)), 0, 4);
+    $prefix = substr(str_shuffle(str_repeat("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 4)), 0, 4);
     $postfix = time();
 
-    return $prefix . '-' . $postfix;
+    return "{$prefix}-{$postfix}";
 }
 
 /**
@@ -124,7 +124,11 @@ function generateUniqueAlphaNumericNumber(): string
  */
 function generateUniqueNumber(): string
 {
-    return substr(str_shuffle(str_repeat('ABCDEFGHIJKLMNOPQRSTUVWXYZ', 4)), 0, 2) . '-' . mt_rand(100000, 999999) . '-' . time();
+    return substr(str_shuffle(str_repeat("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 4)), 0, 2) .
+        "-" .
+        mt_rand(100000, 999999) .
+        "-" .
+        time();
 }
 
 /**
@@ -154,11 +158,11 @@ function getCurrentDate(): string
  */
 function isDevEnvironment(): bool
 {
-    if (!defined('ROOLITH_ENV')) {
+    if (!defined("ROOLITH_ENV")) {
         return true;
     }
 
-    return ROOLITH_ENV == 'development';
+    return ROOLITH_ENV == "development";
 }
 
 /**
@@ -168,11 +172,11 @@ function isDevEnvironment(): bool
  */
 function isProductionEnvironment(): bool
 {
-    if (!defined('ROOLITH_ENV')) {
+    if (!defined("ROOLITH_ENV")) {
         return false;
     }
 
-    return ROOLITH_ENV == 'production';
+    return ROOLITH_ENV == "production";
 }
 
 /**
@@ -182,20 +186,20 @@ function isProductionEnvironment(): bool
  */
 function getIpAddress(): mixed
 {
-    $ipAddress = '127.0.0.1';
+    $ipAddress = "127.0.0.1";
 
-    if (isset($_SERVER['HTTP_CLIENT_IP'])) {
-        $ipAddress = $_SERVER['HTTP_CLIENT_IP'];
-    } else if (isset($_SERVER['HTTP_X_FORWARDED_FOR'])) {
-        $ipAddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
-    } else if (isset($_SERVER['HTTP_X_FORWARDED'])) {
-        $ipAddress = $_SERVER['HTTP_X_FORWARDED'];
-    } else if (isset($_SERVER['HTTP_FORWARDED_FOR'])) {
-        $ipAddress = $_SERVER['HTTP_FORWARDED_FOR'];
-    } else if (isset($_SERVER['HTTP_FORWARDED'])) {
-        $ipAddress = $_SERVER['HTTP_FORWARDED'];
-    } else if (isset($_SERVER['REMOTE_ADDR'])) {
-        $ipAddress = $_SERVER['REMOTE_ADDR'];
+    if (isset($_SERVER["HTTP_CLIENT_IP"])) {
+        $ipAddress = $_SERVER["HTTP_CLIENT_IP"];
+    } elseif (isset($_SERVER["HTTP_X_FORWARDED_FOR"])) {
+        $ipAddress = $_SERVER["HTTP_X_FORWARDED_FOR"];
+    } elseif (isset($_SERVER["HTTP_X_FORWARDED"])) {
+        $ipAddress = $_SERVER["HTTP_X_FORWARDED"];
+    } elseif (isset($_SERVER["HTTP_FORWARDED_FOR"])) {
+        $ipAddress = $_SERVER["HTTP_FORWARDED_FOR"];
+    } elseif (isset($_SERVER["HTTP_FORWARDED"])) {
+        $ipAddress = $_SERVER["HTTP_FORWARDED"];
+    } elseif (isset($_SERVER["REMOTE_ADDR"])) {
+        $ipAddress = $_SERVER["REMOTE_ADDR"];
     }
 
     return $ipAddress;
@@ -214,7 +218,7 @@ function parseBasicTemplate($string, array $data = []): array|string|null
     $replaceArray = [];
 
     foreach ($data as $key => $value) {
-        $findArray[] = '/{' . $key . '}/';
+        $findArray[] = "/{{$key}}/";
         $replaceArray[] = $value;
     }
 
@@ -229,12 +233,12 @@ function parseBasicTemplate($string, array $data = []): array|string|null
  */
 function getVersion(): string
 {
-    return Config::get('version');
+    return Config::get("version");
 }
 
 /**
  * CMS related routes
  */
 if (APP_ENABLE_CMS) {
-    require_once APP_ROOT . '/app/Utils/Admin/functions.php';
+    require_once APP_ROOT . "/app/Utils/Admin/functions.php";
 }

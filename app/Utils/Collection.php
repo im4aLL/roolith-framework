@@ -23,26 +23,51 @@ use IteratorAggregate;
  *
  * $adults = $users->where('age', '>=', 30);
  * $names = $users->pluck('name');
+ * @implements IteratorAggregate<mixed,mixed>
+ * @implements ArrayAccess<mixed,mixed>
  */
 class Collection implements IteratorAggregate, Countable, ArrayAccess
 {
     private array $items;
 
+    /**
+     * Create a new collection instance.
+     *
+     * @param array $items
+     */
     public function __construct(array $items = [])
     {
         $this->items = $items;
     }
 
+    /**
+     * Create a new collection instance.
+     *
+     * @param array $items
+     * @return self
+     */
     public static function make(array $items = []): self
     {
         return new self($items);
     }
 
+    /**
+     * Map the collection using the given callback.
+     *
+     * @param callable $callback
+     * @return self
+     */
     public function map(callable $callback): self
     {
         return new self(array_map($callback, $this->items));
     }
 
+    /**
+     * Filter the collection using the given callback.
+     *
+     * @param callable $callback
+     * @return self
+     */
     public function filter(callable $callback = null): self
     {
         if ($callback === null) {
@@ -52,11 +77,24 @@ class Collection implements IteratorAggregate, Countable, ArrayAccess
         return new self(array_filter($this->items, $callback, ARRAY_FILTER_USE_BOTH));
     }
 
+    /**
+     * Reduce the collection to a single value.
+     *
+     * @param callable $callback
+     * @param mixed $initial
+     * @return mixed
+     */
     public function reduce(callable $callback, mixed $initial = null): mixed
     {
         return array_reduce($this->items, $callback, $initial);
     }
 
+    /**
+     * Execute a callback over each item.
+     *
+     * @param callable $callback
+     * @return self
+     */
     public function each(callable $callback): self
     {
         foreach ($this->items as $key => $item) {
@@ -66,40 +104,59 @@ class Collection implements IteratorAggregate, Countable, ArrayAccess
         return $this;
     }
 
+    /**
+     * Filter the collection by a given key.
+     *
+     * @param string $key
+     * @param mixed $operator
+     * @param mixed $value
+     * @return self
+     */
     public function where(string $key, mixed $operator, mixed $value = null): self
     {
         if (func_num_args() === 2) {
             $value = $operator;
-            $operator = '=';
+            $operator = "=";
         }
 
         return $this->filter(function ($item) use ($key, $operator, $value) {
             $actual = is_array($item) ? $item[$key] : $item->$key;
 
             return match ($operator) {
-                '=' => $actual == $value,
-                '!=' => $actual != $value,
-                '>' => $actual > $value,
-                '>=' => $actual >= $value,
-                '<' => $actual < $value,
-                '<=' => $actual <= $value,
+                "=" => $actual == $value,
+                "!=" => $actual != $value,
+                ">" => $actual > $value,
+                ">=" => $actual >= $value,
+                "<" => $actual < $value,
+                "<=" => $actual <= $value,
                 default => $actual == $value,
             };
         });
     }
 
+    /**
+     * Extract a single column's value from all elements in the collection.
+     *
+     * @param string $key
+     * @return self
+     */
     public function pluck(string $key): self
     {
         return $this->map(fn($item) => is_array($item) ? $item[$key] : $item->$key);
     }
 
+    /**
+     * Sort the collection by a given key.
+     *
+     * @param string|callable $key
+     * @return self
+     */
     public function groupBy(string|callable $key): self
     {
         $groups = [];
 
         foreach ($this->items as $item) {
-            $groupKey = is_callable($key) ? $key($item) :
-                (is_array($item) ? $item[$key] : $item->$key);
+            $groupKey = is_callable($key) ? $key($item) : (is_array($item) ? $item[$key] : $item->$key);
 
             $groups[$groupKey][] = $item;
         }
@@ -107,6 +164,12 @@ class Collection implements IteratorAggregate, Countable, ArrayAccess
         return new self($groups);
     }
 
+    /**
+     * Sort the collection in ascending order.
+     *
+     * @param callable|null $callback
+     * @return self
+     */
     public function sort(callable $callback = null): self
     {
         $items = $this->items;
@@ -120,15 +183,19 @@ class Collection implements IteratorAggregate, Countable, ArrayAccess
         return new self(array_values($items));
     }
 
+    /**
+     * Sort the collection by a given key.
+     *
+     * @param string|callable $key
+     * @return self
+     */
     public function sortBy(string|callable $key): self
     {
         $items = $this->items;
 
         usort($items, function ($a, $b) use ($key) {
-            $valueA = is_callable($key) ? $key($a) :
-                (is_array($a) ? $a[$key] : $a->$key);
-            $valueB = is_callable($key) ? $key($b) :
-                (is_array($b) ? $b[$key] : $b->$key);
+            $valueA = is_callable($key) ? $key($a) : (is_array($a) ? $a[$key] : $a->$key);
+            $valueB = is_callable($key) ? $key($b) : (is_array($b) ? $b[$key] : $b->$key);
 
             return $valueA <=> $valueB;
         });
@@ -136,6 +203,12 @@ class Collection implements IteratorAggregate, Countable, ArrayAccess
         return new self($items);
     }
 
+    /**
+     * Get the first item from the collection.
+     *
+     * @param callable|null $callback
+     * @return mixed
+     */
     public function first(callable $callback = null): mixed
     {
         if ($callback === null) {
@@ -151,6 +224,12 @@ class Collection implements IteratorAggregate, Countable, ArrayAccess
         return null;
     }
 
+    /**
+     * Get the last item from the collection.
+     *
+     * @param callable|null $callback
+     * @return mixed
+     */
     public function last(callable $callback = null): mixed
     {
         if ($callback === null) {
@@ -167,6 +246,12 @@ class Collection implements IteratorAggregate, Countable, ArrayAccess
         return null;
     }
 
+    /**
+     * Calculate the sum of the collection.
+     *
+     * @param string|callable $key
+     * @return int|float
+     */
     public function sum(string|callable $key = null): int|float
     {
         if ($key === null) {
@@ -176,6 +261,12 @@ class Collection implements IteratorAggregate, Countable, ArrayAccess
         return $this->pluck($key)->sum();
     }
 
+    /**
+     * Calculate the average of the collection.
+     *
+     * @param string|callable $key
+     * @return int|float|null
+     */
     public function avg(string|callable $key = null): int|float|null
     {
         $count = $this->count();

@@ -14,7 +14,7 @@ class _
      */
     public static function isAssociativeArray($array): bool
     {
-        return count(array_filter(array_keys($array), 'is_string')) > 0;
+        return count(array_filter(array_keys($array), "is_string")) > 0;
     }
 
     /**
@@ -158,7 +158,7 @@ class _
     {
         $arguments = func_get_args();
 
-        return call_user_func_array('array_diff', $arguments);
+        return call_user_func_array("array_diff", $arguments);
     }
 
     /**
@@ -184,7 +184,7 @@ class _
      */
     public static function dropRight($array, int $n = 1): array
     {
-        return array_slice($array, 0, (count($array) - $n));
+        return array_slice($array, 0, count($array) - $n);
     }
 
     /**
@@ -291,7 +291,7 @@ class _
      * @param string $separator
      * @return string
      */
-    public static function join($array, string $separator = ','): string
+    public static function join($array, string $separator = ","): string
     {
         return implode($separator, $array);
     }
@@ -355,7 +355,7 @@ class _
     {
         $length = count($array);
 
-        return array_slice($array, ($length - $n), $length);
+        return array_slice($array, $length - $n, $length);
     }
 
     /**
@@ -470,7 +470,7 @@ class _
     public static function resetKeys($array): array
     {
         if (self::isMultidimensional($array)) {
-            return array_map('array_values', $array);
+            return array_map("array_values", $array);
         }
 
         return array_values($array);
@@ -498,9 +498,7 @@ class _
      */
     public static function orderBy($array, $by): array
     {
-        usort($array, function($a, $b) use ($by) {
-            return $a[$by] - $b[$by];
-        });
+        usort($array, fn($a, $b) => $a[$by] <=> $b[$by]);
 
         return $array;
     }
@@ -514,9 +512,7 @@ class _
      */
     public static function orderByString($array, $by): array
     {
-        usort($array, function($a, $b) use ($by) {
-            return strcasecmp($a[$by], $b[$by]);
-        });
+        usort($array, fn($a, $b) => strcasecmp($a[$by], $b[$by]));
 
         return $array;
     }
@@ -609,7 +605,7 @@ class _
                 $keys[] = $recursiveIterator->getSubIterator($depth)->key();
             }
 
-            $result[join('.', $keys)] = $leafValue;
+            $result[join(".", $keys)] = $leafValue;
         }
 
         return $result;
@@ -702,9 +698,9 @@ class _
      */
     public static function query($array): string
     {
-        $string = http_build_query($array, '', '&');
+        $string = http_build_query($array, "", "&");
 
-        return preg_replace(['/%5B/', '/%5D/'], ['[', ']'], $string);
+        return preg_replace(["/%5B/", "/%5D/"], ["[", "]"], $string);
     }
 
     /**
@@ -717,8 +713,8 @@ class _
      */
     public static function set($array, $key, $value): mixed
     {
-        if (str_contains($key, '.')) {
-            $keys = explode('.', $key);
+        if (str_contains($key, ".")) {
+            $keys = explode(".", $key);
             $result = $array;
 
             foreach ($keys as $key) {
@@ -739,13 +735,14 @@ class _
      * @param string $title
      * @return string
      */
-    public static function slug(string $title): string {
+    public static function slug(string $title): string
+    {
         $slug = strtolower($title);
 
-        $slug = preg_replace('/[^a-z0-9\s]/', '', $slug);
-        $slug = preg_replace('/\s+/', '-', $slug);
+        $slug = preg_replace("/[^a-z0-9\s]/", "", $slug);
+        $slug = preg_replace("/\s+/", "-", $slug);
 
-        return trim($slug, '-');
+        return trim($slug, "-");
     }
 
     /**
@@ -776,16 +773,17 @@ class _
      *     }
      * }
      */
-    public static function compareArrays(array $oldArray, array $newArray): array {
+    public static function compareArrays(array $oldArray, array $newArray): array
+    {
         return [
-            'added' => array_values(array_diff($newArray, $oldArray)),
-            'removed' => array_values(array_diff($oldArray, $newArray)),
-            'unchanged' => array_values(array_intersect($oldArray, $newArray)),
-            'summary' => [
-                'addedCount' => count(array_diff($newArray, $oldArray)),
-                'removedCount' => count(array_diff($oldArray, $newArray)),
-                'unchangedCount' => count(array_intersect($oldArray, $newArray))
-            ]
+            "added" => array_values(array_diff($newArray, $oldArray)),
+            "removed" => array_values(array_diff($oldArray, $newArray)),
+            "unchanged" => array_values(array_intersect($oldArray, $newArray)),
+            "summary" => [
+                "addedCount" => count(array_diff($newArray, $oldArray)),
+                "removedCount" => count(array_diff($oldArray, $newArray)),
+                "unchangedCount" => count(array_intersect($oldArray, $newArray)),
+            ],
         ];
     }
 
@@ -808,8 +806,8 @@ class _
      */
     public static function toCamelCase(string $text): string
     {
-        $text = ucwords(str_replace(['-', '_'], ' ', strtolower($text)));
-        $text = str_replace(' ', '', $text);
+        $text = ucwords(str_replace(["-", "_"], " ", strtolower($text)));
+        $text = str_replace(" ", "", $text);
 
         return lcfirst($text);
     }
@@ -822,8 +820,8 @@ class _
      */
     public static function toTitleCase(string $text): string
     {
-        $text = str_replace(['-', '_'], ' ', strtolower(trim($text)));
-        $text = preg_replace('/\s+/', ' ', $text);
+        $text = str_replace(["-", "_"], " ", strtolower(trim($text)));
+        $text = preg_replace("/\s+/", " ", $text);
 
         return ucfirst($text);
     }
@@ -841,7 +839,7 @@ class _
         }
 
         // Available from php 8.3
-        if (function_exists('json_validate')) {
+        if (function_exists("json_validate")) {
             return json_validate($string);
         }
 
@@ -869,7 +867,7 @@ class _
      */
     public static function pascalCaseToSnakeCase(string $input): string
     {
-        $snake = preg_replace('/(?<!^)[A-Z]/', '_$0', $input);
+        $snake = preg_replace("/(?<!^)[A-Z]/", '_$0', $input);
 
         return strtolower($snake);
     }

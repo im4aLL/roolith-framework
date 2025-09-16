@@ -27,9 +27,7 @@ window["parseTemplate"] = (template, data) => {
     });
 };
 
-$(function () {
-    new SerializeObject();
-
+function initRichTextEditor() {
     const editors = $(".form-field--editor");
 
     if (editors.length > 0) {
@@ -39,7 +37,11 @@ $(function () {
             new RichTextEditor(richTextField.get(0));
         });
     }
+}
 
+$(function () {
+    new SerializeObject();
+    initRichTextEditor();
     new Post();
     new DeleteItem();
     new Repeater();

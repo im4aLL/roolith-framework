@@ -8,15 +8,24 @@ use App\Models\Model;
 
 class AdminAnalytics extends Model
 {
-    protected string $table = 'analytics';
+    protected string $table = "analytics";
 
     private Carbon|null $_currentPeriodStart = null;
     private Carbon|null $_currentPeriodEnd = null;
     private Carbon|null $_previousPeriodStart = null;
     private Carbon|null $_previousPeriodEnd = null;
-    public array $periods = ['today', 'yesterday', 'last_7_days', 'this_month', 'last_month', 'last_6_months', 'this_year', 'lifetime'];
-    public string $defaultPeriod = 'this_month';
-    private string $_periodSessionKey = 'analytics_period';
+    public array $periods = [
+        "today",
+        "yesterday",
+        "last_7_days",
+        "this_month",
+        "last_month",
+        "last_6_months",
+        "this_year",
+        "lifetime",
+    ];
+    public string $defaultPeriod = "this_month";
+    private string $_periodSessionKey = "analytics_period";
 
     public function __construct()
     {
@@ -25,11 +34,11 @@ class AdminAnalytics extends Model
         } else {
             $data = Storage::getSession($this->_periodSessionKey);
 
-            if ($data['currentPeriodEnd'] && $data['currentPeriodStart']) {
-                $this->_currentPeriodEnd = Carbon::parse($data['currentPeriodEnd']);
-                $this->_currentPeriodStart = Carbon::parse($data['currentPeriodStart']);
-                $this->_previousPeriodEnd = Carbon::parse($data['previousPeriodEnd']);
-                $this->_previousPeriodStart = Carbon::parse($data['previousPeriodStart']);
+            if ($data["currentPeriodEnd"] && $data["currentPeriodStart"]) {
+                $this->_currentPeriodEnd = Carbon::parse($data["currentPeriodEnd"]);
+                $this->_currentPeriodStart = Carbon::parse($data["currentPeriodStart"]);
+                $this->_previousPeriodEnd = Carbon::parse($data["previousPeriodEnd"]);
+                $this->_previousPeriodStart = Carbon::parse($data["previousPeriodStart"]);
             } else {
                 $this->_currentPeriodEnd = null;
                 $this->_currentPeriodStart = null;
@@ -57,46 +66,46 @@ class AdminAnalytics extends Model
         }
 
         [$start, $end] = match ($period) {
-            'today' => [Carbon::today(), Carbon::now()],
-            'yesterday' => [Carbon::yesterday(), Carbon::yesterday()->endOfDay()],
-            'last_7_days' => [Carbon::now()->subDays(7), Carbon::now()],
-            'this_month' => [Carbon::now()->startOfMonth(), Carbon::now()],
-            'last_month' => [Carbon::now()->subMonth()->startOfMonth(), Carbon::now()->subMonth()->endOfMonth()],
-            'last_6_months' => [Carbon::now()->subMonths(6)->startOfMonth(), Carbon::now()],
-            'this_year' => [Carbon::now()->startOfYear(), Carbon::now()],
-            'lifetime' => [null, null],
-            default => [Carbon::now()->subDays(30), Carbon::now()]
+            "today" => [Carbon::today(), Carbon::now()],
+            "yesterday" => [Carbon::yesterday(), Carbon::yesterday()->endOfDay()],
+            "last_7_days" => [Carbon::now()->subDays(7), Carbon::now()],
+            "this_month" => [Carbon::now()->startOfMonth(), Carbon::now()],
+            "last_month" => [Carbon::now()->subMonth()->startOfMonth(), Carbon::now()->subMonth()->endOfMonth()],
+            "last_6_months" => [Carbon::now()->subMonths(6)->startOfMonth(), Carbon::now()],
+            "this_year" => [Carbon::now()->startOfYear(), Carbon::now()],
+            "lifetime" => [null, null],
+            default => [Carbon::now()->subDays(30), Carbon::now()],
         };
 
         $this->_currentPeriodEnd = $end;
         $this->_currentPeriodStart = $start;
 
-        if ($period === 'today' || $period === 'yesterday') {
+        if ($period === "today" || $period === "yesterday") {
             $this->_previousPeriodEnd = $this->_currentPeriodStart->copy()->subDay()->endOfDay();
             $this->_previousPeriodStart = $this->_previousPeriodEnd->copy()->startOfDay();
-        } else if ($period === 'last_7_days') {
+        } elseif ($period === "last_7_days") {
             $this->_previousPeriodEnd = $this->_currentPeriodStart->copy()->subDay()->endOfDay();
             $this->_previousPeriodStart = $this->_previousPeriodEnd->copy()->subDays(7)->startOfDay();
-        } else if ($period === 'this_month' || $period === 'last_month') {
+        } elseif ($period === "this_month" || $period === "last_month") {
             $this->_previousPeriodEnd = $this->_currentPeriodStart->copy()->subMonth()->endOfMonth();
             $this->_previousPeriodStart = $this->_previousPeriodEnd->copy()->startOfMonth();
-        } else if ($period === 'last_6_months') {
+        } elseif ($period === "last_6_months") {
             $this->_previousPeriodEnd = $this->_currentPeriodStart->copy()->subDay()->endOfDay();
             $this->_previousPeriodStart = $this->_previousPeriodEnd->copy()->subMonths(6)->startOfDay();
-        } else if ($period === 'this_year') {
+        } elseif ($period === "this_year") {
             $this->_previousPeriodEnd = $this->_currentPeriodStart->copy()->subYear()->endOfYear();
             $this->_previousPeriodStart = $this->_previousPeriodEnd->copy()->startOfYear();
-        } else if ($period === 'lifetime') {
+        } elseif ($period === "lifetime") {
             $this->_previousPeriodEnd = null;
             $this->_previousPeriodStart = null;
         }
 
         $data = [
-            'currentPeriodStart' => $this->_currentPeriodStart?->toDateTimeString(),
-            'currentPeriodEnd' => $this->_currentPeriodEnd?->toDateTimeString(),
-            'previousPeriodStart' => $this->_previousPeriodStart?->toDateTimeString(),
-            'previousPeriodEnd' => $this->_previousPeriodEnd?->toDateTimeString(),
-            'periodName' => $period,
+            "currentPeriodStart" => $this->_currentPeriodStart?->toDateTimeString(),
+            "currentPeriodEnd" => $this->_currentPeriodEnd?->toDateTimeString(),
+            "previousPeriodStart" => $this->_previousPeriodStart?->toDateTimeString(),
+            "previousPeriodEnd" => $this->_previousPeriodEnd?->toDateTimeString(),
+            "periodName" => $period,
         ];
 
         Storage::setSession($this->_periodSessionKey, $data);
@@ -122,11 +131,11 @@ class AdminAnalytics extends Model
         $this->_previousPeriodStart = $this->_previousPeriodEnd->copy()->subDays($diffInDays);
 
         $data = [
-            'currentPeriodStart' => $this->_currentPeriodStart->toDateTimeString(),
-            'currentPeriodEnd' => $this->_currentPeriodEnd->toDateTimeString(),
-            'previousPeriodStart' => $this->_previousPeriodStart->toDateTimeString(),
-            'previousPeriodEnd' => $this->_previousPeriodEnd->toDateTimeString(),
-            'periodName' => 'custom',
+            "currentPeriodStart" => $this->_currentPeriodStart->toDateTimeString(),
+            "currentPeriodEnd" => $this->_currentPeriodEnd->toDateTimeString(),
+            "previousPeriodStart" => $this->_previousPeriodStart->toDateTimeString(),
+            "previousPeriodEnd" => $this->_previousPeriodEnd->toDateTimeString(),
+            "periodName" => "custom",
         ];
 
         Storage::setSession($this->_periodSessionKey, $data);
@@ -158,7 +167,7 @@ class AdminAnalytics extends Model
                 COUNT(DISTINCT visitor_id) as unique_visitors,
                 COUNT(DISTINCT session_id) as total_visits,
                 COUNT(*) as pageviews
-            FROM " . $this->table . "
+            FROM {$this->table}
             WHERE visit_time BETWEEN '$startDateStr' AND '$endDateStr'";
         $basic = self::raw()->query($basicQueryString)->first();
 
@@ -170,7 +179,7 @@ class AdminAnalytics extends Model
             SELECT COUNT(*) as bounce_sessions
             FROM (
                 SELECT session_id, COUNT(*) as page_count
-                FROM " . $this->table . "
+                FROM {$this->table}
                 WHERE visit_time BETWEEN '$startDateStr' AND '$endDateStr'
                 GROUP BY session_id
                 HAVING page_count = 1
@@ -187,7 +196,7 @@ class AdminAnalytics extends Model
                     session_id,
                     MIN(visit_time) as first_page,
                     MAX(visit_time) as last_page
-                FROM " . $this->table . "
+                FROM {$this->table}
                 WHERE visit_time BETWEEN '$startDateStr' AND '$endDateStr'
                 GROUP BY session_id
                 HAVING COUNT(*) > 1
@@ -196,12 +205,12 @@ class AdminAnalytics extends Model
         $avgDuration = self::raw()->query($avgDurationQueryString)->first()->avg_duration ?? 0;
 
         return [
-            'unique_visitors' => (int)$basic->unique_visitors,
-            'total_visits' => (int)$basic->total_visits,
-            'pageviews' => (int)$basic->pageviews,
-            'pages_per_visit' => $pagesPerVisit,
-            'bounce_rate' => $bounceRate,
-            'avg_duration' => round($avgDuration, 1)
+            "unique_visitors" => (int) $basic->unique_visitors,
+            "total_visits" => (int) $basic->total_visits,
+            "pageviews" => (int) $basic->pageviews,
+            "pages_per_visit" => $pagesPerVisit,
+            "bounce_rate" => $bounceRate,
+            "avg_duration" => round($avgDuration, 1),
         ];
     }
 
@@ -230,7 +239,7 @@ class AdminAnalytics extends Model
                 COUNT(*) as pageviews,
                 MIN(visit_time) as first_visit,
                 MAX(visit_time) as last_visit
-            FROM " . $this->table . "
+            FROM {$this->table}
         ";
         $basic = self::raw()->query($queryString)->first();
 
@@ -240,15 +249,15 @@ class AdminAnalytics extends Model
         $daysSinceStart = $firstVisit->diffInDays($now) + 1; // +1 to include today
 
         return [
-            'unique_visitors' => (int)$basic->unique_visitors,
-            'total_visits' => (int)$basic->total_visits,
-            'pageviews' => (int)$basic->pageviews,
-            'days_tracking' => $daysSinceStart,
-            'avg_visitors_per_day' => $daysSinceStart > 0 ? round($basic->unique_visitors / $daysSinceStart, 1) : 0,
-            'avg_visits_per_day' => $daysSinceStart > 0 ? round($basic->total_visits / $daysSinceStart, 1) : 0,
-            'avg_pageviews_per_day' => $daysSinceStart > 0 ? round($basic->pageviews / $daysSinceStart, 1) : 0,
-            'first_visit' => $firstVisit->toDateTimeString(),
-            'last_visit' => $basic->last_visit ? Carbon::parse($basic->last_visit)->toDateTimeString() : null,
+            "unique_visitors" => (int) $basic->unique_visitors,
+            "total_visits" => (int) $basic->total_visits,
+            "pageviews" => (int) $basic->pageviews,
+            "days_tracking" => $daysSinceStart,
+            "avg_visitors_per_day" => $daysSinceStart > 0 ? round($basic->unique_visitors / $daysSinceStart, 1) : 0,
+            "avg_visits_per_day" => $daysSinceStart > 0 ? round($basic->total_visits / $daysSinceStart, 1) : 0,
+            "avg_pageviews_per_day" => $daysSinceStart > 0 ? round($basic->pageviews / $daysSinceStart, 1) : 0,
+            "first_visit" => $firstVisit->toDateTimeString(),
+            "last_visit" => $basic->last_visit ? Carbon::parse($basic->last_visit)->toDateTimeString() : null,
         ];
     }
 
@@ -288,18 +297,18 @@ class AdminAnalytics extends Model
         $previous = $this->_getPeriodStats($this->_previousPeriodStart, $this->_previousPeriodEnd);
 
         return [
-            'current' => $current,
-            'previous' => $previous,
-            'changes' => [
-                'unique_visitors' => $this->_calculateChange($previous['unique_visitors'], $current['unique_visitors']),
-                'total_visits' => $this->_calculateChange($previous['total_visits'], $current['total_visits']),
-                'pageviews' => $this->_calculateChange($previous['pageviews'], $current['pageviews']),
-                'bounce_rate' => $this->_calculateChange($previous['bounce_rate'], $current['bounce_rate']),
-                'avg_duration' => $this->_calculateChange($previous['avg_duration'], $current['avg_duration']),
-                'pages_per_visit' => $this->_calculateChange($previous['pages_per_visit'], $current['pages_per_visit'])
+            "current" => $current,
+            "previous" => $previous,
+            "changes" => [
+                "unique_visitors" => $this->_calculateChange($previous["unique_visitors"], $current["unique_visitors"]),
+                "total_visits" => $this->_calculateChange($previous["total_visits"], $current["total_visits"]),
+                "pageviews" => $this->_calculateChange($previous["pageviews"], $current["pageviews"]),
+                "bounce_rate" => $this->_calculateChange($previous["bounce_rate"], $current["bounce_rate"]),
+                "avg_duration" => $this->_calculateChange($previous["avg_duration"], $current["avg_duration"]),
+                "pages_per_visit" => $this->_calculateChange($previous["pages_per_visit"], $current["pages_per_visit"]),
             ],
-            'start_date' => $this->_currentPeriodStart->toDateTimeString(),
-            'end_date' => $this->_currentPeriodEnd->toDateTimeString(),
+            "start_date" => $this->_currentPeriodStart->toDateTimeString(),
+            "end_date" => $this->_currentPeriodEnd->toDateTimeString(),
         ];
     }
 
@@ -316,8 +325,8 @@ class AdminAnalytics extends Model
                 page_url,
                 COUNT(*) as pageviews,
                 COUNT(DISTINCT visitor_id) as unique_visitors
-            FROM " . $this->table . "
-            " . $this->_getVisitTimeCondition() . "
+            FROM {$this->table}
+            {$this->_getVisitTimeCondition()}
             GROUP BY page_url
             ORDER BY pageviews DESC
             LIMIT $limit
@@ -326,9 +335,9 @@ class AdminAnalytics extends Model
         $data = self::raw()->query($queryString)->get();
 
         return [
-            'data' => $data,
-            'start_date' => $this->_currentPeriodStart?->toDateTimeString(),
-            'end_date' => $this->_currentPeriodEnd?->toDateTimeString(),
+            "data" => $data,
+            "start_date" => $this->_currentPeriodStart?->toDateTimeString(),
+            "end_date" => $this->_currentPeriodEnd?->toDateTimeString(),
         ];
     }
 
@@ -351,8 +360,8 @@ class AdminAnalytics extends Model
                 END as source,
                 COUNT(*) as visits,
                 COUNT(DISTINCT visitor_id) as unique_visitors
-            FROM " . $this->table . "
-            " . $this->_getVisitTimeCondition() . "
+            FROM {$this->table}
+            {$this->_getVisitTimeCondition()}
             GROUP BY source
             ORDER BY visits DESC
             LIMIT $limit
@@ -361,9 +370,9 @@ class AdminAnalytics extends Model
         $data = self::raw()->query($queryString)->get();
 
         return [
-            'data' => $data,
-            'start_date' => $this->_currentPeriodStart?->toDateTimeString(),
-            'end_date' => $this->_currentPeriodEnd?->toDateTimeString(),
+            "data" => $data,
+            "start_date" => $this->_currentPeriodStart?->toDateTimeString(),
+            "end_date" => $this->_currentPeriodEnd?->toDateTimeString(),
         ];
     }
 
@@ -381,8 +390,8 @@ class AdminAnalytics extends Model
                 COUNT(*) as pageviews,
                 COUNT(DISTINCT visitor_id) as unique_visitors,
                 COUNT(DISTINCT session_id) as visits
-            FROM " . $this->table . "
-            " . $this->_getVisitTimeCondition() . "
+            FROM {$this->table}
+            {$this->_getVisitTimeCondition()}
             GROUP BY country
             ORDER BY pageviews DESC
             LIMIT $limit
@@ -391,9 +400,9 @@ class AdminAnalytics extends Model
         $data = self::raw()->query($queryString)->get();
 
         return [
-            'data' => $data,
-            'start_date' => $this->_currentPeriodStart?->toDateTimeString(),
-            'end_date' => $this->_currentPeriodEnd?->toDateTimeString(),
+            "data" => $data,
+            "start_date" => $this->_currentPeriodStart?->toDateTimeString(),
+            "end_date" => $this->_currentPeriodEnd?->toDateTimeString(),
         ];
     }
 
@@ -403,12 +412,12 @@ class AdminAnalytics extends Model
      * @param string $deviceType
      * @return array
      */
-    public function getDeviceStats(string $deviceType = ''): array
+    public function getDeviceStats(string $deviceType = ""): array
     {
         $columnName = match ($deviceType) {
-            'size' => 'device',
-            'os' => 'os',
-            default => 'browser',
+            "size" => "device",
+            "os" => "os",
+            default => "browser",
         };
 
         $queryString = "
@@ -416,8 +425,8 @@ class AdminAnalytics extends Model
                 $columnName,
                 COUNT(*) as pageviews,
                 COUNT(DISTINCT visitor_id) as unique_visitors
-            FROM " . $this->table . "
-            " . $this->_getVisitTimeCondition() . "
+            FROM {$this->table}
+            {$this->_getVisitTimeCondition()}
             GROUP BY $columnName
             ORDER BY pageviews DESC
         ";
@@ -425,9 +434,9 @@ class AdminAnalytics extends Model
         $data = self::raw()->query($queryString)->get();
 
         return [
-            'data' => $data,
-            'start_date' => $this->_currentPeriodStart?->toDateTimeString(),
-            'end_date' => $this->_currentPeriodEnd?->toDateTimeString(),
+            "data" => $data,
+            "start_date" => $this->_currentPeriodStart?->toDateTimeString(),
+            "end_date" => $this->_currentPeriodEnd?->toDateTimeString(),
         ];
     }
 
@@ -444,8 +453,8 @@ class AdminAnalytics extends Model
                 COUNT(*) as pageviews,
                 COUNT(DISTINCT visitor_id) as unique_visitors,
                 COUNT(DISTINCT session_id) as visits
-            FROM " . $this->table . "
-            " . $this->_getVisitTimeCondition() . "
+            FROM {$this->table}
+            {$this->_getVisitTimeCondition()}
             GROUP BY DATE(visit_time)
             ORDER BY date
         ";
@@ -453,9 +462,9 @@ class AdminAnalytics extends Model
         $data = self::raw()->query($queryString)->get();
 
         return [
-            'data' => $data,
-            'start_date' => $this->_currentPeriodStart?->toDateTimeString(),
-            'end_date' => $this->_currentPeriodEnd?->toDateTimeString(),
+            "data" => $data,
+            "start_date" => $this->_currentPeriodStart?->toDateTimeString(),
+            "end_date" => $this->_currentPeriodEnd?->toDateTimeString(),
         ];
     }
 
@@ -467,10 +476,10 @@ class AdminAnalytics extends Model
     private function _getVisitTimeCondition(): string
     {
         if (!$this->_currentPeriodStart && !$this->_currentPeriodEnd) {
-            return '';
+            return "";
         }
 
-        return " WHERE visit_time BETWEEN '" . $this->_currentPeriodStart->toDateTimeString() . "' AND '" . $this->_currentPeriodEnd->toDateTimeString() . "'";
+        return " WHERE visit_time BETWEEN '{$this->_currentPeriodStart->toDateTimeString()}' AND '{$this->_currentPeriodEnd->toDateTimeString()}'";
     }
 
     /**
@@ -485,27 +494,27 @@ class AdminAnalytics extends Model
      */
     public function getPeriodName(): array
     {
-        $name = 'custom';
+        $name = "custom";
         if (Storage::hasSession($this->_periodSessionKey)) {
             $sessionData = Storage::getSession($this->_periodSessionKey);
 
-            $name = $sessionData['periodName'];
+            $name = $sessionData["periodName"];
         }
 
         if (!$this->_currentPeriodStart && !$this->_currentPeriodEnd) {
             return [
-                'start' => null,
-                'end' => null,
-                'label' => null,
-                'name' => $name,
+                "start" => null,
+                "end" => null,
+                "label" => null,
+                "name" => $name,
             ];
         }
 
         return [
-            'start' => $this->_currentPeriodStart->format('M j, Y'),
-            'end' => $this->_currentPeriodEnd->format('M j, Y'),
-            'label' => $this->_currentPeriodStart->format('M j') . ' - ' . $this->_currentPeriodEnd->format('M j, Y'),
-            'name' => $name,
+            "start" => $this->_currentPeriodStart->format("M j, Y"),
+            "end" => $this->_currentPeriodEnd->format("M j, Y"),
+            "label" => $this->_currentPeriodStart->format("M j") . " - " . $this->_currentPeriodEnd->format("M j, Y"),
+            "name" => $name,
         ];
     }
 
@@ -518,7 +527,7 @@ class AdminAnalytics extends Model
     // $analytics->getHourlyTrends(Carbon::yesterday());
     public function getHourlyTrends(?Carbon $date = null): array
     {
-        $date = $date ?? Carbon::today();
+        $date ??= Carbon::today();
 
         $queryString = "
             SELECT
@@ -526,8 +535,8 @@ class AdminAnalytics extends Model
                 COUNT(*) as pageviews,
                 COUNT(DISTINCT visitor_id) as unique_visitors,
                 COUNT(DISTINCT session_id) as visits
-            FROM " . $this->table . "
-            WHERE DATE(visit_time) = '" . $date->toDateString() . "'
+            FROM {$this->table}
+            WHERE DATE(visit_time) = '{$date->toDateString()}'
             GROUP BY HOUR(visit_time)
             ORDER BY hour
         ";
@@ -535,8 +544,8 @@ class AdminAnalytics extends Model
         $data = self::raw()->query($queryString)->get();
 
         return [
-            'data' => $data,
-            'date' => $date->toDateTimeString(),
+            "data" => $data,
+            "date" => $date->toDateTimeString(),
         ];
     }
 }

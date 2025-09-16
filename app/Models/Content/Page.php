@@ -16,27 +16,40 @@ class Page extends Model
      */
     public static function getLatestBlogItems(): object
     {
-        $total = Page::orm()->select([
-            'field' => ['id'],
-            'condition' => "WHERE status = 'published' AND type = 'blog'",
-        ])->count();
+        $total = Page::orm()
+            ->select([
+                "field" => ["id"],
+                "condition" => "WHERE status = 'published' AND type = 'blog'",
+            ])
+            ->count();
 
-        $queryString = "SELECT a.*,
+        $queryString =
+            "SELECT a.*,
             b.name as user_name,
             GROUP_CONCAT(CONCAT(c.name, ':', c.slug) ORDER BY c.name SEPARATOR ',') AS category_names
-        FROM ".self::tableName()." as a
-        LEFT JOIN ".User::tableName()." as b on b.id = a.user_id
-        LEFT JOIN ".PageCategory::tableName()." AS pc ON pc.page_id = a.id
-        LEFT JOIN ".Category::tableName()." AS c ON c.id = pc.category_id
+        FROM " .
+            self::tableName() .
+            " as a
+        LEFT JOIN " .
+            User::tableName() .
+            " as b on b.id = a.user_id
+        LEFT JOIN " .
+            PageCategory::tableName() .
+            " AS pc ON pc.page_id = a.id
+        LEFT JOIN " .
+            Category::tableName() .
+            " AS c ON c.id = pc.category_id
             WHERE a.status = 'published' AND a.type = 'blog'
             GROUP BY a.id
             ORDER BY a.id DESC";
 
-        $pagination = Page::raw()->query($queryString)->paginate([
-            'perPage' => 10,
-            'total' => $total,
-            'pageUrl' => route('blog.index')
-        ]);
+        $pagination = Page::raw()
+            ->query($queryString)
+            ->paginate([
+                "perPage" => 10,
+                "total" => $total,
+                "pageUrl" => route("blog.index"),
+            ]);
 
         return $pagination->getDetails();
     }
@@ -89,14 +102,25 @@ class Page extends Model
      */
     private static function _getPageModules(int $pageId): array
     {
-        $pageModules = PageModule::orm()->select(["orderBy" => "position"])->where("page_id", $pageId)->get();
+        $pageModules = PageModule::orm()
+            ->select(["orderBy" => "position"])
+            ->where("page_id", $pageId)
+            ->get();
 
         if (count($pageModules) === 0) {
             return [];
         }
 
         $pageModuleIds = Collection::make($pageModules)->pluck("module_id")->toArray();
-        $modules = Module::raw()->query("SELECT * FROM ".Module::tableName()." WHERE id IN (".implode(',', $pageModuleIds).") AND status = 'published'")->get();
+        $modules = Module::raw()
+            ->query(
+                "SELECT * FROM " .
+                    Module::tableName() .
+                    " WHERE id IN (" .
+                    implode(",", $pageModuleIds) .
+                    ") AND status = 'published'",
+            )
+            ->get();
 
         return Module::attachModuleData($modules);
     }
@@ -112,7 +136,7 @@ class Page extends Model
         $user = User::orm()->find($userId);
 
         if (!$user) {
-            return '';
+            return "";
         }
 
         return $user->name;
@@ -134,6 +158,8 @@ class Page extends Model
 
         $pageCategoryIds = Collection::make($pageCategories)->pluck("category_id")->toArray();
 
-        return Category::raw()->query("SELECT * FROM ".Category::tableName()." WHERE id IN (".implode(',', $pageCategoryIds).")")->get();
+        return Category::raw()
+            ->query("SELECT * FROM " . Category::tableName() . " WHERE id IN (" . implode(",", $pageCategoryIds) . ")")
+            ->get();
     }
 }

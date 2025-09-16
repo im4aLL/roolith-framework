@@ -1,7 +1,6 @@
 <?php
 namespace App\Utils;
 
-
 class FS
 {
     /**
@@ -51,11 +50,11 @@ class FS
      */
     public static function removeDirectory($path): bool
     {
-        if (!str_ends_with($path, '/')) {
-            $path .= '/';
+        if (!str_ends_with($path, "/")) {
+            $path .= "/";
         }
 
-        $files = glob($path . '*', GLOB_MARK);
+        $files = glob("{$path}*", GLOB_MARK);
 
         foreach ($files as $file) {
             if (is_dir($file)) {
@@ -92,7 +91,7 @@ class FS
     public static function removeFilesInDirectory($path): bool
     {
         $result = true;
-        $files = glob($path.'/*');
+        $files = glob("{$path}/*");
 
         foreach ($files as $file) {
             try {

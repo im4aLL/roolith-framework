@@ -6,7 +6,7 @@ use App\Models\Model;
 
 class AdminModuleData extends Model
 {
-    protected string $table = 'module_data';
+    protected string $table = "module_data";
 
     /**
      * Simplify module data by key value pair
@@ -18,13 +18,15 @@ class AdminModuleData extends Model
     {
         $result = [];
 
-        $data = self::orm()->select([
-            'condition' => "WHERE module_id = '$moduleId'"
-        ])->get();
+        $data = self::orm()
+            ->select([
+                "condition" => "WHERE module_id = '$moduleId'",
+            ])
+            ->get();
 
         foreach ($data as $row) {
             $result[$row->field_name] = $row->field_data;
-            $result[$row->field_name . '_id'] = $row->id;
+            $result["{$row->field_name}_id"] = $row->id;
         }
 
         return $result;
@@ -39,8 +41,10 @@ class AdminModuleData extends Model
      */
     public static function findFile(int $moduleId, string $fileName): bool|object
     {
-        return self::orm()->select([
-            'condition' => "WHERE module_id = '$moduleId' AND field_data LIKE '%$fileName%'",
-        ])->first();
+        return self::orm()
+            ->select([
+                "condition" => "WHERE module_id = '$moduleId' AND field_data LIKE '%$fileName%'",
+            ])
+            ->first();
     }
 }

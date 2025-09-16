@@ -3,8 +3,8 @@ namespace App\Core;
 
 class ApiResponseTransformer
 {
-    const STATUS_SUCCESS = 'success';
-    const STATUS_ERROR = 'error';
+    public const string STATUS_SUCCESS = "success";
+    public const string STATUS_ERROR = "error";
 
     /**
      * Core response
@@ -21,9 +21,9 @@ class ApiResponseTransformer
     protected static function core(mixed $payload, string $status, string $message): array
     {
         return [
-            'status' => $status,
-            'payload' => $payload,
-            'message' => $message
+            "status" => $status,
+            "payload" => $payload,
+            "message" => $message,
         ];
     }
 
@@ -38,7 +38,7 @@ class ApiResponseTransformer
      *      message: string,
      *  }
      */
-    public static function success(mixed $payload, string $message = ''): array
+    public static function success(mixed $payload, string $message = ""): array
     {
         return self::core($payload, self::STATUS_SUCCESS, $message);
     }
@@ -54,7 +54,7 @@ class ApiResponseTransformer
      *      message: string,
      *  }
      */
-    public static function error(mixed $payload, string $message = ''): array
+    public static function error(mixed $payload, string $message = ""): array
     {
         return self::core($payload, self::STATUS_ERROR, $message);
     }

@@ -1,8 +1,4 @@
 <?php
 namespace App\Core\Exceptions;
 
-
-class InvalidArgumentException extends Exception
-{
-
-}
+class InvalidArgumentException extends Exception {}
