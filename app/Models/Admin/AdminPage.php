@@ -6,8 +6,8 @@ use App\Models\Model;
 class AdminPage extends Model
 {
     protected string $table = "pages";
-    public const string publishedStatus = "published";
-    public const string draftStatus = "draft";
+    public const publishedStatus = "published";
+    public const draftStatus = "draft";
 
     /**
      * Search for pages by title.

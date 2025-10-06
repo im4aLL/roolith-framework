@@ -1,10 +1,11 @@
 <?php
+
 namespace App\Core;
 
 class ApiResponseTransformer
 {
-    public const string STATUS_SUCCESS = "success";
-    public const string STATUS_ERROR = "error";
+    public const STATUS_SUCCESS = "success";
+    public const STATUS_ERROR = "error";
 
     /**
      * Core response
