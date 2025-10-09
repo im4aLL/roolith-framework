@@ -12,7 +12,7 @@ class PageController extends Controller
      * @param string $slug The slug of the page to show.
      * @return object|bool|string The page object or a boolean indicating failure or a string indicating an error.
      */
-    public function show($slug): object|bool|string
+    public function show(string $slug = 'home'): object|bool|string
     {
         $page = Page::getBySlug($slug);
 
