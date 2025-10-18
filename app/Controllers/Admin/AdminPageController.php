@@ -414,9 +414,26 @@ class AdminPageController extends AdminBaseController
      */
     private function _deleteAllPageModules(int $pageId): bool
     {
+        if (!$this->_pageHasModules($pageId)) {
+            return true;
+        }
+
         $delete = AdminPageModule::orm()->delete(['page_id' => $pageId]);
 
         return $delete->success();
+    }
+
+    /**
+     * Check whether the page has modules or not
+     *
+     * @param int $pageId
+     * @return bool
+     */
+    private function _pageHasModules(int  $pageId): bool
+    {
+        $modules = AdminPageModule::orm()->where('page_id', $pageId)->get();
+
+        return count($modules) === 0;
     }
 
     /**
