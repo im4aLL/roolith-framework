@@ -3,7 +3,7 @@ return [
     /**
      * Base URL for app
      */
-    "baseUrl" => "http://local.roolith-framework.me/",
+    "baseUrl" => "http://localhost:8080/",
 
     /**
      * Database configuration

@@ -1,0 +1,9 @@
+.git
+.gitignore
+.vscode
+vendor
+node_modules
+Dockerfile
+docker-compose.yml
+.dockerignore
+installer.zip

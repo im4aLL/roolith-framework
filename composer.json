@@ -5,7 +5,7 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Habib Hadi",
+            "name": "Md Habibullah Al Hadi",
             "email": "me@habibhadi.com"
         }
     ],
@@ -27,5 +27,5 @@
             "App\\": "app/"
         }
     },
-    "version": "3.0.0"
+    "version": "3.0.1"
 }
