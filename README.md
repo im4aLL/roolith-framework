@@ -1,10 +1,16 @@
 # roolith-framework
-Roolith PHP framework. Very minimalistic and less overhead.
+Roolith PHP micro-framework. Very minimalistic and less overhead.
 
 ### Install
 ```
 composer create-project roolith/framework your_app_name
 ```
+
+### Run with Docker
+```
+docker compose up -d --build
+```
+Then open http://localhost:8080. See [DOCKER-README.md](DOCKER-README.md) for details.
 
 ### Documentation
 
@@ -18,7 +24,7 @@ composer create-project roolith/framework your_app_name
 
 
 > If you want to use this or need any help, you may reach to `me@habibhadi.com`
-> This framework has been developed for educational purpose!
+> Free to use for any purpose.
 
 ### Generator
 ```
