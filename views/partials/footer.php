@@ -1,3 +1,3 @@
-    <script src="<?= $this->url('assets/js/app.js') ?>"></script>
+    <?= viteJs('source/js/app.js', 'assets/js/app.js') ?>
 </body>
 </html>

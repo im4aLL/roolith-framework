@@ -2,6 +2,7 @@ services:
   app:
     build: .
     container_name: roolith-app
+    restart: unless-stopped
     ports:
       - "8080:80"
     volumes:

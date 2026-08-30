@@ -46,23 +46,32 @@ All application configuration has been stored on `config/config.php` for more de
 Application constants has been defined into `/constant.php`
 
 ### Frontend workflow
+
+The framework uses Vite for SCSS and JavaScript.
 ```
 npm install
 ```
-Then 
+
+For development with hot module replacement set `viteDevServer` to `http://localhost:5173` in `config/config.php` and run
 ```
-npm start
+npm run dev
 ```
 
-> Before npm start open the gulpfile.js update browsersync options as per your need. Specially change vhost defined `local.roolith-framework.me`
+The site can then be browsed through `http://localhost:5173` where the dev server proxies the PHP app.
 
-To add SCSS and JS use `source/scss/app.scss` and `source/js/app.js` 
+To rebuild assets on change without the dev server use
+```
+npm run watch
+```
+
+To add SCSS and JS use `source/scss/app.scss` and `source/js/app.js`
 
 Use 
 ```
 npm run build
 ```
-for production build. It will create min.css and min.js file.
+for production build.
+It creates minified files in the `assets` folder.
 
 ### Model
 Model files located into `app/Models`

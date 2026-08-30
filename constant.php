@@ -3,7 +3,7 @@
 /**
  * Environment
  */
-//const ROOLITH_ENV = 'development';
+// const ROOLITH_ENV = 'production';
 
 /**
  * Where the configuration files are stored.

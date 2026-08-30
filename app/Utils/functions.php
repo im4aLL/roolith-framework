@@ -39,6 +39,89 @@ function url($path): string
 }
 
 /**
+ * Get vite dev server url from configuration
+ *
+ * Empty means vite dev server is not used
+ *
+ * @return string
+ */
+function viteDevServerUrl(): string
+{
+    try {
+        return rtrim((string) Config::get("viteDevServer"), "/");
+    } catch (InvalidArgumentException $e) {
+        return "";
+    }
+}
+
+/**
+ * Get a built asset url with version query
+ *
+ * @param string $path e.g. assets/css/app.css
+ * @return string
+ */
+function viteBuiltAssetUrl(string $path): string
+{
+    return url($path . "?v=" . getVersion());
+}
+
+/**
+ * Render the vite client tag once per page
+ *
+ * @param string $devServer
+ * @return string
+ */
+function viteClientTag(string $devServer): string
+{
+    static $rendered = false;
+
+    if ($rendered) {
+        return "";
+    }
+
+    $rendered = true;
+
+    return "<script type=\"module\" src=\"{$devServer}/@vite/client\"></script>";
+}
+
+/**
+ * Render a stylesheet tag for a vite entry
+ *
+ * @param string $sourcePath e.g. source/scss/app.scss
+ * @param string $builtPath e.g. assets/css/app.css
+ * @return string
+ */
+function viteCss(string $sourcePath, string $builtPath): string
+{
+    $devServer = viteDevServerUrl();
+
+    if (isDevEnvironment() && $devServer !== "") {
+        return viteClientTag($devServer) .
+            "<link rel=\"stylesheet\" href=\"{$devServer}/{$sourcePath}\">";
+    }
+
+    return "<link rel=\"stylesheet\" href=\"" . viteBuiltAssetUrl($builtPath) . "\">";
+}
+
+/**
+ * Render a script tag for a vite entry
+ *
+ * @param string $sourcePath e.g. source/js/app.js
+ * @param string $builtPath e.g. assets/js/app.js
+ * @return string
+ */
+function viteJs(string $sourcePath, string $builtPath): string
+{
+    $devServer = viteDevServerUrl();
+
+    if (isDevEnvironment() && $devServer !== "") {
+        return "<script type=\"module\" src=\"{$devServer}/{$sourcePath}\"></script>";
+    }
+
+    return "<script src=\"" . viteBuiltAssetUrl($builtPath) . "\"></script>";
+}
+
+/**
  * Get url by router name
  *
  * @param $name
