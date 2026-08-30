@@ -34,6 +34,8 @@ export default defineConfig({
           { text: 'Views', link: '/views' },
           { text: 'Models', link: '/models' },
           { text: 'Database', link: '/database' },
+          { text: 'Migration', link: '/migration' },
+          { text: 'Seeder', link: '/seeder' },
           { text: 'Request', link: '/request' },
           { text: 'Validation', link: '/validation' }
         ]
