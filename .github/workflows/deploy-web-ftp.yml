@@ -1,0 +1,35 @@
+name: Deploy web to FTP
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: documentation/package-lock.json
+
+      - name: Install documentation dependencies
+        run: npm ci
+        working-directory: documentation
+
+      - name: Build documentation
+        run: npm run docs:build
+        working-directory: documentation
+
+      - name: Upload documentation to FTP root
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./documentation/.vitepress/dist/
+          server-dir: ./
