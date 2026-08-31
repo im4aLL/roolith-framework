@@ -49,6 +49,20 @@ export default defineConfig({
           { text: 'Cache', link: '/cache' },
           { text: 'Events', link: '/events' }
         ]
+      },
+      {
+        text: 'Recipes',
+        items: [
+          { text: 'Middleware', link: '/middleware' },
+          { text: 'Extending a Model', link: '/extending-a-model' },
+          { text: 'File Upload', link: '/file-upload' },
+          { text: 'Sending Email', link: '/sending-email' },
+          { text: 'Using Dot ENV', link: '/using-dot-env' },
+          { text: 'Date Helpers', link: '/date-helpers' },
+          { text: 'Custom View Engine', link: '/custom-view-engine' },
+          { text: 'Custom ORM (Doctrine)', link: '/custom-orm' },
+          { text: 'Custom ORM (Cycle)', link: '/cycle-orm' }
+        ]
       }
     ],
 
