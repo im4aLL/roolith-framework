@@ -72,3 +72,38 @@ class CreateUsersTable implements MigrationInterface
 ```
 
 Inside `up()` and `down()` you get the [database](/database) connection, so every driver method from the [database](/database) page is available on `$db`.
+
+## Complete Example
+
+Here is a complete migration file that creates a `users` table.
+
+```php
+<?php
+
+use Roolith\Store\Interfaces\DatabaseInterface;
+use Roolith\Migration\Interfaces\MigrationInterface;
+
+class _1764469375_CreateUser implements MigrationInterface
+{
+    public function up(DatabaseInterface $db): void
+    {
+        $db->execute("
+            CREATE TABLE IF NOT EXISTS `users` (
+                id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                name VARCHAR(255) NOT NULL,
+                email VARCHAR(255) NOT NULL,
+                role VARCHAR(50) NOT NULL DEFAULT 'user',
+                last_logged_in DATETIME NULL,
+                verification_code VARCHAR(100) NULL,
+                created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+            );
+        ");
+    }
+
+    public function down(DatabaseInterface $db): void
+    {
+        $db->execute("DROP TABLE IF EXISTS `users`;");
+    }
+}
+```
