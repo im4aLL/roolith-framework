@@ -85,9 +85,7 @@ class LazyLoad
         }
 
         $modelInstance = (fn($instance):Model => $instance)(new ($dto->model)());
-        $data = $modelInstance::orm()->select([
-            'condition' => 'WHERE '.$dto->localKey.' IN ('.implode(',', $uniqueIds).')'
-        ])->get();
+        $data = $modelInstance::orm()->where($dto->localKey, 'IN', array_values($uniqueIds))->get();
 
         if (!$data) {
             return;

@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "edb2ed5b44dc8e530a80be720153d822",
+    "content-hash": "08af3427e5ff631e820955b416bea14c",
     "packages": [
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -784,20 +784,21 @@
         },
         {
             "name": "roolith/database",
-            "version": "1.3.0",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/im4aLL/roolith-database.git",
-                "reference": "8e88cd8769e1b3bd91ba821890bc4763e19ae6cf"
+                "reference": "fdb8d3141b4490a5cedac2cfd5285ec2bbd89b7b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/im4aLL/roolith-database/zipball/8e88cd8769e1b3bd91ba821890bc4763e19ae6cf",
-                "reference": "8e88cd8769e1b3bd91ba821890bc4763e19ae6cf",
+                "url": "https://api.github.com/repos/im4aLL/roolith-database/zipball/fdb8d3141b4490a5cedac2cfd5285ec2bbd89b7b",
+                "reference": "fdb8d3141b4490a5cedac2cfd5285ec2bbd89b7b",
                 "shasum": ""
             },
             "require": {
-                "ext-pdo": "*"
+                "ext-pdo": "*",
+                "php": ">=8.0"
             },
             "require-dev": {
                 "fakerphp/faker": "^1.24",
@@ -822,9 +823,9 @@
             "description": "PHP database driver",
             "support": {
                 "issues": "https://github.com/im4aLL/roolith-database/issues",
-                "source": "https://github.com/im4aLL/roolith-database/tree/1.3.0"
+                "source": "https://github.com/im4aLL/roolith-database/tree/2.0.0"
             },
-            "time": "2025-08-28T00:59:33+00:00"
+            "time": "2026-09-03T21:34:13+00:00"
         },
         {
             "name": "roolith/event",

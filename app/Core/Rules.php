@@ -205,7 +205,7 @@ class Rules
 
         $count = $instance::orm()->select([
             'field' => [$name]
-        ])->where($name, $value, '=')->count();
+        ])->where($name, '=', $value)->count();
 
         return $count === 0;
     }
@@ -238,7 +238,7 @@ class Rules
 
         $count = $instance::orm()->select([
             'field' => [$ruleValue['localKey']]
-        ])->where($ruleValue['localKey'], $value, '=')->count();
+        ])->where($ruleValue['localKey'], '=', $value)->count();
 
         return $count > 0;
     }

@@ -17,6 +17,53 @@ $users = User::orm(); // table instance for the users table
 
 Set `database` to `null` in `config/config.php` if your application does not need a database.
 
+## Supported Databases
+
+Supports MySQL, PostgreSQL (`pgsql`), and SQLite via PDO.
+Any other PDO driver only works when you pass a raw DSN string directly.
+
+| Driver | `type` value | `config/config.php` example |
+| --- | --- | --- |
+| MySQL | `mysql` (default) | `['type' => 'mysql', 'host' => 'localhost', 'port' => 3306, 'name' => 'dbname', 'user' => 'username', 'pass' => 'password']` |
+| PostgreSQL | `pgsql` | `['type' => 'pgsql', 'host' => 'localhost', 'port' => 5432, 'name' => 'dbname', 'user' => 'username', 'pass' => 'password']` |
+| SQLite | `sqlite` | `['type' => 'sqlite', 'name' => 'path/to/database.sqlite']` |
+
+The array from `config/config.php` is passed straight to the driver, so `type`, `port`, and SQLite `name` work without any framework change.
+Raw PDO DSN strings are also passed through, for example `$db->connect('sqlite::memory:');`.
+
+Default MySQL configuration:
+
+```php
+"database" => [
+    "host" => "localhost",
+    "name" => "roolith_cms",
+    "user" => "root",
+    "pass" => "",
+],
+```
+
+PostgreSQL configuration:
+
+```php
+"database" => [
+    "type" => "pgsql",
+    "host" => "localhost",
+    "port" => 5432,
+    "name" => "roolith_cms",
+    "user" => "postgres",
+    "pass" => "",
+],
+```
+
+SQLite configuration:
+
+```php
+"database" => [
+    "type" => "sqlite",
+    "name" => "path/to/database.sqlite",
+],
+```
+
 ## Raw Query
 
 ```php
@@ -28,17 +75,28 @@ print_r($users);
 $total = $db->query("SELECT id FROM users")->count();
 ```
 
+Values are always bound, never interpolated:
+
+```php
+$users = $db->query("SELECT * FROM users WHERE email = :email", null, [':email' => $email])->get();
+$db->execute("DELETE FROM users WHERE id = :id", [':id' => $id]);
+```
+
 ## Select
 
 ```php
 $db->table('users')->select([
     'field' => ['name', 'email'],
-    'condition' => 'WHERE id > 0',
+    'condition' => 'WHERE id > :min',
+    'bindings' => [':min' => 0],
     'limit' => '0, 10',
     'orderBy' => 'name',
     'groupBy' => 'name',
 ])->get();
 ```
+
+Note: `condition` is a trusted SQL literal escape hatch.
+Never interpolate input into it, pass variables via `bindings`.
 
 Get usernames only.
 
@@ -52,6 +110,9 @@ Search with the `LIKE` operator.
 
 ```php
 $db->table('users')->where('name', '%Hadi%', 'LIKE')->get();
+// new bound style also works
+$db->table('users')->where('age', '>', 18)->get();
+$db->table('users')->orderBy('id', 'DESC')->limit(10)->offset(5)->get();
 ```
 
 Get a record by primary key.
@@ -103,14 +164,8 @@ $result = $db->table('users')->update(
 );
 ```
 
-or with a raw condition.
-
-```php
-$result = $db->table('users')->update(
-    ['name' => 'Habib Hadi', 'email' => 'john@email.com'],
-    'id = 1'
-);
-```
+Note: array `where` only.
+Raw string where is unsupported to prevent injection.
 
 Update the username only if nobody else is using it.
 
@@ -165,6 +220,18 @@ $result = $db->query("SELECT * FROM users")->paginate([
 ]);
 ```
 
+CLI / test safe pagination without `$_GET` / `$_SERVER`:
+
+```php
+use Roolith\Store\Paginate;
+
+$paginate = Paginate::fromRequest(
+    ['perPage' => 5, 'total' => $total],
+    ['REQUEST_URI' => '/users'],
+    ['page' => 2],
+);
+```
+
 Get the pagination details.
 
 ```php
@@ -190,10 +257,43 @@ print_r($result->getDetails());
 }
 ```
 
+## Transactions
+
+```php
+$db->transaction(function ($db) {
+    $db->table('users')->insert(['name' => 'A', 'email' => 'a@test.com']);
+});
+// or manual
+$db->beginTransaction();
+$db->commit(); // $db->rollBack();
+```
+
+Transactions reject nesting and stray `commit` / `rollBack`.
+Check `inTransaction()` if you branch transaction logic.
+
 ## Debug Mode
 
-Once debug mode is active, the executed query string is shown.
+Once debug mode is active queries are collected via `getDebugLog()` with no echo output!
 
 ```php
 $db->debugMode()->table('users')->find(1);
+print_r($db->getDebugLog());
 ```
+
+## Upgrade to Database 2.0
+
+The framework requires `roolith/database: 2.0.0`.
+If you are coming from 1.x, these are the breaking changes:
+
+1. `update()` requires array `where` (string where removed).
+2. `delete()` return shape drops `debug` key.
+3. `pageNumbers()` ellipsis is `'...'` (was `'.'`).
+4. `new Paginate` no longer reads `$_GET` / `$_SERVER` (use `Paginate::fromGlobals()` for legacy web or `Paginate::fromRequest()`).
+5. New required interface methods (`buildConditionFragment`, transactions, debug log, `orderBy` / `limit` / `offset`).
+6. Requires `php >= 8.0`.
+
+Notes:
+
+1. `getDetails()` returns `from=0,to=0` past the last page.
+2. `fromRequest()` preserves query params minus `pageParam`.
+3. Transactions reject nesting and stray `commit` / `rollBack` (check `inTransaction()`).
