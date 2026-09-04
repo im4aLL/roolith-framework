@@ -1,77 +1,87 @@
 # Cache
 
-The framework ships with [roolith/cache](https://github.com/im4aLL/roolith-cache), a [PSR-6](http://www.php-fig.org/psr/psr-6/) and [PSR-16](http://www.php-fig.org/psr/psr-16/) compatible cache system.
-It currently supports the file based driver.
+The framework ships with [roolith/cache](https://github.com/im4aLL/roolith-cache).
+It only supports the file driver.
 
-## Factory
+## Setup
 
-The quickest way to cache values.
+Define the cache directory before `vendor/autoload.php` is loaded.
+The directory is created automatically.
+
+```php
+<?php
+define('ROOLITH_CACHE_DIR', APP_ROOT . '/cache');
+
+require APP_ROOT . '/vendor/autoload.php';
+```
+
+If you cannot define the constant early, use one of these instead.
+Explicit config wins over everything else.
+
+```php
+CacheFactory::driver('file', ['dir' => APP_ROOT . '/cache']);
+CacheFactory::$fileDriverCacheDir = APP_ROOT . '/cache';
+```
+
+## Basic usage
+
+This covers most use cases.
+TTL is in seconds and defaults to 3600 (1 hour).
 
 ```php
 <?php
 use Roolith\Caching\Cache\CacheFactory;
 
-define('ROOLITH_CACHE_DIR', __DIR__ . '/cache');
-
-// will save cache
-CacheFactory::put('a', 'b', 3600);
-
-// will retrieve cache
-CacheFactory::get('a');
-
-// you can select driver and store
-CacheFactory::driver('file')->put('a', 'b', 3600);
-
-// will return boolean
-CacheFactory::has('foo');
-
-// will delete cache item
-CacheFactory::remove('foo');
-
-// will delete all cache items
-CacheFactory::flush();
+CacheFactory::put('user_1', $user, 3600); // save
+$user = CacheFactory::get('user_1'); // value, or false on miss / expiry
+$exists = CacheFactory::has('user_1'); // bool
+CacheFactory::remove('user_1'); // delete one key
+CacheFactory::flush(); // delete everything
 ```
 
-## Cache Instance
+Always check `has()` before trusting `get()`, since `get()` returns `false` for missing, expired, or corrupt entries.
+
+## TTL examples
+
+```php
+CacheFactory::put('short', $value, 60); // 1 minute
+CacheFactory::put('hour', $value, 3600); // 1 hour (default)
+```
+
+## Other ways to use it
+
+Use `Cache` directly when you want an instance instead of statics.
 
 ```php
 <?php
 use Roolith\Caching\Cache\Cache;
 
 $cache = new Cache();
-$cache->driver('file', ['dir' => __DIR__ . '/cache']);
-
-print_r($cache->get('foo'));
+$cache->driver('file', ['dir' => APP_ROOT . '/cache']);
+$cache->put('foo', 'bar', 3600);
+echo $cache->get('foo');
 ```
 
-## PSR-6 Pool
+Use PSR-6 or PSR-16 only when a library requires that interface.
 
 ```php
 <?php
-use Roolith\Caching\Driver\FileDriver;
 use Roolith\Caching\Cache\Pool;
+use Roolith\Caching\Cache\SimpleCache;
+use Roolith\Caching\Driver\FileDriver;
 
-$fileDriver = new FileDriver(['dir' => __DIR__ . '/cache']);
-$pool = new Pool($fileDriver);
+$driver = new FileDriver(['dir' => APP_ROOT . '/cache']);
+
+// PSR-6
+$pool = new Pool($driver);
 $item = $pool->getItem('foo');
-
 if (!$item->isHit()) {
     $item->set([1, 2, 3])->expiresAfter(3600);
     $pool->save($item);
 }
 
-print_r($item->get());
-```
-
-## PSR-16 Simple Cache
-
-```php
-<?php
-use Roolith\Caching\Cache\SimpleCache;
-use Roolith\Caching\Driver\FileDriver;
-
-$fileDriver = new FileDriver(['dir' => __DIR__ . '/cache']);
-$simpleCache = new SimpleCache($fileDriver);
-
-print_r($simpleCache->get('foo'));
+// PSR-16
+$simple = new SimpleCache($driver);
+$simple->set('foo', 'bar', 3600);
+echo $simple->get('foo');
 ```
