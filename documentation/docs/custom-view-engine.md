@@ -17,7 +17,7 @@ composer require "twig/twig:^3.0"
 
 The base controller owns the template engine, so the swap happens in `app/Controllers/Controller.php`.
 The default engine is resolved by `App\Core\TemplateEngineFactory`.
-`view()` delegates to the engine instead of `compile()`.
+`view()` delegates to the engine `compile()` method.
 
 ## Using Mustache
 

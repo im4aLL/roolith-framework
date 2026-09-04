@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "08af3427e5ff631e820955b416bea14c",
+    "content-hash": "5dbf390e222bf59bb11236ba538654e7",
     "packages": [
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -954,17 +954,20 @@
         },
         {
             "name": "roolith/template-engine",
-            "version": "1.0.4",
+            "version": "1.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/im4aLL/roolith-template-engine.git",
-                "reference": "19f953176476fe23698cb7c31cb3f95bd3ced294"
+                "reference": "3713f107af940948801e1df9866f75e13fee6ded"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/im4aLL/roolith-template-engine/zipball/19f953176476fe23698cb7c31cb3f95bd3ced294",
-                "reference": "19f953176476fe23698cb7c31cb3f95bd3ced294",
+                "url": "https://api.github.com/repos/im4aLL/roolith-template-engine/zipball/3713f107af940948801e1df9866f75e13fee6ded",
+                "reference": "3713f107af940948801e1df9866f75e13fee6ded",
                 "shasum": ""
+            },
+            "require": {
+                "php": ">=8.0"
             },
             "require-dev": {
                 "phpunit/phpunit": "^9.2"
@@ -988,9 +991,9 @@
             "description": "PHP simple template engine",
             "support": {
                 "issues": "https://github.com/im4aLL/roolith-template-engine/issues",
-                "source": "https://github.com/im4aLL/roolith-template-engine/tree/1.0.4"
+                "source": "https://github.com/im4aLL/roolith-template-engine/tree/1.1.0"
             },
-            "time": "2025-06-21T05:00:46+00:00"
+            "time": "2026-09-04T03:46:08+00:00"
         },
         {
             "name": "symfony/deprecation-contracts",

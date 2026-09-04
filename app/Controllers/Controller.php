@@ -6,6 +6,7 @@ use App\Core\TemplateEngineFactory;
 use Roolith\Configuration\Config;
 use Roolith\Configuration\Exception\InvalidArgumentException;
 use Roolith\Template\Engine\Exceptions\Exception;
+use Roolith\Template\Engine\Exceptions\InvalidArgumentException as TemplateInvalidArgumentException;
 
 class Controller
 {
@@ -38,7 +39,7 @@ class Controller
     {
         try {
             return $this->templateEngine->compile($filename, $data);
-        } catch (Exception $e) {
+        } catch (Exception | TemplateInvalidArgumentException $e) {
             echo $e->getMessage();
         }
 
