@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "5c35b86c01f1bd7a8f71c54f1acf2219",
+    "content-hash": "504111d61e3d9d24e4aa35697a3afba0",
     "packages": [
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -745,20 +745,23 @@
         },
         {
             "name": "roolith/config",
-            "version": "1.0.1",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/im4aLL/roolith-config.git",
-                "reference": "bb7d93440bffd5ee7b0c887c3c443f435cdd053e"
+                "reference": "5528f7814e22770623505d8fec999797471122f2"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/im4aLL/roolith-config/zipball/bb7d93440bffd5ee7b0c887c3c443f435cdd053e",
-                "reference": "bb7d93440bffd5ee7b0c887c3c443f435cdd053e",
+                "url": "https://api.github.com/repos/im4aLL/roolith-config/zipball/5528f7814e22770623505d8fec999797471122f2",
+                "reference": "5528f7814e22770623505d8fec999797471122f2",
                 "shasum": ""
             },
+            "require": {
+                "php": "^8.0"
+            },
             "require-dev": {
-                "phpunit/phpunit": "^9.2"
+                "phpunit/phpunit": "^9.6"
             },
             "type": "library",
             "autoload": {
@@ -779,9 +782,9 @@
             "description": "PHP config class",
             "support": {
                 "issues": "https://github.com/im4aLL/roolith-config/issues",
-                "source": "https://github.com/im4aLL/roolith-config/tree/1.0.1"
+                "source": "https://github.com/im4aLL/roolith-config/tree/2.0.0"
             },
-            "time": "2020-08-31T14:07:39+00:00"
+            "time": "2026-09-04T22:34:23+00:00"
         },
         {
             "name": "roolith/database",

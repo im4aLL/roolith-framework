@@ -57,7 +57,7 @@ If no route matches, the framework renders `views/404.php`.
 Application constants live in `constant.php`.
 
 ```php
-// Uncomment to set the environment, defaults to production
+// Uncomment to set the environment, defaults to local (uses only config.php)
 //const ROOLITH_ENV = 'development';
 
 const ROOLITH_CONFIG_ROOT = APP_ROOT . '/config';
