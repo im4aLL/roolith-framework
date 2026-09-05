@@ -14,7 +14,7 @@
         "roolith/cache": "^2.0",
         "roolith/config": "^2.0",
         "roolith/database": "2.0.0",
-        "roolith/event": "1.0.1",
+        "roolith/event": "^2.0",
         "roolith/generator": "1.0.3",
         "roolith/router": "1.1.0",
         "roolith/template-engine": "^1.1",
@@ -27,5 +27,5 @@
             "App\\": "app/"
         }
     },
-    "version": "4.4.0"
+    "version": "4.5.0"
 }

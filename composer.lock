@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "504111d61e3d9d24e4aa35697a3afba0",
+    "content-hash": "82a0e0e25e1c283e6e81fa99bf4225a1",
     "packages": [
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -833,20 +833,23 @@
         },
         {
             "name": "roolith/event",
-            "version": "1.0.1",
+            "version": "2.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/im4aLL/roolith-event.git",
-                "reference": "8de95995bd0b1ee33e63d94e226a50109f4c1fe9"
+                "reference": "103289f056a12c9c8bee2c0b5161a70176777967"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/im4aLL/roolith-event/zipball/8de95995bd0b1ee33e63d94e226a50109f4c1fe9",
-                "reference": "8de95995bd0b1ee33e63d94e226a50109f4c1fe9",
+                "url": "https://api.github.com/repos/im4aLL/roolith-event/zipball/103289f056a12c9c8bee2c0b5161a70176777967",
+                "reference": "103289f056a12c9c8bee2c0b5161a70176777967",
                 "shasum": ""
             },
+            "require": {
+                "php": ">=8.0"
+            },
             "require-dev": {
-                "phpunit/phpunit": "^9.2"
+                "phpunit/phpunit": "^9.6 || ^12.0"
             },
             "type": "library",
             "autoload": {
@@ -867,9 +870,9 @@
             "description": "PHP event listener",
             "support": {
                 "issues": "https://github.com/im4aLL/roolith-event/issues",
-                "source": "https://github.com/im4aLL/roolith-event/tree/1.0.1"
+                "source": "https://github.com/im4aLL/roolith-event/tree/2.0.0"
             },
-            "time": "2020-08-31T14:20:05+00:00"
+            "time": "2026-09-05T01:12:49+00:00"
         },
         {
             "name": "roolith/generator",
