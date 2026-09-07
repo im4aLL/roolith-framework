@@ -1,3 +1,5 @@
 /.github export-ignore
 /documentation export-ignore
 /installer.zip export-ignore
+/tests/** export-ignore
+/tests/.gitkeep -export-ignore

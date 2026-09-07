@@ -1,6 +1,6 @@
 # Ticket A1 - Change fail-open dev default to fail-closed production-safe default
 
-Status: Open
+Status: Done
 
 Order: 1 of 67
 
@@ -24,11 +24,17 @@ Default to production-safe errors, require explicit `ROOLITH_ENV=development` or
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
+
+## Verification (Phase 0 env epic with 035-C2 plus 049-F1, 2026-09-07)
+
+- Single `APP_ENV` with `production` default via `app/Core/Env.php`; `ROOLITH_ENV` mirrors it for BC; helpers delegate to `Env`.
+- Unset `APP_ENV` boots with `display_errors=0` and generic 500 with trace ID; `APP_ENV=development` shows Whoops.
+- `tests/EnvTest.php` covers default/dev/empty/`"0"` handling; `composer test` green; reviewer satisfied.
 
 ## Notes
 

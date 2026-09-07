@@ -1,6 +1,6 @@
 # Ticket C2 - Unify environment handling between Config package and app helpers
 
-Status: Open
+Status: Done
 
 Order: 35 of 67
 
@@ -24,11 +24,17 @@ Pick one source (`APP_ENV` env var with `production` default safe), bridge const
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
+
+## Verification (Phase 0 env epic with 001-A1 plus 049-F1, 2026-09-07)
+
+- `App\Core\Env` is the single source (`APP_ENV`, `production` default); `constant.php` bridges `ROOLITH_ENV`; `bootstrap()` calls `Config::setEnv(Env::appEnv())`.
+- Precedence documented in `Env` docblock; invalid `APP_ENV` fails loudly with helpful wrapped exception.
+- Any env name allowed (staging, uat verified booting production-safe); `Env::is()` helper for env-specific checks.
 
 ## Notes
 

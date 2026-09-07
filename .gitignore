@@ -4,3 +4,7 @@ node_modules/
 /assets/
 nbproject/
 files/
+.env
+/storage/logs/*
+!/storage/logs/.gitkeep
+.phpunit.result.cache

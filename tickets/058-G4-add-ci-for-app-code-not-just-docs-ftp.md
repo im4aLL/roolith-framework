@@ -1,6 +1,6 @@
 # Ticket G4 - Add CI for app code, not just docs FTP
 
-Status: Open
+Status: Done
 
 Order: 58 of 67
 
@@ -24,11 +24,16 @@ Add `ci.yml` running `composer install`, `composer test`, `npm ci`, `npm run bui
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
+
+## Verification (Phase 0 minimal, 2026-09-07)
+
+- `.github/workflows/ci.yml` runs on push/PR with PHP 8.2/8.3/8.4 matrix: `composer install`, `composer check-platform-reqs`, `composer test`, `php -l`.
+- Full CI (`npm build`, `composer audit`) deferred to Phase 5 per plan.
 
 ## Notes
 

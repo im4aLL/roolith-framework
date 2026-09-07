@@ -1,6 +1,6 @@
 # Ticket F2 - Pin PHP and extensions consistently
 
-Status: Open
+Status: Done
 
 Order: 50 of 67
 
@@ -24,11 +24,16 @@ Require `>=8.2`, add needed extensions, enable opcache in prod image, add `compo
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
+
+## Verification (Phase 0, 2026-09-07)
+
+- `composer.json` requires `php>=8.2`; `Dockerfile` adds `intl,zip,opcache` (`libicu-dev`/`libzip-dev`); `composer check-platform-reqs` documented and clean (11/11).
+- `composer check-platform-reqs` runs in CI; reviewer satisfied.
 
 ## Notes
 

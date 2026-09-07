@@ -1,6 +1,6 @@
 # Ticket F1 - Add first-class .env support and stop putting secrets in config.php
 
-Status: Open
+Status: Done
 
 Order: 49 of 67
 
@@ -24,11 +24,17 @@ Add `vlucas/phpdotenv` or native parser, read `DB_HOST`, `DB_NAME`, `APP_URL`, k
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
+
+## Verification (Phase 0 env epic with 001-A1 plus 035-C2, 2026-09-07)
+
+- Documented alternative: dependency-free native `.env` parser in `App\Core\Env::load()` (choice recorded in docblock) instead of `vlucas/phpdotenv`.
+- `config/config.php` maps `$_ENV` with defaults (`APP_URL`, `DB_HOST`/`DB_NAME`/`DB_USER`/`DB_PASS`, `FORCE_NON_WWW`, `APP_VERSION`, `LOG_PATH`, `LOG_ENABLED`); `.env.example` ships.
+- Real env vars take precedence over the `.env` file; nothing secret is committed.
 
 ## Notes
 

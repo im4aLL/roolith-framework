@@ -1,30 +1,46 @@
 <?php
 namespace App\Core;
 
+/**
+ * HTTP host pre-processing redirects (www handling).
+ *
+ * Guards skip redirects when no HTTP host is present (CLI, tests) so
+ * bootstrap stays runnable outside a web request.
+ */
 class PreProcessor
 {
     /**
-     * Force non www
+     * Redirect www hosts to the bare domain.
+     *
+     * No-op when HTTP_HOST is unset or already bare.
      *
      * @return void
      */
-    public static function forceNonWww()
+    public static function forceNonWww(): void
     {
-        if (substr($_SERVER['HTTP_HOST'], 0, 4) === 'www.') {
-            header('Location: http'.(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']=='on' ? 's':'').'://' . substr($_SERVER['HTTP_HOST'], 4).$_SERVER['REQUEST_URI']);
+        if (!isset($_SERVER['HTTP_HOST'])) return;
+        $host = str_replace(["\r", "\n"], '', $_SERVER['HTTP_HOST']);
+        if (substr($host, 0, 4) === 'www.') {
+            $uri = str_replace(["\r", "\n"], '', $_SERVER['REQUEST_URI'] ?? '/');
+            header('Location: http'.(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']=='on' ? 's':'').'://' . substr($host, 4).$uri);
             exit;
         }
     }
 
     /**
-     * Force www
+     * Redirect bare hosts to the www domain.
+     *
+     * No-op when HTTP_HOST is unset or already has www.
      *
      * @return void
      */
-    public static function forceWww()
+    public static function forceWww(): void
     {
-        if ((strpos($_SERVER['HTTP_HOST'], 'www.') === false)) {
-            header('Location: http'.(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']=='on' ? 's':'').'://www.'.$_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"]);
+        if (!isset($_SERVER['HTTP_HOST'])) return;
+        $host = str_replace(["\r", "\n"], '', $_SERVER['HTTP_HOST']);
+        if ((strpos($host, 'www.') === false)) {
+            $uri = str_replace(["\r", "\n"], '', $_SERVER["REQUEST_URI"] ?? '/');
+            header('Location: http'.(isset($_SERVER['HTTPS']) && $_SERVER['HTTPS']=='on' ? 's':'').'://www.'.$host . $uri);
             exit();
         }
     }

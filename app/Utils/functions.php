@@ -9,10 +9,10 @@ use Roolith\Configuration\Exception\InvalidArgumentException;
 /**
  * Print anything
  *
- * @param $any
+ * @param mixed $any Value to print.
  * @param bool $exit
  */
-function p($any, bool $exit = false): void
+function p(mixed $any, bool $exit = false): void
 {
     echo "<pre>";
     print_r($any);
@@ -26,10 +26,10 @@ function p($any, bool $exit = false): void
 /**
  * Prefix app url in a path
  *
- * @param $path
+ * @param string $path Path to prefix.
  * @return string
  */
-function url($path): string
+function url(string $path): string
 {
     try {
         return Config::get("baseUrl") . $path;
@@ -124,11 +124,11 @@ function viteJs(string $sourcePath, string $builtPath): string
 /**
  * Get url by router name
  *
- * @param $name
+ * @param string $name Route name.
  * @param array $settings
  * @return string
  */
-function route($name, array $settings = []): string
+function route(string $name, array $settings = []): string
 {
     $routerInstance = RouterFactory::getInstance();
 
@@ -157,10 +157,10 @@ function getActiveRoute(): array
 /**
  * Get a message
  *
- * @param $name
+ * @param string $name Message key.
  * @return mixed|null
  */
-function __($name): mixed
+function __(string $name): mixed
 {
     return Str::getMessage($name);
 }
@@ -244,29 +244,26 @@ function getCurrentDate(): string
 /**
  * Is dev environment
  *
+ * Single source is APP_ENV via App\Core\Env. Fail-closed: only an explicit
+ * APP_ENV=development returns true.
+ *
  * @return bool
  */
 function isDevEnvironment(): bool
 {
-    if (!defined("ROOLITH_ENV")) {
-        return true;
-    }
-
-    return ROOLITH_ENV == "development";
+    return \App\Core\Env::isDevelopment();
 }
 
 /**
  * Is production environment
  *
+ * Fail-closed: anything that is not development counts as production-safe.
+ *
  * @return bool
  */
 function isProductionEnvironment(): bool
 {
-    if (!defined("ROOLITH_ENV")) {
-        return false;
-    }
-
-    return ROOLITH_ENV == "production";
+    return \App\Core\Env::isProduction();
 }
 
 /**
@@ -298,11 +295,11 @@ function getIpAddress(): mixed
 /**
  * Parse basic template
  *
- * @param $string
+ * @param string|array $string Template string or strings.
  * @param array $data
  * @return string|string[]|null
  */
-function parseBasicTemplate($string, array $data = []): array|string|null
+function parseBasicTemplate(string|array $string, array $data = []): array|string|null
 {
     $findArray = [];
     $replaceArray = [];

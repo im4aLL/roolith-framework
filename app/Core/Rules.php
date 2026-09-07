@@ -19,11 +19,11 @@ class Rules
     /**
      * Get value
      *
-     * @param $inputs
-     * @param $name
+     * @param array<string, mixed> $inputs Input data.
+     * @param string $name Field name.
      * @return mixed|null
      */
-    protected static function getValue($inputs, $name): mixed
+    protected static function getValue(array $inputs, string $name): mixed
     {
         return $inputs[$name] ?? null;
     }
@@ -31,36 +31,44 @@ class Rules
     /**
      * Required
      *
-     * @param $inputs
-     * @param $name
-     * @param $ruleValue
+     * @param array<string, mixed> $inputs Input data.
+     * @param string $name Field name.
+     * @param mixed $ruleValue Rule value (unused, kept for validator signature).
      * @return bool
      */
-    public static function required($inputs, $name, $ruleValue): bool
+    public static function required(array $inputs, string $name, mixed $ruleValue): bool
     {
         $value = self::getValue($inputs, $name);
 
-        if (empty($value)) {
+        if ($value === null) {
             return false;
         }
 
-        return strlen(trim($value)) > 0;
+        if (is_string($value)) {
+            return trim($value) !== '';
+        }
+
+        if (is_array($value)) {
+            return count($value) > 0;
+        }
+
+        return true;
     }
 
     /**
      * Required array
      *
-     * @param $inputs
-     * @param $name
-     * @param $ruleValue
+     * @param array<string, mixed> $inputs Input data.
+     * @param string $name Field name.
+     * @param mixed $ruleValue Required sub-fields.
      * @return bool
      */
-    public static function requiredArray($inputs, $name, $ruleValue): bool
+    public static function requiredArray(array $inputs, string $name, mixed $ruleValue): bool
     {
         $value = self::getValue($inputs, $name);
 
-        if (count($ruleValue) == 0) {
-            return count($value) > 0;
+        if (!is_countable($ruleValue) || count($ruleValue) == 0) {
+            return is_countable($value) && count($value) > 0;
         }
 
         $isEveryFieldHasValue = true;
@@ -84,12 +92,12 @@ class Rules
     /**
      * Email
      *
-     * @param $inputs
-     * @param $name
-     * @param $ruleValue
+     * @param array<string, mixed> $inputs Input data.
+     * @param string $name Field name.
+     * @param mixed $ruleValue Rule value (unused, kept for validator signature).
      * @return bool
      */
-    public static function email($inputs, $name, $ruleValue): bool
+    public static function email(array $inputs, string $name, mixed $ruleValue): bool
     {
         $value = self::getValue($inputs, $name);
 
@@ -99,12 +107,12 @@ class Rules
     /**
      * Min length
      *
-     * @param $inputs
-     * @param $name
-     * @param $ruleValue
+     * @param array<string, mixed> $inputs Input data.
+     * @param string $name Field name.
+     * @param mixed $ruleValue Minimum length.
      * @return bool
      */
-    public static function minLength($inputs, $name, $ruleValue): bool
+    public static function minLength(array $inputs, string $name, mixed $ruleValue): bool
     {
         $value = self::getValue($inputs, $name);
 
@@ -114,12 +122,12 @@ class Rules
     /**
      * Max length
      *
-     * @param $inputs
-     * @param $name
-     * @param $ruleValue
+     * @param array<string, mixed> $inputs Input data.
+     * @param string $name Field name.
+     * @param mixed $ruleValue Maximum length.
      * @return bool
      */
-    public static function maxLength($inputs, $name, $ruleValue): bool
+    public static function maxLength(array $inputs, string $name, mixed $ruleValue): bool
     {
         $value = self::getValue($inputs, $name);
 
@@ -129,12 +137,12 @@ class Rules
     /**
      * Is array
      *
-     * @param $inputs
-     * @param $name
-     * @param $ruleValue
+     * @param array<string, mixed> $inputs Input data.
+     * @param string $name Field name.
+     * @param mixed $ruleValue Rule value (unused, kept for validator signature).
      * @return bool
      */
-    public static function isArray($inputs, $name, $ruleValue): bool
+    public static function isArray(array $inputs, string $name, mixed $ruleValue): bool
     {
         $value = self::getValue($inputs, $name);
 
@@ -144,12 +152,12 @@ class Rules
     /**
      * Required if
      *
-     * @param $inputs
-     * @param $name
-     * @param $ruleValue
+     * @param array<string, mixed> $inputs Input data.
+     * @param string $name Field name.
+     * @param mixed $ruleValue Condition tuple [field, operator, value].
      * @return bool
      */
-    public static function requiredIf($inputs, $name, $ruleValue): bool
+    public static function requiredIf(array $inputs, string $name, mixed $ruleValue): bool
     {
         $anotherProperty = $ruleValue[0];
         $operator = $ruleValue[1];
@@ -181,13 +189,13 @@ class Rules
     /**
      * The Same value doesn't exist in the table
      *
-     * @param $inputs
-     * @param $name
-     * @param $ruleValue
+     * @param array<string, mixed> $inputs Input data.
+     * @param string $name Field name.
+     * @param mixed $ruleValue Model class name.
      * @return bool
      * @throws ReflectionException
      */
-    public static function notExistsInTable($inputs, $name, $ruleValue): bool
+    public static function notExistsInTable(array $inputs, string $name, mixed $ruleValue): bool
     {
         $value = self::getValue($inputs, $name);
         try {
@@ -246,12 +254,12 @@ class Rules
     /**
      * If valid url
      *
-     * @param $inputs
-     * @param $name
-     * @param $ruleValue
+     * @param array<string, mixed> $inputs Input data.
+     * @param string $name Field name.
+     * @param mixed $ruleValue Rule value (unused, kept for validator signature).
      * @return bool
      */
-    public static function url($inputs, $name, $ruleValue): bool
+    public static function url(array $inputs, string $name, mixed $ruleValue): bool
     {
         $value = self::getValue($inputs, $name);
 
@@ -261,12 +269,12 @@ class Rules
     /**
      * Is numeric
      *
-     * @param $inputs
-     * @param $name
-     * @param $ruleValue
+     * @param array<string, mixed> $inputs Input data.
+     * @param string $name Field name.
+     * @param mixed $ruleValue Rule value (unused, kept for validator signature).
      * @return bool
      */
-    public static function numeric($inputs, $name, $ruleValue): bool
+    public static function numeric(array $inputs, string $name, mixed $ruleValue): bool
     {
         $value = self::getValue($inputs, $name);
 
