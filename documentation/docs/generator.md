@@ -42,7 +42,13 @@ class {{name}} extends Controller
 ```
 
 - `outputBaseDir` means in which folder the file will be generated.
-- `{{name}}` is replaced with the name argument you pass on the command line.
+- `{{name}}` is replaced with the name argument in title case, `{name}` keeps the raw value.
+
+Shortcuts: `generate` = `g`, `controller` = `c`, `command` = `cmd`.
+
+```bash
+php roolith g c DemoController
+```
 
 Feel free to edit the existing templates or add your own.
 For example, add a `test.txt` template and generate from it.

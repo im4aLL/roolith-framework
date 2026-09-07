@@ -15,7 +15,7 @@
         "roolith/config": "^2.0",
         "roolith/database": "2.0.0",
         "roolith/event": "^2.0",
-        "roolith/generator": "1.0.3",
+        "roolith/generator": "^2.0",
         "roolith/router": "1.1.0",
         "roolith/template-engine": "^1.1",
         "nesbot/carbon": "2.73.0",
