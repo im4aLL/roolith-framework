@@ -2,7 +2,7 @@
 
 Middleware lets you run checks before a route is executed.
 A middleware receives the [request](/request) and the response and returns a boolean.
-When it returns `false`, the router rejects the request with a `400 Bad Request` "Invalid request" response and the route is never executed.
+When it returns `false`, the router rejects the request with an "Invalid request" response and the route is never executed. The status defaults to `403 Forbidden` and can be customized per middleware with the `$status_code` property.
 
 ## Creating a Middleware
 
@@ -30,7 +30,23 @@ class AuthMiddleware extends Middleware
 }
 ```
 
-The `process()` method receives the current `Request` and `Response`, so you can inspect headers, cookies, session and URL params before deciding whether to let the request through.
+The `process()` method receives the current `Request` and `Response`, so you can inspect headers, cookies, session and URL params before deciding whether to let the request through. It must stay `public` and return `bool`.
+
+Set a custom rejection status with `$status_code`:
+
+```php
+use Roolith\Route\HttpConstants\HttpResponseCode;
+
+class AuthMiddleware extends Middleware
+{
+    public int $status_code = HttpResponseCode::UNAUTHORIZED;
+
+    public function process(Request $request, Response $response): bool
+    {
+        return false;
+    }
+}
+```
 
 ## Checking Authentication
 
@@ -56,7 +72,7 @@ class AuthMiddleware extends Middleware
 
 ## Checking Roles
 
-You can combine checks inside a single middleware.
+You can combine checks inside a single middleware or by stacking middlewares.
 The example below lets the request through only for authenticated users whose role is `manager` or `admin`.
 
 ```php
@@ -94,6 +110,20 @@ $router->get('/admin/dashboard', function () {
 })->middleware(\App\Middlewares\RoleMiddleware::class);
 ```
 
+Stack multiple middlewares with repeated calls or an array. They run in order and the first one to return `false` stops the request.
+
+```php
+$router->get('/admin/dashboard', function () {
+    return 'Dashboard content';
+})->middleware(\App\Middlewares\AuthMiddleware::class)->middleware(\App\Middlewares\RoleMiddleware::class);
+
+$router->get('/admin/users', function () {
+    return 'User list';
+})->middleware([\App\Middlewares\AuthMiddleware::class, \App\Middlewares\RoleMiddleware::class]);
+```
+
+Already-instantiated entries also work and string entries resolve via the DI container with plain-instantiation fallback. An unknown or invalid entry responds with 500, and a throwing `process()` is logged and responds with a generic 500.
+
 ## Using Middleware on a Route Group
 
 Share a middleware across many routes with a route group.
@@ -113,8 +143,7 @@ $router->group(['middleware' => \App\Middlewares\RoleMiddleware::class, 'urlPref
 
 ## Notes
 
-- Only one middleware is supported per route or group.
-  Combine multiple checks inside a single middleware class.
-- When `process()` returns `false`, the router stops and responds with `400 Bad Request`.
+- Combine multiple checks either inside a single middleware class or by stacking middlewares. Group `middleware` runs outer-first, then route-level `->middleware()`.
+- When `process()` returns `false`, the router stops and responds with the middleware's `$status_code` (`403` by default).
   Redirect to a login page instead of returning `false` if you want unauthenticated users to see a nicer flow.
 - Middleware classes live in `app/Middlewares`.

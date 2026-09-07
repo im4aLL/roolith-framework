@@ -138,13 +138,20 @@ function route($name, array $settings = []): string
 /**
  * Get active route
  *
+ * Returns the matched route with payload, or an empty array when
+ * nothing matches (the router returns null on no-match).
+ *
  * @return array
  */
 function getActiveRoute(): array
 {
     $routerInstance = RouterFactory::getInstance();
 
-    return $routerInstance->activeRoute();
+    try {
+        return $routerInstance->activeRoute() ?? [];
+    } catch (\Throwable) {
+        return [];
+    }
 }
 
 /**
