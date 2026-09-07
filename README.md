@@ -1,6 +1,17 @@
 # roolith-framework
 Roolith PHP micro-framework. Very minimalistic and less overhead.
 
+### Architecture
+Roolith is a minimal synchronous PHP micro-framework with an MVC shape: one entrypoint (`index.php`) boots shared services through `App\Core\System`, routes one HTTP request to one controller action, optionally touches MySQL through a thin model layer, then renders a PHP view or returns data and tears down per-request resources.
+
+```
+Browser -> index.php -> System (bootstrap) -> Router + Middleware -> Controller -> Model / View -> Response -> System (complete)
+```
+
+Shared services are exposed through small singleton factories (`RouterFactory`, `DatabaseFactory`, `TemplateEngineFactory`) and static facades (`Request`, `Storage`, `Sanitize`, `Validator`), composed from standalone `roolith/*` packages plus Carbon and Whoops. The database is optional, and frontend assets are built with Vite (`source/` -> `assets/`).
+
+Interested in the whole picture? Start with [ARCHITECTURE.md](ARCHITECTURE.md) for the system overview, layer map, request lifecycle, and extension points, also available as [Architecture](documentation/docs/architecture.md) in the docs site.
+
 ### Install
 ```
 composer create-project roolith/framework your_app_name

@@ -20,6 +20,7 @@ export default defineConfig({
         text: 'Getting Started',
         items: [
           { text: 'Getting Started', link: '/getting-started' },
+          { text: 'Architecture', link: '/architecture' },
           { text: 'Configuration', link: '/configuration' },
           { text: 'Generator', link: '/generator' },
           { text: 'Frontend Workflow', link: '/frontend-workflow' },
