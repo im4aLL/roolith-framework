@@ -35,7 +35,7 @@ See [Views](/views) for template syntax.
 
 ## Returning Data
 
-Return `$this->json($payload)` to send a JSON envelope response (`App\Core\Response` via `App\Core\ApiResponseTransformer`, `Content-Type: application/json`). The canonical controller returns are `string|App\Core\Response`, emitted by `App\Core\RouterResponse`.
+Return `$this->json($payload)` to send a JSON envelope response (`App\Core\Response` via `App\Core\ApiResponseTransformer`, `Content-Type: application/json`). The canonical controller returns are `string|App\Core\Response`, emitted by `App\Core\RouterResponse`. See [Response](/response) for the envelope shape, redirects, and status codes.
 
 ```php
 public function users()

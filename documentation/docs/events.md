@@ -124,3 +124,8 @@ $events->trigger('login'); // ['ok']
 // reset shared facade state in tests:
 Event::reset();
 Event::setSharedDispatcher(new Dispatcher());
+```
+
+## Worked example
+
+See `app/Examples/CacheAndEventExamples.php` (`userCreated`, `registerUserCreatedListeners`) for the register-once-at-boot shape. Use events only for decoupled side effects - welcome emails, order-placed hooks - not for the main request flow.

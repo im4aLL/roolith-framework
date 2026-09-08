@@ -74,7 +74,7 @@ $router->getUrlByName('welcome.form');
 
 ## What handlers return
 
-Return a string for HTML. In controllers, return `$this->view()` for pages or `$this->json()` for JSON (see [Controllers](/controllers)).
+Return a string for HTML. In controllers, return `$this->view()` for pages or `$this->json()` for JSON (see [Controllers](/controllers)). See [Response](/response) for the full return-type guide and [Error Handling](/error-handling) for 404 plus 405 behavior.
 
 ```php
 $router->get('/users', function () {

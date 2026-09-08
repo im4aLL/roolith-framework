@@ -51,9 +51,9 @@ Request::method();
 Request::isMethod('POST');
 ```
 
-`url()` returns `fullUrl()` without the query string. `fullUrl()` validates the `Host` header against the configured `baseUrl` allowlist so a spoofed host can never leak into built URLs; mismatches are logged and fall back to the configured base host (or `localhost` when no base URL is configured).
+`url()` returns `fullUrl()` without the query string. See [Security](/security) for host allowlist and `fullUrl()` fallback behavior.
 
-`redirect($url)` returns a `302` `Response` without exiting, so return it from the controller. The target is resolved with `PreProcessor::resolveSafeRedirectTarget()`: CR/LF sequences are stripped and only single-slash relative URLs or allowlisted absolute URLs are kept, anything else falls back to `/`.
+`redirect($url)` returns a `302` `Response` without exiting, so return it from the controller. See [Security](/security) for safe redirect rules and [Response](/response) for all redirect helpers plus the JSON envelope.
 
 `ajax()` returns `true` when the `X-Requested-With` header equals `xmlhttprequest` (case-insensitive).
 

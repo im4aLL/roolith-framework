@@ -54,6 +54,24 @@ if ($file->isValid()) {
 }
 ```
 
+### Allowed extensions and MIME types
+
+`File::isValid()` checks the file extension plus the detected content type (via `finfo`, exact match) against this allowlist:
+
+| Extension | MIME type(s) |
+|---|---|
+| jpg, jpeg | image/jpeg |
+| png | image/png |
+| pdf | application/pdf |
+| doc | application/msword |
+| docx | application/vnd.openxmlformats-officedocument.wordprocessingml.document |
+| zip | application/zip |
+| xls | application/vnd.ms-excel |
+| xlsx | application/vnd.openxmlformats-officedocument.spreadsheetml.sheet |
+| csv | text/csv, text/plain, application/csv |
+| ppt | application/vnd.ms-powerpoint |
+| pptx | application/vnd.openxmlformats-officedocument.presentationml.presentation |
+
 ## Using FS Directly
 
 When you need more control, call `FS` methods directly.

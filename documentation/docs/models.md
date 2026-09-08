@@ -91,6 +91,25 @@ $users = User::raw()->query("SELECT * FROM users")->get();
 
 A model with an empty `$table` throws a `RuntimeException` on first use, so a typo fails fast instead of producing invalid SQL.
 
+## Eager loading with LazyLoad
+
+Looping one query per row is the N+1 problem: 1 query for the parents plus N queries for the relations. `App\Core\LazyLoad` fixes it with `with(ModelClass, foreignKey, localKey)` - one extra query per relation, then a keyed map attaches matches in O(n+m).
+
+```php
+use App\Core\LazyLoad;
+
+// Before: 1 query for posts + N queries for authors (N+1 total).
+foreach ($posts as $post) {
+    $post->author = User::orm()->find($post->user_id);
+}
+
+// After: 2 queries total (posts + one WHERE id IN (...) for authors).
+$posts = (new LazyLoad($posts))->with(User::class, 'user_id')->get();
+echo $posts[0]->user->name; // relation key is the snake_case model name
+```
+
+The third argument is the related key and defaults to `id`: `with(Comment::class, 'post_id', 'id')`. The relation key is the snake_case model short name (`User` becomes `user`), a single match attaches as an object and several attach as an array, and missing or unknown models leave `null` instead of throwing. Related IDs are normalized to string, so int `1` matches string `"1"`. See the [Lazy Load Models](/lazy-load-models) recipe for the full paginated example, reverse has-many usage, and loading the same model twice.
+
 ## Database connection
 
 The connection comes from the `database` key in `config/config.php`. Set it to `null` (or leave `DB_HOST`/`DB_NAME` empty) to run without a database. See [Configuration](/configuration).

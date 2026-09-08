@@ -75,6 +75,10 @@ Protected forms need the hidden CSRF token field (see [Middleware](/middleware))
 
 When no route matches, the framework renders `views/404.php`. Edit that file to customize the not-found page.
 
+## 500 page
+
+Uncaught errors show the Whoops page in development and a generic `Internal Server Error (trace: ...)` message in production. There is no `views/500.php` override yet, so production always returns that generic message with the trace id for log correlation.
+
 ## Editor tip
 
 Templates run with `$this` set to the view object, which editors flag as invalid in standalone files. Add this as line 1 in templates that use `$this` for correct autocomplete. It changes nothing at runtime.

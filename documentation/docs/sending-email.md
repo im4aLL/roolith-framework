@@ -3,6 +3,8 @@
 Email is sent with [PHPMailer](https://github.com/PHPMailer/PHPMailer) over SMTP.
 The example below wraps it in a small fluent `Mailer` utility so controllers stay clean.
 
+Trade-off: this page is a recipe, not a shipped mailer. The framework provides no mailer class, no `mail` keys in the default config or `.env`, and no queue, so you own the SMTP setup and mail sends synchronously inside the request.
+
 ## Installation
 
 Install PHPMailer with Composer.

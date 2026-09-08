@@ -130,13 +130,13 @@ sequenceDiagram
     Sys->>Sys: complete - disconnect DB + removeTemp session
 ```
 
-Key lifecycle facts: session is started in `index.php`; `PreProcessor` may redirect before routing; `complete()` always clears one-shot temp session data and disconnects the database; unhandled bootstrap errors are printed as plain messages while dev runtime errors render through Whoops.
+Key lifecycle facts: session is started in `System::bootstrap()` via `Session::start()` (not in `index.php`); `PreProcessor` may redirect before routing via `RedirectException`; `complete()` is idempotent and always clears one-shot temp session data and disconnects the database, including via `finally` plus a shutdown fallback; failures go to `ErrorHandler` with trace id correlation (Whoops rethrow in development, generic 500 in production).
 
 ## 6. Subsystems
 
 ### 6.1 Entrypoint and bootstrap (`index.php`, `app/Core/System.php`, `constant.php`)
 
-Owns process boundaries: defines `APP_ROOT`, sets timezone, starts the session, loads Composer autoloading, then delegates to `System`. `System` loads path constants (`ROOLITH_CONFIG_ROOT`, `APP_VIEW_ROOT`), the optional CMS constants file, and global helpers; registers the error mode; applies URL canonicalization; lazily connects to the database; loads routes; and cleans up after the response. This is the only place that knows the full startup and shutdown order.
+Owns process boundaries: `index.php` stays thin (defines `APP_ROOT`, loads Composer autoloading, calls `System::run()`). `System` loads `.env` plus path constants (`ROOLITH_CONFIG_ROOT`, `APP_VIEW_ROOT`), the optional CMS constants file, and global helpers; applies timezone via `Settings`; registers the error mode; validates config; starts the session; applies URL canonicalization; lazily connects to the database; loads routes; and cleans up after the response. This is the only place that knows the full startup and shutdown order.
 
 ### 6.2 Configuration and environment (`config/config.php`, `roolith/config`, `constant.php`, `app/Utils/functions.php`)
 
@@ -144,7 +144,7 @@ Two tiers: build-time constants (view root, config root, `APP_ENABLE_CMS`, optio
 
 ### 6.3 Routing and middleware (`app/Http/routes.php`, `app/Core/RouterFactory.php`, `app/Middlewares`, `roolith/router`)
 
-`RouterFactory` holds one shared router instance. `routes.php` configures `baseUrl` and view directory, declares HTTP verb routes to closures or `Controller@method` strings, assigns names for reverse routing (`route('welcome.form')`, `getActiveRoute()`), and conditionally mounts CMS routes when `APP_ENABLE_CMS` is true. Middleware extends the router base `Middleware` and votes allow or deny via `process(request, response)` before the controller runs. The router also owns the 404 fallback to `views/404.php`.
+`RouterFactory` holds one shared router instance. `routes.php` configures `baseUrl` and view directory, declares HTTP verb routes to closures or `Controller@method` strings, assigns names for reverse routing (`route('welcome.form')`, `getActiveRoute()`), and conditionally mounts CMS routes when `APP_ENABLE_CMS` is true. Middleware implements `NextMiddlewareInterface` and runs `process(request, next)` before the controller runs: returning `$next($request)` lets the request through, while returning a response stops it so the controller never runs. The router also owns the 404 fallback to `views/404.php`.
 
 ### 6.4 Controllers (`app/Controllers/Controller.php`, app controllers)
 
@@ -160,7 +160,7 @@ Server rendering uses plain PHP templates with `inject` for partials (`partials/
 
 ### 6.7 Domain and data (`app/Models/Model.php`, app models, `app/Core/LazyLoad.php`, `DatabaseFactory.php`, `app/Database/Migrator.php`, `roolith/database`)
 
-The base `Model` binds one class to one table (`protected string $table`) plus primary key (`$primaryColumn`, default `id`) and exposes three access styles: full-table fetch (`all`), fluent query builder (`orm`), and raw connection (`raw`). Validated writes filter through `$fillable`, cast reads through `$casts`, and check `validate()` plus `validationRules()` before insert or update; `DatabaseFactory::transaction(fn)` keeps multi-write paths atomic. `DatabaseFactory` holds one shared PDO-backed `Database` in non-debug mode. There are no declarative relations; `LazyLoad::with(model, foreignKey, localKey)` performs one batched manual eager load and attaches results to a result set. `App\Database\Migrator` (`php roolith migrate`, `migrate:status`, `migrate:create`, `migrate:rollback`) tracks schema in a `migrations` table under `database/migrations`; `App\Database\Seeder` (`php roolith seed`, `seed:status`, `seed:create`, `seed:run`) tracks seed data in a `seeds` table under `database/seeders`; custom ORMs (including Cycle ORM) remain documented patterns.
+The base `Model` binds one class to one table (`protected string $table`) plus primary key (`$primaryColumn`, default `id`) and exposes three access styles: full-table fetch (`all`), fluent query builder (`orm`), and raw connection (`raw`). Validated writes filter through `$fillable`, cast reads through `$casts`, and check `validate()` plus `validationRules()` before insert or update; `DatabaseFactory::transaction(fn)` keeps multi-write paths atomic. `DatabaseFactory` holds one shared PDO-backed `Database` in non-debug mode. There are no declarative relations; `LazyLoad::with(model, foreignKey, localKey)` performs one batched manual eager load and attaches results to a result set (see `documentation/docs/models.md`). `App\Database\Migrator` (`php roolith migrate`, `migrate:status`, `migrate:create`, `migrate:rollback`) tracks schema in a `migrations` table under `database/migrations`; `App\Database\Seeder` (`php roolith seed`, `seed:status`, `seed:create`, `seed:run`) tracks seed data in a `seeds` table under `database/seeders`; custom ORMs (including Cycle ORM) remain documented patterns.
 
 ### 6.8 State and abuse control (`app/Core/Storage.php`, `Settings.php`, `SessionRateLimiter.php`)
 
@@ -170,9 +170,9 @@ The base `Model` binds one class to one table (`protected string $table`) plus p
 
 `Language` lazy-loads `lang/{locale}/message.php` dictionaries; the global `trans()` helper (with `__()` as a BC alias) resolves dotted keys for the active locale from `Settings::getLang()`. Missing keys or locales return null so views fall back. Adding a locale is adding one directory plus message file, with no code change.
 
-### 6.10 Standard utilities (`app/Utils/_.php`, `Collection.php`, `Str.php`, `FS.php`, `functions.php`, `app/Support/*`, `ApiResponseTransformer.php`)
+### 6.10 Standard utilities (`app/Utils/Arr.php` plus `_` BC alias, `Collection.php`, `Str.php`, `FS.php`, `functions.php`, `app/Support/*`, `ApiResponseTransformer.php`)
 
-Framework-wide helpers with no HTTP or DB dependencies: array manipulation (`_`), fluent lists (`Collection`), strings and messages (`Str`), filesystem (`FS`), and namespaced supports (`App\Support\Debug` for CLI-aware `p()`, `Url` for `url()` plus `route()`, `Translator` for `trans()` plus `__()`, `Redirect` for `redirect()`, `Html` for `escape()`, `IdGenerator` for crypto IDs) with thin global BC aliases in `functions.php`, plus IP detection, dates via Carbon, and Vite tags. `ApiResponseTransformer` standardizes JSON-style envelopes as `{status, payload, message}` for API actions.
+Framework-wide helpers with no HTTP or DB dependencies: array manipulation (`Arr`), fluent lists (`Collection`), strings and messages (`Str`), filesystem (`FS`), and namespaced supports (`App\Support\Debug` for CLI-aware `p()`, `Url` for `url()` plus `route()`, `Translator` for `trans()` plus `__()`, `Redirect` for `redirect()`, `Html` for `escape()`, `IdGenerator` for crypto IDs) with thin global BC aliases in `functions.php`, plus IP detection, dates via Carbon, and Vite tags. `ApiResponseTransformer` standardizes JSON-style envelopes as `{status, payload, message}` for API actions.
 
 ### 6.11 Platform packages (`vendor/roolith/*`, `vendor/nesbot/carbon`, `vendor/filp/whoops`)
 

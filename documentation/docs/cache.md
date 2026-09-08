@@ -107,3 +107,7 @@ $simple = new SimpleCache($driver);
 $simple->set('foo', 'bar', 3600);
 echo $simple->get('foo');
 ```
+
+## Worked example
+
+See `app/Examples/CacheAndEventExamples.php` (`cachedModelQuery`, `cachedConfig`) for the read-through shape. Use it only for expensive, rarely-changing reads - slow queries or config snapshots - never by default on every request.

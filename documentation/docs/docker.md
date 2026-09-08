@@ -23,7 +23,7 @@ Database credentials (single source is `.env`, see `.env.example` `MYSQL_*`):
 | password | `secret`       | `MYSQL_PASSWORD`      |
 | root pw  | `root`         | `MYSQL_ROOT_PASSWORD` |
 
-`app` and `phpMyAdmin` wait for `db` to report healthy (`mysqladmin ping` plus `depends_on: service_healthy`). The Apache image sets `ServerTokens Prod`, `ServerSignature Off`, `TraceEnable Off`, plus expires and deflate for static assets; TLS is terminated outside the container.
+`app` and `phpMyAdmin` wait for `db` to report healthy (`mysqladmin ping` plus `depends_on: service_healthy`). See [Security](/security) for Apache and `.htaccess` hardening.
 
 ## Requirements
 

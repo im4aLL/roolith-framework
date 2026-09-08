@@ -46,7 +46,7 @@ All requests hit `index.php`. It delegates to `App\Core\System::run()`, which wr
 App\Core\System::run();
 ```
 
-If no route matches, the framework renders `views/404.php`. A path that exists for another method responds with 405 `Method Not Allowed` and an `Allow` header. Canonical host redirects are emitted before routing, and uncaught errors go to `ErrorHandler` (Whoops page in development, generic 500 with trace id in production).
+If no route matches, the framework renders `views/404.php`. A path that exists for another method responds with 405 `Method Not Allowed` and an `Allow` header. Canonical host redirects are emitted before routing, and uncaught errors go to `ErrorHandler` (Whoops page in development, generic 500 with trace id in production). There is no `views/500.php` override yet.
 
 ## Constants
 
