@@ -1,6 +1,6 @@
 # Ticket B15 - Fix Controller::view error contract
 
-Status: Open
+Status: Done
 
 Order: 29 of 67
 

@@ -47,15 +47,16 @@ interface RequestInterface
     public static function except(string|array $name): array;
 
     /**
-     * Redirect to given url
+     * Build a redirect response for the given url.
      *
-     * Only single-slash relative URLs or allowlisted absolute URLs are sent;
-     * anything else falls back to / to block open redirects.
+     * No-exit: returns an immutable Response instead of sending headers
+     * plus exit. Only single-slash relative URLs or allowlisted absolute
+     * URLs are sent; anything else falls back to / to block open redirects.
      *
      * @param string $url Redirect target.
-     * @return void
+     * @return \App\Core\Response Redirect response with a Location header.
      */
-    public static function redirect(string $url): void;
+    public static function redirect(string $url): \App\Core\Response;
 
     /**
      * Get cookie by name

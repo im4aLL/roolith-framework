@@ -24,23 +24,26 @@ class PreProcessor
     /**
      * Redirect www hosts to the bare domain.
      *
-     * No-op when HTTP_HOST is unset, already bare, or not allowlisted.
+     * No-exit by design: returns a redirect Response instead of calling
+     * exit so System::complete() (disconnect plus temp cleanup) always runs.
+     * Callers must emit the response or throw RedirectException. No-op
+     * (null) when HTTP_HOST is unset, already bare, or not allowlisted.
      * Mismatched hosts are logged and dropped without a redirect.
      *
      * @param LoggerInterface|null $logger Optional PSR-3 logger for host mismatches.
      * @param string|null $baseUrl Optional base URL override (tests); defaults to config baseUrl.
-     * @return void
+     * @return Response|null Redirect response when a redirect is needed, null otherwise.
      */
-    public static function forceNonWww(?LoggerInterface $logger = null, ?string $baseUrl = null): void
+    public static function forceNonWww(?LoggerInterface $logger = null, ?string $baseUrl = null): ?Response
     {
         if (!isset($_SERVER['HTTP_HOST'])) {
-            return;
+            return null;
         }
 
         $host = self::sanitizeHost((string) $_SERVER['HTTP_HOST']);
 
         if ($host === '') {
-            return;
+            return null;
         }
 
         $resolvedBaseUrl = $baseUrl ?? self::configuredBaseUrl();
@@ -48,7 +51,7 @@ class PreProcessor
         if ($resolvedBaseUrl !== null && !self::isAllowedHost($host, $resolvedBaseUrl)) {
             self::logHostMismatch($host, $logger);
 
-            return;
+            return null;
         }
 
         if (str_starts_with($host, 'www.')) {
@@ -56,34 +59,35 @@ class PreProcessor
             $scheme = self::currentScheme();
             $target = $scheme . '://' . substr($host, 4) . $uri;
 
-            if (!headers_sent()) {
-                header('Location: ' . $target, true, self::CANONICAL_REDIRECT_CODE);
-            }
-
-            exit;
+            return Response::redirect($target, self::CANONICAL_REDIRECT_CODE);
         }
+
+        return null;
     }
 
     /**
      * Redirect bare hosts to the www domain.
      *
-     * No-op when HTTP_HOST is unset, already has www, or not allowlisted.
-     * Mismatched hosts are logged and dropped without a redirect.
+     * No-exit by design: returns a redirect Response instead of calling
+     * exit so System::complete() always runs. Callers must emit the
+     * response or throw RedirectException. No-op (null) when HTTP_HOST is
+     * unset, already has www, or not allowlisted. Mismatched hosts are
+     * logged and dropped without a redirect.
      *
      * @param LoggerInterface|null $logger Optional PSR-3 logger for host mismatches.
      * @param string|null $baseUrl Optional base URL override (tests); defaults to config baseUrl.
-     * @return void
+     * @return Response|null Redirect response when a redirect is needed, null otherwise.
      */
-    public static function forceWww(?LoggerInterface $logger = null, ?string $baseUrl = null): void
+    public static function forceWww(?LoggerInterface $logger = null, ?string $baseUrl = null): ?Response
     {
         if (!isset($_SERVER['HTTP_HOST'])) {
-            return;
+            return null;
         }
 
         $host = self::sanitizeHost((string) $_SERVER['HTTP_HOST']);
 
         if ($host === '') {
-            return;
+            return null;
         }
 
         $resolvedBaseUrl = $baseUrl ?? self::configuredBaseUrl();
@@ -91,7 +95,7 @@ class PreProcessor
         if ($resolvedBaseUrl !== null && !self::isAllowedHost($host, $resolvedBaseUrl)) {
             self::logHostMismatch($host, $logger);
 
-            return;
+            return null;
         }
 
         if (!str_starts_with($host, 'www.')) {
@@ -99,12 +103,10 @@ class PreProcessor
             $scheme = self::currentScheme();
             $target = $scheme . '://www.' . $host . $uri;
 
-            if (!headers_sent()) {
-                header('Location: ' . $target, true, self::CANONICAL_REDIRECT_CODE);
-            }
-
-            exit();
+            return Response::redirect($target, self::CANONICAL_REDIRECT_CODE);
         }
+
+        return null;
     }
 
     /**

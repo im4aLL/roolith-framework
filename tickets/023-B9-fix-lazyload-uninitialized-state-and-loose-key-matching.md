@@ -1,6 +1,6 @@
 # Ticket B9 - Fix LazyLoad uninitialized state and loose key matching
 
-Status: Open
+Status: Done
 
 Order: 23 of 67
 

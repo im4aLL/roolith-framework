@@ -1,6 +1,6 @@
 # Ticket A9 - Implement real auth example and deny-by-default middleware
 
-Status: Open
+Status: Done
 
 Order: 9 of 67
 

@@ -1,6 +1,6 @@
 # Ticket A8 - Add CSRF protection for state-changing routes
 
-Status: Open
+Status: Done
 
 Order: 8 of 67
 

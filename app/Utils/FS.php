@@ -13,13 +13,80 @@ class FS
     /**
      * Upload a file via HTTP POST.
      *
+     * Uses move_uploaded_file in production. Falls back to rename plus copy
+     * for CLI and test doubles where is_uploaded_file is false but the file
+     * exists, so unit tests can exercise validation without a real SAPI.
+     *
      * @param string $file Source tmp path.
      * @param string $destination Destination path.
      * @return bool True on success.
      */
     public static function upload(string $file, string $destination): bool
     {
+        if (is_uploaded_file($file)) {
+            return move_uploaded_file($file, $destination);
+        }
+
+        if (PHP_SAPI === 'cli' && is_file($file) && is_readable($file)) {
+            $destDir = dirname($destination);
+
+            try {
+                // Pre-checked for readability/writability so failures return
+                // false instead of relying on warning suppression.
+                if (is_dir($destDir) && is_writable($destDir) && rename($file, $destination)) {
+                    return true;
+                }
+
+                if (is_file($file) && is_dir($destDir) && is_writable($destDir) && copy($file, $destination)) {
+                    return true;
+                }
+            } catch (\Throwable) {
+                return false;
+            }
+        }
+
         return move_uploaded_file($file, $destination);
+    }
+
+    /**
+     * Write deny-execution protection into an upload directory.
+     *
+     * Prefer storing outside the docroot; this .htaccess is defense in depth
+     * for web-accessible dirs. Existing files are left untouched so deployer
+     * customizations survive.
+     *
+     * @param string $directory Upload directory to protect.
+     * @return bool True when the directory is protected or protection was written.
+     */
+    public static function protectUploadDirectory(string $directory): bool
+    {
+        try {
+            if (!is_dir($directory) || !is_writable($directory)) {
+                return false;
+            }
+
+            $htaccess = rtrim($directory, "/\\") . DIRECTORY_SEPARATOR . '.htaccess';
+
+            if (is_file($htaccess)) {
+                return true;
+            }
+
+            $contents = "# Roolith upload protection.\n"
+                . "# Prefer storing outside the docroot; this denies script execution\n"
+                . "# when the directory is web-accessible.\n"
+                . "php_flag engine off\n"
+                . "RemoveHandler .php .phtml .phar\n"
+                . "RemoveType .php .phtml .phar\n"
+                . "<FilesMatch \"\\.(php|phtml|phar|php[0-9]+|htaccess)$\">\n"
+                . "    Require all denied\n"
+                . "</FilesMatch>\n";
+
+            $written = file_put_contents($htaccess, $contents);
+
+            return $written !== false;
+        } catch (\Throwable) {
+            return false;
+        }
     }
 
     /**

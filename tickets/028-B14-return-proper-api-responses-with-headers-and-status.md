@@ -1,6 +1,6 @@
 # Ticket B14 - Return proper API responses with headers and status
 
-Status: Open
+Status: Done
 
 Order: 28 of 67
 

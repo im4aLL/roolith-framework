@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a65d55f6daafafd998c03f179baecb02",
+    "content-hash": "9d9215e1d870d393c9b764974d801c79",
     "packages": [
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -924,16 +924,16 @@
         },
         {
             "name": "roolith/router",
-            "version": "2.0.0",
+            "version": "2.1.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/im4aLL/roolith-router.git",
-                "reference": "6beed368526c1d8662e7e7b0163221ecb5382103"
+                "reference": "b08e00296690439dd1a662d7fcc0a697a1e719ef"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/im4aLL/roolith-router/zipball/6beed368526c1d8662e7e7b0163221ecb5382103",
-                "reference": "6beed368526c1d8662e7e7b0163221ecb5382103",
+                "url": "https://api.github.com/repos/im4aLL/roolith-router/zipball/b08e00296690439dd1a662d7fcc0a697a1e719ef",
+                "reference": "b08e00296690439dd1a662d7fcc0a697a1e719ef",
                 "shasum": ""
             },
             "require": {
@@ -964,9 +964,9 @@
             "description": "Simple PHP router",
             "support": {
                 "issues": "https://github.com/im4aLL/roolith-router/issues",
-                "source": "https://github.com/im4aLL/roolith-router/tree/2.0.0"
+                "source": "https://github.com/im4aLL/roolith-router/tree/2.1.0"
             },
-            "time": "2026-09-07T08:51:49+00:00"
+            "time": "2026-09-08T06:22:57+00:00"
         },
         {
             "name": "roolith/template-engine",

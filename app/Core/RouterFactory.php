@@ -2,6 +2,7 @@
 namespace App\Core;
 
 
+use Roolith\Route\Request as RouterRequest;
 use Roolith\Route\Router;
 
 /**
@@ -10,7 +11,9 @@ use Roolith\Route\Router;
  * The singleton is intentional: routes.php expects one shared Router per
  * request via getInstance(). System::processRequest() resets before each
  * load so re-entry (tests, long-lived workers) never double-registers
- * routes on a stale instance.
+ * routes on a stale instance. The router is built with RouterResponse so
+ * controllers may return App\Core\Response values (JSON, redirect) and
+ * have their status plus headers emitted correctly.
  */
 class RouterFactory
 {
@@ -29,12 +32,14 @@ class RouterFactory
     /**
      * Get the shared router instance.
      *
+     * Built with RouterResponse (unwraps App\Core\Response controller
+     * returns) and a fresh vendor Request so re-entry stays isolated.
+     *
      * @return Router Shared router.
-     */
-    public static function getInstance(): Router
+     */    public static function getInstance(): Router
     {
         if (self::$router === null) {
-            self::$router = new Router();
+            self::$router = new Router([], new RouterResponse(), new RouterRequest());
         }
 
         return self::$router;

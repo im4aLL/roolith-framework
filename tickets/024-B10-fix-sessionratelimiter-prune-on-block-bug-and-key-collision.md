@@ -1,6 +1,6 @@
 # Ticket B10 - Fix SessionRateLimiter prune-on-block bug and key collision
 
-Status: Open
+Status: Done
 
 Order: 24 of 67
 

@@ -474,7 +474,12 @@ class Request implements RequestInterface
     }
 
     /**
-     * Redirect to the given URL with an explicit temporary code.
+     * Build a redirect response for the given URL with an explicit temporary code.
+     *
+     * No-exit by design: returns an immutable Response instead of sending
+     * headers plus exit so System::complete() always runs. Callers must
+     * return the response from the controller (emitted via RouterResponse)
+     * or throw RedirectException. BC break: previously void plus exit.
      *
      * Deliberately 302 (Found): the legacy temporary redirect used by
      * existing callers. Use the global redirect() helper with 303 for
@@ -483,15 +488,17 @@ class Request implements RequestInterface
      * absolute URLs are sent; anything else falls back to / to block open
      * redirects.
      *
+     * L3 accepted: this 302 default differs from the global redirect() 303
+     * by design (legacy BC here, PRG-safe default there).
+     *
      * @param string $url Redirect target.
-     * @return void
+     * @return Response Redirect response with a Location header.
      */
-    public static function redirect(string $url): void
+    public static function redirect(string $url): Response
     {
         $target = PreProcessor::resolveSafeRedirectTarget($url);
 
-        header('Location: ' . $target, true, 302);
-        exit();
+        return Response::redirect($target, 302);
     }
 
     /**

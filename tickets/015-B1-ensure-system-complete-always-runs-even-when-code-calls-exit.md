@@ -1,6 +1,6 @@
 # Ticket B1 - Ensure System::complete() always runs even when code calls exit or die
 
-Status: Open
+Status: Done
 
 Order: 15 of 67
 

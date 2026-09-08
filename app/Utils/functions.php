@@ -9,8 +9,14 @@ use Roolith\Configuration\Exception\InvalidArgumentException;
 /**
  * Print anything for debugging.
  *
+ * Dev-only exit (015-B1, M1): $exit terminates via exit() only when
+ * isDevEnvironment() is true (explicit APP_ENV=development). In any other
+ * environment the flag is ignored and the function returns, so production
+ * can never truncate emission or skip System::complete() (disconnect plus
+ * temp cleanup) through this helper.
+ *
  * @param mixed $any Value to print.
- * @param bool $exit Whether to terminate after printing.
+ * @param bool $exit Terminate after printing, dev environments only.
  * @return void
  */
 function p(mixed $any, bool $exit = false): void
@@ -19,8 +25,8 @@ function p(mixed $any, bool $exit = false): void
     print_r($any);
     echo "</pre>";
 
-    if ($exit) {
-        die();
+    if ($exit && isDevEnvironment()) {
+        exit(0);
     }
 }
 
@@ -350,7 +356,13 @@ function __(string $name): mixed
 }
 
 /**
- * Redirect to URL.
+ * Build a redirect response for a URL.
+ *
+ * No-exit by design: returns an immutable App\Core\Response instead of
+ * sending headers plus die() so System::complete() (disconnect plus temp
+ * cleanup) always runs. Callers must `return redirect(...)` from the
+ * controller (emitted via RouterResponse) or throw RedirectException.
+ * BC break: previously void plus die().
  *
  * Status is deliberate: 303 (See Other) is the default because it implements
  * Post/Redirect/Get safely by always following up with GET. Pass 302 for a
@@ -361,35 +373,83 @@ function __(string $name): mixed
  * base URL are sent; anything else (for example ?next=https://evil.com,
  * //evil.com, javascript:) falls back to / to block open redirects.
  *
+ * L3 accepted: this 303 default differs from Request::redirect() 302 by
+ * design (global helper favors PRG, Request::redirect keeps legacy BC).
+ *
  * @param string $url Redirect target.
  * @param int $statusCode HTTP redirect code, 303 by default.
- * @return void
+ * @return \App\Core\Response Redirect response with a Location header.
  */
-function redirect(string $url, int $statusCode = 303): void
+function redirect(string $url, int $statusCode = 303): \App\Core\Response
 {
     $target = \App\Core\PreProcessor::resolveSafeRedirectTarget($url);
 
-    header("Location: {$target}", true, $statusCode);
-
-    die();
+    return \App\Core\Response::redirect($target, $statusCode);
 }
 
 /**
- * Redirect to route name.
+ * Build a redirect response for a route name.
  *
- * Uses 303 by default for the same Post/Redirect/Get reason as redirect().
- * Pass an explicit code when a different redirect semantic is intended.
+ * No-exit: returns a Response instead of dying. Uses 303 by default for the
+ * same Post/Redirect/Get reason as redirect(). Pass an explicit code when a
+ * different redirect semantic is intended. Callers must return the response.
  *
  * @param string $routeName Route name.
  * @param array<string, mixed> $settings Route params.
  * @param int $statusCode HTTP redirect code, 303 by default.
- * @return void
+ * @return \App\Core\Response Redirect response with a Location header.
  */
-function redirectToRoute(string $routeName, array $settings = [], int $statusCode = 303): void
+function redirectToRoute(string $routeName, array $settings = [], int $statusCode = 303): \App\Core\Response
 {
     $url = route($routeName, $settings);
 
-    redirect($url, $statusCode);
+    return redirect($url, $statusCode);
+}
+
+/**
+ * Build a JSON envelope response with correct headers and status.
+ *
+ * Wraps the payload in the standard {status, payload, message} envelope via
+ * ApiResponseTransformer, sets Content-Type application/json, and stores the
+ * HTTP code (emitted via http_response_code by Response::send or
+ * RouterResponse). Controllers standardize on `return json(...)` or
+ * `return "...html..."` (Response|string).
+ *
+ * @param mixed $payload Envelope payload data.
+ * @param string $status Envelope status (success or error).
+ * @param int $code HTTP status code.
+ * @param string $message Human-readable message.
+ * @return \App\Core\Response JSON response with application/json header.
+ */
+function json(mixed $payload, string $status = "success", int $code = 200, string $message = ""): \App\Core\Response
+{
+    return \App\Core\ApiResponseTransformer::json($payload, $status, $code, $message);
+}
+
+/**
+ * Get the per-session CSRF token.
+ *
+ * Generates once per session via random_bytes and reuses it until rotation
+ * (for example on login via Csrf::rotate()).
+ *
+ * @return string 64-char hex CSRF token.
+ */
+function csrf_token(): string
+{
+    return \App\Core\Csrf::token();
+}
+
+/**
+ * Render the hidden CSRF form field.
+ *
+ * Emits `<input type="hidden" name="_csrf" value="...">` for POST forms.
+ * Verified by the CSRF middleware for POST, PUT, PATCH, and DELETE.
+ *
+ * @return string Hidden input HTML.
+ */
+function csrf_field(): string
+{
+    return \App\Core\Csrf::field();
 }
 
 /**

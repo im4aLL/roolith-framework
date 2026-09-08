@@ -28,7 +28,9 @@ final class ErrorHandler
     /**
      * Handle an uncaught throwable from the front controller.
      *
-     * Logs with trace/class/file/trace-string, rethrows in development,
+     * RedirectException is control flow, not an error: its Response is
+     * emitted directly without logging or a 500 body. Logs with
+     * trace/class/file/trace-string, rethrows in development,
      * else sends HTTP 500 with baseline security headers and an escaped
      * trace ID. Never throws for logging or header failures.
      *
@@ -39,6 +41,26 @@ final class ErrorHandler
      */
     public static function handle(?System $app, Throwable $e): void
     {
+        if ($e instanceof Exceptions\RedirectException) {
+            try {
+                if ($app instanceof System) {
+                    $app->emit($e->getResponse());
+                } else {
+                    $e->getResponse()->send();
+                }
+            } catch (Throwable) {
+                // Emission must never mask the redirect.
+            } finally {
+                try {
+                    $app?->complete();
+                } catch (Throwable) {
+                    // Cleanup must never throw.
+                }
+            }
+
+            return;
+        }
+
         $traceId = self::resolveTraceId($app);
 
         try {

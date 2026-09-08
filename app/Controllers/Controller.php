@@ -7,7 +7,15 @@ use Roolith\Configuration\Config;
 use Roolith\Configuration\Exception\InvalidArgumentException;
 use Roolith\Template\Engine\Exceptions\Exception as TemplateException;
 use Roolith\Template\Engine\Exceptions\InvalidArgumentException as TemplateInvalidArgumentException;
+use Throwable;
 
+/**
+ * Base controller with view plus JSON helpers.
+ *
+ * Thin by design: view() renders HTML strings without echoing, json()
+ * proxies ApiResponseTransformer so actions return Response|string for
+ * RouterResponse emission. Failures never leak paths with HTTP 200.
+ */
 class Controller
 {
     /**
@@ -37,10 +45,13 @@ class Controller
      * Render template engine
      *
      * Fail-closed: template failures are never echoed (which would leak
-     * paths with HTTP 200). The exception is rethrown with view context
-     * so the front-controller ErrorHandler logs the full trace and
-     * returns a generic 500 in prod (details only in dev via Whoops).
-     * BC break: false is never returned; failures throw instead.
+     * paths with HTTP 200). The failure is logged, then the exception is
+     * rethrown with view context so the front-controller ErrorHandler logs
+     * the full trace and returns a generic 500 in prod (details only in
+     * dev via Whoops). BC break: false is never returned; failures throw
+     * instead of returning string|bool. Controllers standardize on
+     * Response|string returns: HTML via view(), JSON or redirects via
+     * json()/redirect helpers returning App\Core\Response.
      *
      * @param string $filename View name.
      * @param array<string, mixed> $data View data.
@@ -52,11 +63,40 @@ class Controller
         try {
             return $this->templateEngine->compile($filename, $data);
         } catch (TemplateException | TemplateInvalidArgumentException $e) {
+            error_log('[Roolith Controller] Failed rendering view \'' . $filename . '\': ' . substr(str_replace(["\r", "\n"], ' ', $e->getMessage()), 0, 500));
+
+            throw new \App\Core\Exceptions\Exception(
+                "Failed rendering view '{$filename}': " . $e->getMessage(),
+                0,
+                $e
+            );
+        } catch (Throwable $e) {
+            error_log('[Roolith Controller] Failed rendering view \'' . $filename . '\': ' . substr(str_replace(["\r", "\n"], ' ', $e->getMessage()), 0, 500));
+
             throw new \App\Core\Exceptions\Exception(
                 "Failed rendering view '{$filename}': " . $e->getMessage(),
                 0,
                 $e
             );
         }
+    }
+
+    /**
+     * Build a JSON envelope response with correct headers and status.
+     *
+     * Thin proxy over ApiResponseTransformer::json() so controllers stay
+     * uniform: `return $this->json($data);` for success or
+     * `return $this->json(null, "error", 422, "Invalid");` for failures.
+     * Emitted via RouterResponse with Content-Type application/json.
+     *
+     * @param mixed $payload Envelope payload data.
+     * @param string $status Envelope status (success or error).
+     * @param int $code HTTP status code.
+     * @param string $message Human-readable message.
+     * @return \App\Core\Response JSON response.
+     */
+    protected function json(mixed $payload, string $status = "success", int $code = 200, string $message = ""): \App\Core\Response
+    {
+        return \App\Core\ApiResponseTransformer::json($payload, $status, $code, $message);
     }
 }

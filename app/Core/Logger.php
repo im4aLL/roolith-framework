@@ -147,8 +147,20 @@ class Logger extends AbstractLogger
             $dir = dirname($this->logFile);
 
             if (!is_dir($dir)) {
-                // race-safe: @ suppresses the TOCTOU race warning between is_dir check and mkdir, failure still handled by return check + error_log fallback.
-                if (!@mkdir($dir, 0775, true) && !is_dir($dir)) {
+                // Race-safe without warning suppression: a scoped handler
+                // swallows only the mkdir TOCTOU race warning, the return
+                // value plus is_dir recheck still decide success.
+                set_error_handler(static function (): bool {
+                    return true;
+                });
+
+                try {
+                    $made = mkdir($dir, 0775, true);
+                } finally {
+                    restore_error_handler();
+                }
+
+                if (!$made && !is_dir($dir)) {
                     error_log('Logger fallback: ' . $line);
 
                     return;

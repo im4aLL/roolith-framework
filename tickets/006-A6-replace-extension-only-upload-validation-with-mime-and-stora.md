@@ -1,6 +1,6 @@
 # Ticket A6 - Replace extension-only upload validation with MIME and storage hardening
 
-Status: Open
+Status: Done
 
 Order: 6 of 67
 

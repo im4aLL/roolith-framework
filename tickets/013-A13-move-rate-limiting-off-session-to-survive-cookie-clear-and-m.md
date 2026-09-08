@@ -1,6 +1,6 @@
 # Ticket A13 - Move rate limiting off session to survive cookie clear and multi-server
 
-Status: Open
+Status: Done
 
 Order: 13 of 67
 

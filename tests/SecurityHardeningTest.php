@@ -10,9 +10,10 @@ use ReflectionClass;
 use Roolith\Configuration\Config;
 
 /**
- * Covers Phase 1 review hardening: cookies, error headers, htaccess, baseUrl.
+ * Security hardening: cookie config validation, error-header reuse, upload
+ * htaccess denies, and baseUrl validation.
  */
-class Phase1HardeningTest extends TestCase
+class SecurityHardeningTest extends TestCase
 {
     /**
      * Original Config singleton for restore.

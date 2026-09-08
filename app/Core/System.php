@@ -39,6 +39,27 @@ class System
     protected LoggerInterface $logger;
 
     /**
+     * Whether complete() already ran for this instance.
+     *
+     * @var bool
+     */
+    protected bool $completed = false;
+
+    /**
+     * Whether the shutdown fallback was registered for this process.
+     *
+     * @var bool
+     */
+    private static bool $shutdownRegistered = false;
+
+    /**
+     * Last constructed System for the shutdown fallback.
+     *
+     * @var static|null
+     */
+    private static ?System $shutdownInstance = null;
+
+    /**
      * Build the app shell with an optional injected logger.
      *
      * Loads `.env`, legacy constants, and helpers, then creates a
@@ -49,6 +70,10 @@ class System
      * config validation has not run yet; config/config.php exposes the
      * same values as `logPath` and `logEnabled` for post-validation
      * consumers. Routine logs default to off (LOG_ENABLED unset or '0').
+     *
+     * Registers a shutdown fallback so complete() (disconnect plus temp
+     * cleanup) still runs even when code calls exit/die outside the
+     * Response flow.
      *
      * @param LoggerInterface|null $logger Injected logger (tests) or null for the default file logger.
      */
@@ -85,6 +110,7 @@ class System
         }
         $this->logger = $logger ?? new Logger(Logger::defaultLogPath(), $this->traceId, Logger::defaultLogEnabled());
         $this->registerCustomError();
+        $this->registerShutdownFallback();
     }
 
     /**
@@ -191,14 +217,109 @@ class System
     /**
      * Close application.
      *
+     * Idempotent: safe to call twice (explicit complete() plus the shutdown
+     * fallback). Never throws so shutdown and error paths stay safe.
+     *
      * @return static Self for chaining.
      */
     public function complete(): static
     {
-        $this->disconnectFromDatabase();
-        Storage::removeTemp();
+        if ($this->completed) {
+            return $this;
+        }
+
+        $this->completed = true;
+
+        try {
+            $this->disconnectFromDatabase();
+        } catch (Throwable) {
+            // Cleanup must never throw.
+        }
+
+        try {
+            Storage::removeTemp();
+        } catch (Throwable) {
+            // Cleanup must never throw.
+        }
 
         return $this;
+    }
+
+    /**
+     * Boot and serve the current HTTP request (front-controller entry).
+     *
+     * Runs bootstrap, request processing, and teardown; redirects are
+     * emitted then completed, and any other failure goes to ErrorHandler.
+     * Nothing here throws, so index.php stays a thin bootstrap.
+     *
+     * @return void
+     */
+    public static function run(): void
+    {
+        try {
+            $app = new self();
+            $app->bootstrap()
+                ->processRequest()
+                ->complete();
+        } catch (Exceptions\RedirectException $e) {
+            try {
+                ($app ?? null)?->emit($e->getResponse());
+            } catch (Throwable) {
+                // Emission must never mask the redirect.
+            } finally {
+                try {
+                    ($app ?? null)?->complete();
+                } catch (Throwable) {
+                    // Cleanup must never throw.
+                }
+            }
+        } catch (Throwable $e) {
+            ErrorHandler::handle($app ?? null, $e);
+        }
+    }
+
+    /**
+     * Reset completion state for tests.
+     *
+     * Lets a reused System instance complete again after an explicit
+     * complete() call within the same test process.
+     *
+     * @return void
+     */
+    public function resetCompletionForTests(): void
+    {
+        $this->completed = false;
+    }
+
+    /**
+     * Reset static shutdown state for tests.
+     *
+     * Clears the registered flag and instance so each test can assert
+     * fresh registration without order dependence. L8 accepted: the real
+     * PHP shutdown handler cannot be unregistered, so reset only affects
+     * the test-visible flag plus instance; at most one real handler ever
+     * exists per process and it is benign.
+     *
+     * @return void
+     */
+    public static function resetShutdownForTests(): void
+    {
+        self::$shutdownRegistered = false;
+        self::$shutdownInstance = null;
+    }
+
+    /**
+     * Emit an immutable response (status, headers, body).
+     *
+     * Thin proxy over Response::send() so controllers and the front
+     * controller share one emission path.
+     *
+     * @param Response $response Response to emit.
+     * @return void
+     */
+    public function emit(Response $response): void
+    {
+        $response->send();
     }
 
     /**
@@ -297,15 +418,26 @@ class System
      * (example site -> www.site). There is no "off" mode by design so one
      * canonical host always wins.
      *
+     * No-exit: PreProcessor returns a Response instead of exiting. When a
+     * redirect is needed this throws RedirectException carrying the
+     * response so the front controller emits it and still runs complete().
+     *
      * @return void
+     * @throws Exceptions\RedirectException When a canonical redirect is needed.
      * @throws InvalidArgumentException When config lookup fails.
      */
     private function preProcessor(): void
     {
+        $pending = null;
+
         if (Config::get("forceNonWww")) {
-            PreProcessor::forceNonWww($this->logger);
+            $pending = PreProcessor::forceNonWww($this->logger);
         } else {
-            PreProcessor::forceWww($this->logger);
+            $pending = PreProcessor::forceWww($this->logger);
+        }
+
+        if ($pending instanceof Response) {
+            throw new Exceptions\RedirectException($pending->header('Location') ?? '/', $pending->status());
         }
     }
 
@@ -430,5 +562,49 @@ class System
         ini_set("display_errors", "0");
         ini_set("log_errors", "1");
         error_reporting(E_ALL);
+    }
+
+    /**
+     * Register the shutdown fallback ensuring complete() always runs.
+     *
+     * Even when code calls exit/die outside the Response flow, PHP still
+     * runs shutdown functions. The fallback calls complete() idempotently
+     * (disconnect plus temp cleanup) and never throws. The latest System
+     * instance wins so tests constructing many instances do not leak old
+     * connections into shutdown.
+     *
+     * L8 accepted: PHP cannot unregister shutdown functions, so only one
+     * handler is ever registered per process (guarded by
+     * $shutdownRegistered); re-construction only swaps the instance.
+     *
+     * @return void
+     */
+    private function registerShutdownFallback(): void
+    {
+        self::$shutdownInstance = $this;
+
+        if (self::$shutdownRegistered) {
+            return;
+        }
+
+        self::$shutdownRegistered = true;
+
+        register_shutdown_function(static function (): void {
+            try {
+                self::$shutdownInstance?->complete();
+            } catch (Throwable) {
+                // Shutdown must never throw.
+            }
+        });
+    }
+
+    /**
+     * Whether the shutdown fallback is registered (test seam).
+     *
+     * @return bool True after any System construction in this process.
+     */
+    public static function isShutdownFallbackRegistered(): bool
+    {
+        return self::$shutdownRegistered;
     }
 }

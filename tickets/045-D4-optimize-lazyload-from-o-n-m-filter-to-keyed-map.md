@@ -1,6 +1,6 @@
 # Ticket D4 - Optimize LazyLoad from O(n*m) filter to keyed map
 
-Status: Open
+Status: Done
 
 Order: 45 of 67
 
