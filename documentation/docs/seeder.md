@@ -81,6 +81,38 @@ class _Seeder_20250908120000_ab12_UserData implements SeederInterface
 
 Seeders pair with [migrations](/migration): migrate the schema first, then seed the rows.
 
+## Using Faker for dummy data
+
+Install Faker as a dev dependency when you need realistic dummy rows, then use it inside `run()` the same way as any other `$db->table()->insert()` call.
+
+```bash
+composer require --dev fakerphp/faker
+```
+
+```php
+<?php
+
+use Faker\Factory as FakerFactory;
+use Roolith\Migration\Interfaces\SeederInterface;
+use Roolith\Store\Interfaces\DatabaseInterface;
+
+class _Seeder_20250908120000_ab12_ProductData implements SeederInterface
+{
+    public function run(DatabaseInterface $db): void
+    {
+        $faker = FakerFactory::create();
+
+        for ($i = 0; $i < 10; $i++) {
+            $db->table('products')->insert([
+                'name' => $faker->words(3, true),
+                'price' => $faker->randomFloat(2, 1, 500),
+                'stock' => $faker->numberBetween(0, 200),
+            ]);
+        }
+    }
+}
+```
+
 ## Notes
 
 - The shared `migrations` status table also tracks seeders (`file_type = 'seeder'`); it is created automatically when missing. The legacy `seeds` table from the old internal runner is no longer written.
