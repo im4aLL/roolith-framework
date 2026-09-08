@@ -2,7 +2,7 @@
 namespace App\Core;
 
 use App\Models\Model;
-use App\Utils\_;
+use App\Utils\Arr;
 use Throwable;
 use Traversable;
 
@@ -91,7 +91,7 @@ class LazyLoad
      */
     public function with(string $model, string $foreignKey, string $localKey = 'id'): static
     {
-        $this->loadArray[] = _::arrayToObject([
+        $this->loadArray[] = Arr::arrayToObject([
             'model' => $model,
             'foreignKey' => $foreignKey,
             'localKey' => $localKey,
@@ -216,7 +216,7 @@ class LazyLoad
             return;
         }
 
-        $key = _::pascalCaseToSnakeCase($last);
+        $key = Arr::pascalCaseToSnakeCase($last);
         $ids = [];
 
         foreach ($this->result as $item) {

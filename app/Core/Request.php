@@ -4,7 +4,7 @@ namespace App\Core;
 
 use App\Core\Interfaces\FileInterface;
 use App\Core\Interfaces\RequestInterface;
-use App\Utils\_;
+use App\Utils\Arr;
 
 /**
  * HTTP request facade over POST, GET, and php://input streams.
@@ -404,7 +404,7 @@ class Request implements RequestInterface
     {
         $inputs = self::all();
 
-        return _::only($inputs, $name);
+        return Arr::only($inputs, $name);
     }
 
     /**
@@ -417,7 +417,7 @@ class Request implements RequestInterface
     {
         $inputs = self::all();
 
-        return _::except($inputs, $name);
+        return Arr::except($inputs, $name);
     }
 
     /**

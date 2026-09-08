@@ -1,7 +1,6 @@
 <?php
 namespace App\Utils;
 
-
 use App\Core\Lang;
 use App\Core\Settings;
 
@@ -19,6 +18,6 @@ class Str
         $languageInstance = Lang::getInstance();
         $messages = $languageInstance->getMessages($lang);
 
-        return _::get($messages, $name);
+        return Arr::get($messages, $name);
     }
 }
