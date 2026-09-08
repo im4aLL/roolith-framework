@@ -111,21 +111,40 @@ function viteDevServerUrl(): string
  * browser/CDN caching. When a Vite prod manifest maps the built path, callers via
  * viteCss/viteJs prefer the hashed file instead (no query needed).
  *
+ * Never throws for a missing version: falls back to `dev` in development
+ * or `1.0.0` otherwise so a misconfigured version cannot 500 the page.
+ *
  * @param string $path Built path e.g. assets/css/app.css.
  * @return string Absolute asset URL with ?v=version.
  */
 function viteBuiltAssetUrl(string $path): string
 {
-    return url($path . "?v=" . getVersion());
+    try {
+        $version = getVersion();
+    } catch (\Throwable $e) {
+        error_log('[Roolith viteBuiltAssetUrl] Missing version config, using fallback: ' . $e->getMessage());
+
+        $version = isDevEnvironment() ? 'dev' : '1.0.0';
+    }
+
+    if (trim($version) === '') {
+        error_log('[Roolith viteBuiltAssetUrl] Empty version config, using fallback.');
+
+        $version = isDevEnvironment() ? 'dev' : '1.0.0';
+    }
+
+    return url($path . "?v=" . $version);
 }
 
 /**
  * Read the Vite prod manifest when present.
  *
- * Looks for assets/.vite/manifest.json (Vite 5 default when manifest:true)
- * then assets/manifest.json, decoding to an array. Missing or invalid files
- * yield []. Results are cached per request in $GLOBALS so the test seam
- * fully clears; tests can override via setViteManifestForTests().
+ * Looks for assets/build/.vite/manifest.json (Vite 5 default when
+ * manifest:true with outDir assets/build) then assets/build/manifest.json,
+ * keeping the pre-Phase-4 assets/.vite locations as a legacy fallback so
+ * deploys built before 046-E1 still resolve. Missing or invalid files yield
+ * []. Results are cached per request in $GLOBALS so the test seam fully
+ * clears; tests can override via setViteManifestForTests().
  *
  * @return array<string, array<string, mixed>> Manifest source to entry map.
  */
@@ -145,6 +164,8 @@ function viteManifest(): array
 
     $base = defined('APP_ROOT') ? (string) APP_ROOT : dirname(__DIR__, 2);
     $candidates = [
+        rtrim($base, "/\\") . '/assets/build/.vite/manifest.json',
+        rtrim($base, "/\\") . '/assets/build/manifest.json',
         rtrim($base, "/\\") . '/assets/.vite/manifest.json',
         rtrim($base, "/\\") . '/assets/manifest.json',
     ];
@@ -202,11 +223,11 @@ function setViteManifestForTests(?array $manifest): void
  * Resolve a hashed built file from the manifest when available.
  *
  * Looks up the source entry (for example source/js/app.js) and returns
- * assets/<file> when the manifest has it; otherwise returns the stable
+ * assets/build/<file> when the manifest has it; otherwise returns the stable
  * built path fallback.
  *
  * @param string $sourcePath Vite source entry (manifest key).
- * @param string $builtPath Stable built path fallback e.g. assets/js/app.js.
+ * @param string $builtPath Stable built path fallback e.g. assets/build/js/app.js.
  * @return string Hashed or fallback built path.
  */
 function viteManifestFile(string $sourcePath, string $builtPath): string
@@ -215,7 +236,7 @@ function viteManifestFile(string $sourcePath, string $builtPath): string
     $entry = $manifest[$sourcePath] ?? null;
 
     if (is_array($entry) && isset($entry['file']) && is_string($entry['file']) && trim($entry['file']) !== '') {
-        return 'assets/' . ltrim(trim($entry['file']), '/');
+        return 'assets/build/' . ltrim(trim($entry['file']), '/');
     }
 
     return $builtPath;
@@ -225,7 +246,8 @@ function viteManifestFile(string $sourcePath, string $builtPath): string
  * Render the vite client tag once per page.
  *
  * Render-once state lives in $GLOBALS so tests can reset it via
- * resetViteClientTagForTests() without process isolation.
+ * resetViteClientTagForTests() without process isolation. The dev server
+ * URL is escaped so a misconfigured VITE_DEV_SERVER cannot inject markup.
  *
  * @param string $devServer Vite dev server base URL.
  * @return string Script tag HTML on first call, empty string afterwards.
@@ -238,7 +260,9 @@ function viteClientTag(string $devServer): string
 
     $GLOBALS['_VITE_CLIENT_RENDERED'] = true;
 
-    return "<script type=\"module\" src=\"{$devServer}/@vite/client\"></script>";
+    $escapedServer = htmlspecialchars(rtrim($devServer, "/"), ENT_QUOTES, 'UTF-8');
+
+    return "<script type=\"module\" src=\"{$escapedServer}/@vite/client\"></script>";
 }
 
 /**
@@ -257,12 +281,15 @@ function resetViteClientTagForTests(): void
 /**
  * Render a stylesheet tag for a vite entry.
  *
- * In dev with a Vite server, points at the server source. In prod, prefers
- * the hashed file from the Vite manifest (content-hashed filename, no query
- * needed) and falls back to the stable built path plus ?v=version.
+ * In dev with a Vite server, points at the server source and emits the HMR
+ * client tag once per page (shared with viteJs, so JS-only pages also get
+ * HMR). In prod, prefers the hashed file from the Vite manifest
+ * (content-hashed filename, no query needed) and falls back to the stable
+ * built path plus ?v=version. All URLs are escaped with htmlspecialchars
+ * so manifest or env values cannot inject markup.
  *
  * @param string $sourcePath Vite source entry e.g. source/scss/app.scss (manifest key).
- * @param string $builtPath Stable built fallback e.g. assets/css/app.css.
+ * @param string $builtPath Stable built fallback e.g. assets/build/css/app.css.
  * @return string Link tag HTML.
  */
 function viteCss(string $sourcePath, string $builtPath): string
@@ -270,28 +297,39 @@ function viteCss(string $sourcePath, string $builtPath): string
     $devServer = viteDevServerUrl();
 
     if (isDevEnvironment() && $devServer !== "") {
+        $escapedServer = htmlspecialchars(rtrim($devServer, "/"), ENT_QUOTES, 'UTF-8');
+        $escapedSource = htmlspecialchars(ltrim($sourcePath, "/"), ENT_QUOTES, 'UTF-8');
+
         return viteClientTag($devServer) .
-            "<link rel=\"stylesheet\" href=\"{$devServer}/{$sourcePath}\">";
+            "<link rel=\"stylesheet\" href=\"{$escapedServer}/{$escapedSource}\">";
     }
 
     $resolved = viteManifestFile($sourcePath, $builtPath);
 
     if ($resolved !== $builtPath) {
-        return "<link rel=\"stylesheet\" href=\"" . url($resolved) . "\">";
+        $escapedUrl = htmlspecialchars(url($resolved), ENT_QUOTES, 'UTF-8');
+
+        return "<link rel=\"stylesheet\" href=\"{$escapedUrl}\">";
     }
 
-    return "<link rel=\"stylesheet\" href=\"" . viteBuiltAssetUrl($builtPath) . "\">";
+    $escapedUrl = htmlspecialchars(viteBuiltAssetUrl($builtPath), ENT_QUOTES, 'UTF-8');
+
+    return "<link rel=\"stylesheet\" href=\"{$escapedUrl}\">";
 }
 
 /**
  * Render a script tag for a vite entry.
  *
- * In dev with a Vite server, points at the server source. In prod, prefers
- * the hashed file from the Vite manifest and falls back to the stable built
- * path plus ?v=version.
+ * In dev with a Vite server, points at the server source and emits the HMR
+ * client tag once per page (shared with viteCss, so JS-only pages no longer
+ * miss HMR). In prod, prefers the hashed file from the Vite manifest and
+ * falls back to the stable built path plus ?v=version. Both dev and prod
+ * tags use type="module" so prod bundles match dev module semantics
+ * (Vite emits ES modules; a plain script tag would fail on import syntax).
+ * All URLs are escaped with htmlspecialchars.
  *
  * @param string $sourcePath Vite source entry e.g. source/js/app.js (manifest key).
- * @param string $builtPath Stable built fallback e.g. assets/js/app.js.
+ * @param string $builtPath Stable built fallback e.g. assets/build/js/app.js.
  * @return string Script tag HTML.
  */
 function viteJs(string $sourcePath, string $builtPath): string
@@ -299,16 +337,24 @@ function viteJs(string $sourcePath, string $builtPath): string
     $devServer = viteDevServerUrl();
 
     if (isDevEnvironment() && $devServer !== "") {
-        return "<script type=\"module\" src=\"{$devServer}/{$sourcePath}\"></script>";
+        $escapedServer = htmlspecialchars(rtrim($devServer, "/"), ENT_QUOTES, 'UTF-8');
+        $escapedSource = htmlspecialchars(ltrim($sourcePath, "/"), ENT_QUOTES, 'UTF-8');
+
+        return viteClientTag($devServer) .
+            "<script type=\"module\" src=\"{$escapedServer}/{$escapedSource}\"></script>";
     }
 
     $resolved = viteManifestFile($sourcePath, $builtPath);
 
     if ($resolved !== $builtPath) {
-        return "<script src=\"" . url($resolved) . "\"></script>";
+        $escapedUrl = htmlspecialchars(url($resolved), ENT_QUOTES, 'UTF-8');
+
+        return "<script type=\"module\" src=\"{$escapedUrl}\"></script>";
     }
 
-    return "<script src=\"" . viteBuiltAssetUrl($builtPath) . "\"></script>";
+    $escapedUrl = htmlspecialchars(viteBuiltAssetUrl($builtPath), ENT_QUOTES, 'UTF-8');
+
+    return "<script type=\"module\" src=\"{$escapedUrl}\"></script>";
 }
 
 /**
@@ -662,8 +708,23 @@ function getVersion(): string
 }
 
 /**
- * CMS related routes
+ * CMS admin helpers (037-C4 CMS-only).
+ *
+ * Mounted only when the explicit APP_ENABLE_CMS env flag is on and the CMS
+ * release asset installed app/Utils/Admin/functions.php (see
+ * docs/cms-installer.md). Core boots without it; installer.zip stays tracked
+ * locally for reference and local install but is omitted from dist via
+ * archive.exclude plus export-ignore plus dockerignore and hidden over HTTP
+ * via .htaccess 404.
+ *
+ * Gate parity with System.php and routes.php: defined plus flag plus is_file
+ * plus is_readable so CMS helpers never load in core-only mode or from an
+ * unreadable path.
+ *
+ * @var string $cmsAdminFunctions Absolute path to the optional CMS helpers file.
  */
-if (APP_ENABLE_CMS) {
-    require_once APP_ROOT . "/app/Utils/Admin/functions.php";
+$cmsAdminFunctions = (defined('APP_ROOT') ? (string) APP_ROOT : dirname(__DIR__, 2)) . "/app/Utils/Admin/functions.php";
+
+if (defined('APP_ENABLE_CMS') && APP_ENABLE_CMS && is_file($cmsAdminFunctions) && is_readable($cmsAdminFunctions)) {
+    require_once $cmsAdminFunctions;
 }

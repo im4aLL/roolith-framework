@@ -85,8 +85,16 @@ class System
 
         require_once $basePath . "/constant.php";
 
+        // 037-C4 legacy seam: optional cms-constant.php from the CMS release
+        // asset (see docs/cms-installer.md). Gated on the APP_ENABLE_CMS
+        // opt-in flag like routes.php and functions.php so CMS constants
+        // never load when core-only mode is on (APP_ENABLE_CMS=0).
+        // installer.zip stays tracked locally for reference and local
+        // install but is omitted from dist via archive.exclude plus
+        // export-ignore plus dockerignore and hidden over HTTP via
+        // .htaccess 404.
         $cmsConstantPath = $basePath . "/cms-constant.php";
-        if (file_exists($cmsConstantPath)) {
+        if (defined('APP_ENABLE_CMS') && APP_ENABLE_CMS && is_file($cmsConstantPath) && is_readable($cmsConstantPath)) {
             require_once $cmsConstantPath;
         }
 

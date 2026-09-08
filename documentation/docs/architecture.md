@@ -174,7 +174,7 @@ Key files: `index.php`, `app/Core/System.php`, `constant.php`.
 
 Two tiers: build-time constants and runtime config.
 
-- Constants: view root, config root, `APP_ENABLE_CMS`, optional `ROOLITH_ENV` (unset means development; `production` silences display errors).
+- Constants: view root, config root, `APP_ENABLE_CMS`, optional `ROOLITH_ENV` (unset `APP_ENV` defaults to production fail-closed; only `APP_ENV=development` enables Whoops).
 - Runtime config: `baseUrl`, `viteDevServer`, `database`, `forceNonWww`, `version`.
 - Helpers: `isDevEnvironment`, `isProductionEnvironment`, `url`, `route`, `redirectToRoute`, `getVersion`.
 
@@ -278,20 +278,21 @@ See [Generator](/generator).
 
 #### Frontend delivery
 
-- Author in `source/js/app.js` and `source/scss/app.scss`; ship from `assets/js` and `assets/css`.
+- Author in `source/js/app.js` and `source/scss/app.scss`; ship hashed files from `assets/build/js` and `assets/build/css` via `assets/build/.vite/manifest.json`.
 - HMR mode when `viteDevServer` points at `http://localhost:5173` (Vite serves assets, proxies other paths to PHP on `:8080`, full reload on PHP edits).
-- Static mode otherwise: views emit versioned `assets/` URLs via `viteJs` and `viteCss`.
+- Static mode otherwise: views emit hashed `assets/build/` URLs via `viteJs` and `viteCss`.
+- Uploads live outside the build output (`public/uploads/` or `storage/`).
 - The PHP app never bundles JS itself; it only emits the correct tags per mode.
 
 See [Frontend Workflow](/frontend-workflow).
 
 #### Operations
 
-- Three containers: Apache/PHP on `:8080` (repo bind-mounted), MySQL 8 on `:3306`, phpMyAdmin on `:8081`.
-- `.htaccess` routes clean URLs to the front controller.
-- `installer.zip` carries optional CMS admin sources.
+- Dev `docker-compose.yml` bind-mounts the repo; prod-like `docker-compose.prod.yml` runs from the `COPY` with a named volume for `public/uploads`. MySQL uses a `mysqladmin ping` healthcheck plus `depends_on: service_healthy`.
+- `.htaccess` routes clean URLs to the front controller and denies `installer.zip` with 404.
+- CMS admin sources stay tracked in git as `installer.zip` for reference and local install (owner decision Sep 2026) but are omitted from dist via `composer.json` `archive.exclude` plus `.gitattributes` `export-ignore` plus `.dockerignore`.
 
-See [Docker](/docker).
+See [Docker](/docker) and [CMS installer](/cms-installer).
 
 ## Data: what lives where
 
@@ -324,7 +325,7 @@ No cache or queue is required for the default flow.
 | Locales | `lang/{locale}/message.php` | `Language`, `Settings` |
 | Frontend assets | `source/js`, `source/scss`, `vite.config.mjs` | view helpers `viteJs`, `viteCss` |
 | Scaffolds | `app/Core/generator-templates/*.txt` | `roolith` script wiring |
-| CMS mode | `APP_ENABLE_CMS`, CMS constants and routes | core lifecycle |
+| CMS mode | `APP_ENABLE_CMS=1` plus CMS release asset (see CMS installer) | core lifecycle |
 | Persistence engine | custom ORM or view engine docs | controller call sites if the `Model` facade is preserved |
 
 ## Constraints and tradeoffs

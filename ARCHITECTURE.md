@@ -138,7 +138,7 @@ Owns process boundaries: defines `APP_ROOT`, sets timezone, starts the session, 
 
 ### 6.2 Configuration and environment (`config/config.php`, `roolith/config`, `constant.php`, `app/Utils/functions.php`)
 
-Two tiers: build-time constants (view root, config root, `APP_ENABLE_CMS`, optional `ROOLITH_ENV`) and runtime config (`baseUrl`, `viteDevServer`, `database`, `forceNonWww`, `version`). Helpers expose environment predicates (`isDevEnvironment`, `isProductionEnvironment`), URL builders (`url`, `route`, `redirectToRoute`), and versioned asset URLs (`getVersion`). An unset `ROOLITH_ENV` means development; setting it to `production` silences display errors.
+Two tiers: build-time constants (view root, config root, `APP_ENABLE_CMS`, optional `ROOLITH_ENV`) and runtime config (`baseUrl`, `viteDevServer`, `database`, `forceNonWww`, `version`). Helpers expose environment predicates (`isDevEnvironment`, `isProductionEnvironment`), URL builders (`url`, `route`, `redirectToRoute`), and versioned asset URLs (`getVersion`). An unset `APP_ENV` defaults to production (fail-closed); only exactly `APP_ENV=development` enables Whoops/verbose errors.
 
 ### 6.3 Routing and middleware (`app/Http/routes.php`, `app/Core/RouterFactory.php`, `app/Middlewares`, `roolith/router`)
 
@@ -180,13 +180,13 @@ The seven Roolith packages provide routing, configuration, database access, temp
 
 The `php roolith generate` CLI stamps out controllers, models, and middleware from text templates into their conventional directories. It accelerates bootstrapping but imposes no runtime dependency; generated files are ordinary app code from then on.
 
-### 6.13 Frontend delivery (`source/`, `assets/`, `vite.config.mjs`, `package.json`, `postcss.config.cjs`)
+### 6.13 Frontend delivery (`source/`, `assets/build`, `vite.config.mjs`, `package.json`, `postcss.config.cjs`)
 
-Authoring lives in `source/js/app.js` and `source/scss/app.scss`; built output lives in `assets/js` and `assets/css`. Two modes exist: HMR mode when `viteDevServer` points at `http://localhost:5173` (Vite serves assets and proxies all other paths to PHP on `:8080`, with full reload on PHP edits), and static mode otherwise (views emit versioned `assets/` URLs via `viteJs` and `viteCss`). Optional admin entries are picked up only if their source files exist. The PHP app never bundles JavaScript itself; it only emits the correct script and link tags per mode.
+Authoring lives in `source/js/app.js` and `source/scss/app.scss`; built output lives in `assets/build/js` and `assets/build/css` (content-hashed in prod via `assets/build/.vite/manifest.json`). Two modes exist: HMR mode when `viteDevServer` points at `http://localhost:5173` (Vite serves assets and proxies all other paths to PHP on `:8080`, with full reload on PHP edits), and static mode otherwise (views emit hashed `assets/build/` URLs via `viteJs` and `viteCss`). Optional admin entries from the CMS release asset are picked up only if their source files exist. Uploads live outside the build output (`public/uploads/` or `storage/`). The PHP app never bundles JavaScript itself; it only emits the correct script and link tags per mode.
 
-### 6.14 Operations (`Dockerfile`, `docker-compose.yml`, `.htaccess`, `installer.zip`, `documentation/`)
+### 6.14 Operations (`Dockerfile`, `docker-compose.yml`, `docker-compose.prod.yml`, `.htaccess`, `documentation/`)
 
-Local production parity comes from three containers: Apache/PHP app on `:8080` with the repo bind-mounted, MySQL 8 on `:3306`, and phpMyAdmin on `:8081`. `.htaccess` routes clean URLs to the front controller. `installer.zip` carries the optional CMS admin sources. `documentation/` is a VitePress site describing recipes (dotenv, mail, migrations, seeders); it is documentation-only and not part of the runtime.
+Local parity comes from Apache/PHP app on `:8080` (dev bind-mounts the repo, prod-like `docker-compose.prod.yml` runs from the `COPY` with a named volume for `public/uploads`), MySQL 8 on `:3306` with a `mysqladmin ping` healthcheck plus `depends_on: service_healthy`, and phpMyAdmin on `:8081` (dev only). `.htaccess` routes clean URLs to the front controller and denies `installer.zip` with 404. The optional CMS admin sources stay tracked in git as `installer.zip` for reference and local install (owner decision Sep 2026) but are omitted from dist via `composer.json` `archive.exclude` plus `.gitattributes` `export-ignore` plus `.dockerignore` (see `documentation/docs/cms-installer.md`). `documentation/` is a VitePress site describing recipes (dotenv, mail, migrations, seeders); it is documentation-only and not part of the runtime.
 
 ## 7. Data architecture
 
@@ -211,7 +211,7 @@ The operational data store is MySQL accessed over PDO through `roolith/database`
 | Locales | `lang/{locale}/message.php` | `Language`, `Settings` |
 | Frontend assets | `source/js`, `source/scss`, `vite.config.mjs` | view helpers `viteJs`, `viteCss` |
 | Scaffolds | `app/Core/generator-templates/*.txt` | `roolith` script wiring |
-| CMS mode | `APP_ENABLE_CMS`, CMS constants and routes | core lifecycle |
+| CMS mode | `APP_ENABLE_CMS=1` plus CMS release asset (see `documentation/docs/cms-installer.md`) | core lifecycle |
 | Persistence engine | custom ORM or view engine docs | controller call sites if the `Model` facade is preserved |
 
 ## 10. Constraints and tradeoffs

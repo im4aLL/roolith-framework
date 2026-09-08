@@ -246,10 +246,12 @@ When `view_dir` is set, `<code>.php` under that dir is included with exactly `$s
 
 ## CMS Routes
 
-CMS related routes live in `app/Http/cms-routes.php` and are only loaded when `APP_ENABLE_CMS` is `true`.
+CMS related routes live in `app/Http/cms-routes.php` (installed via the CMS release asset, see [CMS installer](/cms-installer)) and are only loaded when the explicit `APP_ENABLE_CMS=1` env flag is on. Missing files are skipped so core boots without the asset.
 
 ```php
-if (APP_ENABLE_CMS) {
-    require_once APP_ROOT . "/app/Http/cms-routes.php";
+$cmsRoutesPath = APP_ROOT . "/app/Http/cms-routes.php";
+
+if (defined('APP_ENABLE_CMS') && APP_ENABLE_CMS && is_file($cmsRoutesPath) && is_readable($cmsRoutesPath)) {
+    require_once $cmsRoutesPath;
 }
 ```

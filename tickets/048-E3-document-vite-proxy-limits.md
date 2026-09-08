@@ -1,6 +1,6 @@
 # Ticket E3 - Document Vite proxy limits
 
-Status: Open
+Status: Done
 
 Order: 48 of 67
 
@@ -24,12 +24,12 @@ Document which paths bypass proxy, add e2e check that PHP session and HMR work t
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
 
 ## Notes
 
-Update Status to In Progress when started and to Done when verified.
+Done Phase 4: vite.config.mjs proxy comment lists bypassed prefixes plus session plus HMR implication, README plus docs/frontend-workflow.md document bypass list plus no-API-bypass rule plus login-via-8080 browse-via-5173 session check. Verified: composer test 178 OK, vite config inspection shows documented regex.

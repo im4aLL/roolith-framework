@@ -55,6 +55,18 @@ class FSTest extends TestCase
      */
     private function removeRecursive(string $path): void
     {
+        clearstatcache(true, $path);
+
+        if (is_link($path) || is_file($path)) {
+            unlink($path);
+
+            return;
+        }
+
+        if (!is_dir($path)) {
+            return;
+        }
+
         $entries = scandir($path);
 
         if ($entries === false) {
@@ -67,17 +79,21 @@ class FSTest extends TestCase
             }
 
             $full = $path . '/' . $entry;
+            clearstatcache(true, $full);
 
             if (is_link($full)) {
-                @unlink($full);
+                unlink($full);
             } elseif (is_dir($full)) {
                 $this->removeRecursive($full);
-            } else {
-                @unlink($full);
+            } elseif (is_file($full)) {
+                unlink($full);
             }
         }
 
-        @rmdir($path);
+        clearstatcache(true, $path);
+        if (is_dir($path) && !is_link($path)) {
+            rmdir($path);
+        }
     }
 
     /**

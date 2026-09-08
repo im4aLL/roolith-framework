@@ -57,15 +57,12 @@ If no route matches, the framework renders `views/404.php`.
 Application constants live in `constant.php`.
 
 ```php
-// Uncomment to set the environment, defaults to local (uses only config.php)
-//const ROOLITH_ENV = 'development';
-
 const ROOLITH_CONFIG_ROOT = APP_ROOT . '/config';
 const APP_VIEW_ROOT = APP_ROOT . '/views';
-const APP_ENABLE_CMS = false;
+// CMS is env-driven: APP_ENABLE_CMS=1 in .env mounts the CMS release asset.
 ```
 
-When `APP_ENABLE_CMS` is `false`, all files under the `Admin` folder are deactivated.
+When `APP_ENABLE_CMS` is off (default), all files under the `Admin` folder are deactivated. See [CMS installer](/cms-installer) for the release-asset flow; `installer.zip` stays tracked locally for reference and local install but is excluded from distribution archives.
 
 ## Running the App
 

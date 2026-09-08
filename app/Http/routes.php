@@ -64,10 +64,21 @@ $router->post("/form-secure", function (): string {
 })->middleware(CsrfMiddleware::class);
 
 /**
- * CMS related routes
+ * CMS related routes (037-C4 CMS-only).
+ *
+ * Mounted only when the explicit APP_ENABLE_CMS env flag is on and the CMS
+ * release asset installed app/Http/cms-routes.php (see
+ * docs/cms-installer.md). Missing file is skipped so core boots without it.
+ * Gate parity with System.php: defined plus flag plus is_file plus
+ * is_readable so CMS routes never load in core-only mode or from an
+ * unreadable path.
+ *
+ * @var string $cmsRoutesPath Absolute path to the optional CMS routes file.
  */
-if (APP_ENABLE_CMS) {
-    require_once APP_ROOT . "/app/Http/cms-routes.php";
+$cmsRoutesPath = (defined('APP_ROOT') ? (string) APP_ROOT : dirname(__DIR__, 2)) . "/app/Http/cms-routes.php";
+
+if (defined('APP_ENABLE_CMS') && APP_ENABLE_CMS && is_file($cmsRoutesPath) && is_readable($cmsRoutesPath)) {
+    require_once $cmsRoutesPath;
 }
 
 return $router;

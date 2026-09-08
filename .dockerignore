@@ -4,6 +4,12 @@
 vendor
 node_modules
 Dockerfile
-docker-compose.yml
+docker-compose*.yml
 .dockerignore
 installer.zip
+# Local secrets must never bake into the image via COPY . (Dockerfile:29).
+.env
+.env.*
+!.env.example
+storage/logs/*
+!storage/logs/.gitkeep

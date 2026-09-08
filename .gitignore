@@ -1,7 +1,9 @@
 vendor/
 .idea/
 node_modules/
-/assets/
+# 046-E1: only Vite build output is ignored; uploads live outside assets/build.
+# Keep public/uploads/ (web-accessible) or storage/ (outside docroot) tracked.
+/assets/build
 nbproject/
 files/
 .env

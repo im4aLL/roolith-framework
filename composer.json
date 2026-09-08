@@ -31,6 +31,14 @@
             "App\\": "app/"
         }
     },
+    "archive": {
+        "exclude": [
+            "installer.zip",
+            ".github",
+            "documentation",
+            "tests"
+        ]
+    },
     "scripts": {
         "test": "phpunit --colors=always"
     }

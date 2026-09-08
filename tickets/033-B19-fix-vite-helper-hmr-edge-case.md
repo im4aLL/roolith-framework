@@ -1,6 +1,6 @@
 # Ticket B19 - Fix Vite helper HMR edge case
 
-Status: Open
+Status: Done
 
 Order: 33 of 67
 
@@ -24,12 +24,12 @@ Ensure client tag emitted once when either helper runs in dev, escape URLs with 
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
 
 ## Notes
 
-Update Status to In Progress when started and to Done when verified.
+Done Phase 4: viteJs now emits shared viteClientTag in dev (JS-only pages get HMR, single client across viteCss plus viteJs), all dev plus prod URLs escaped via htmlspecialchars, viteClientTag escapes server URL. Verified: new tests/ViteHmrTest.php 4 tests prove JS-first plus CSS-first single client plus dev plus prod escaping, composer test 178 OK (11 Vite plus Version tests pass).

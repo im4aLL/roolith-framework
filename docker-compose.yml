@@ -1,3 +1,8 @@
+# Development compose (052-F4). Bind-mounts the repo for live reload; do NOT
+# use this file as-is in production. See docker-compose.prod.yml for a COPY
+# build with no bind mount plus a named volume for uploads.
+# WARNING: `docker compose down -v` deletes the db_data volume and wipes all
+# database data. Plain `docker compose down` keeps the data.
 services:
   app:
     build: .
@@ -8,21 +13,31 @@ services:
     volumes:
       - ./:/var/www/html
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   db:
     image: mysql:8.0
     container_name: roolith-db
     restart: unless-stopped
+    # 051-F3: single source is .env (MYSQL_*); defaults match .env.example
+    # so `docker compose config` works without a .env file.
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: roolith_cms
-      MYSQL_USER: roolith
-      MYSQL_PASSWORD: secret
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-roolith_cms}
+      MYSQL_USER: ${MYSQL_USER:-roolith}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-secret}
     ports:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
+    healthcheck:
+      # CMD-SHELL so $MYSQL_ROOT_PASSWORD expands; plain CMD passes it literally.
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p\"$$MYSQL_ROOT_PASSWORD\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
 
   phpmyadmin:
     image: phpmyadmin
@@ -34,7 +49,8 @@ services:
     ports:
       - "8081:80"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
 volumes:
   db_data:

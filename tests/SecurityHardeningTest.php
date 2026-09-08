@@ -230,6 +230,9 @@ class SecurityHardeningTest extends TestCase
     /**
      * Htaccess must block sensitive files case-insensitively.
      *
+     * Covers Phase 4 F5: /installer.zip must 404 so the tracked binary stays
+     * hidden over HTTP.
+     *
      * @return void
      */
     public function testHtaccessBlocksSensitiveFiles(): void
@@ -241,5 +244,6 @@ class SecurityHardeningTest extends TestCase
         $this->assertStringContainsString('phpunit\\.xml', $contents);
         $this->assertStringContainsString('\\.log', $contents);
         $this->assertStringContainsString('(\\..*)?', $contents);
+        $this->assertStringContainsString('installer\\.zip', $contents);
     }
 }

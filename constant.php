@@ -30,10 +30,18 @@ if (!defined('APP_VIEW_ROOT')) {
 }
 
 /**
- * Turn on or off CMS feature
+ * Turn on or off CMS feature (037-C4).
  *
- * If you turn it off, all files under admin folder (Admin/*) will be deactivated
+ * Explicit env flag: set APP_ENABLE_CMS=1 in .env to mount CMS routes plus
+ * admin helpers. Default stays off so core boots without the optional CMS
+ * release asset (see docs/cms-installer.md). The optional cms-constant.php
+ * file remains a legacy override when present; System.php loads it after
+ * this flag so deploys with existing files keep working.
+ *
+ * If you turn it off, all files under admin folder (Admin/*) will be deactivated.
  */
 if (!defined('APP_ENABLE_CMS')) {
-    define('APP_ENABLE_CMS', false);
+    $cmsFlag = \App\Core\Env::get('APP_ENABLE_CMS', '0');
+
+    define('APP_ENABLE_CMS', filter_var($cmsFlag, FILTER_VALIDATE_BOOLEAN));
 }

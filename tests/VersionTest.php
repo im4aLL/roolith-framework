@@ -186,11 +186,11 @@ class VersionTest extends TestCase
         $this->setEnv('APP_ENV', 'production');
         $this->seedConfig(['baseUrl' => 'http://localhost:8080/', 'version' => 'abc1234', 'viteDevServer' => '']);
 
-        $first = viteBuiltAssetUrl('assets/css/app.css');
-        $second = viteBuiltAssetUrl('assets/css/app.css');
+        $first = viteBuiltAssetUrl('assets/build/css/app.css');
+        $second = viteBuiltAssetUrl('assets/build/css/app.css');
 
         $this->assertSame($first, $second);
-        $this->assertSame('http://localhost:8080/assets/css/app.css?v=abc1234', $first);
+        $this->assertSame('http://localhost:8080/assets/build/css/app.css?v=abc1234', $first);
     }
 
     /**
@@ -207,10 +207,11 @@ class VersionTest extends TestCase
             'source/scss/app.scss' => ['file' => 'css/app-def456.css'],
         ]);
 
-        $this->assertSame('assets/js/app-abc123.js', viteManifestFile('source/js/app.js', 'assets/js/app.js'));
-        $this->assertStringContainsString('js/app-abc123.js', viteJs('source/js/app.js', 'assets/js/app.js'));
-        $this->assertStringNotContainsString('?v=', viteJs('source/js/app.js', 'assets/js/app.js'));
-        $this->assertStringContainsString('css/app-def456.css', viteCss('source/scss/app.scss', 'assets/css/app.css'));
+        $this->assertSame('assets/build/js/app-abc123.js', viteManifestFile('source/js/app.js', 'assets/build/js/app.js'));
+        $this->assertStringContainsString('type="module"', viteJs('source/js/app.js', 'assets/build/js/app.js'));
+        $this->assertStringContainsString('js/app-abc123.js', viteJs('source/js/app.js', 'assets/build/js/app.js'));
+        $this->assertStringNotContainsString('?v=', viteJs('source/js/app.js', 'assets/build/js/app.js'));
+        $this->assertStringContainsString('css/app-def456.css', viteCss('source/scss/app.scss', 'assets/build/css/app.css'));
     }
 
     /**
@@ -224,8 +225,44 @@ class VersionTest extends TestCase
         $this->seedConfig(['baseUrl' => 'http://localhost:8080/', 'version' => 'abc1234', 'viteDevServer' => '']);
         setViteManifestForTests([]);
 
-        $this->assertSame('assets/js/app.js', viteManifestFile('source/js/app.js', 'assets/js/app.js'));
-        $this->assertStringContainsString('?v=abc1234', viteJs('source/js/app.js', 'assets/js/app.js'));
+        $this->assertSame('assets/build/js/app.js', viteManifestFile('source/js/app.js', 'assets/build/js/app.js'));
+        $this->assertStringContainsString('type="module"', viteJs('source/js/app.js', 'assets/build/js/app.js'));
+        $this->assertStringContainsString('?v=abc1234', viteJs('source/js/app.js', 'assets/build/js/app.js'));
+    }
+
+    /**
+     * Missing version must fall back to ?v=1.0.0 in prod instead of throwing.
+     *
+     * @return void
+     */
+    public function testMissingVersionFallsBackInProd(): void
+    {
+        $this->setEnv('APP_ENV', 'production');
+        $this->seedConfig(['baseUrl' => 'http://localhost:8080/', 'viteDevServer' => '']);
+        setViteManifestForTests([]);
+
+        $this->assertSame(
+            'http://localhost:8080/assets/build/js/app.js?v=1.0.0',
+            viteBuiltAssetUrl('assets/build/js/app.js')
+        );
+        $this->assertStringContainsString('?v=1.0.0', viteJs('source/js/app.js', 'assets/build/js/app.js'));
+    }
+
+    /**
+     * Missing version must fall back to ?v=dev in development instead of throwing.
+     *
+     * @return void
+     */
+    public function testMissingVersionFallsBackInDev(): void
+    {
+        $this->setEnv('APP_ENV', 'development');
+        $this->seedConfig(['baseUrl' => 'http://localhost:8080/', 'viteDevServer' => '']);
+        setViteManifestForTests([]);
+
+        $this->assertSame(
+            'http://localhost:8080/assets/build/css/app.css?v=dev',
+            viteBuiltAssetUrl('assets/build/css/app.css')
+        );
     }
 
     /**
@@ -242,7 +279,7 @@ class VersionTest extends TestCase
     public function testViteManifestCacheClearedByNull(): void
     {
         $base = (string) APP_ROOT;
-        $dir = $base . '/assets/.vite';
+        $dir = $base . '/assets/build/.vite';
         $file = $dir . '/manifest.json';
         $createdDir = false;
         $createdFile = !is_file($file);
@@ -272,13 +309,30 @@ class VersionTest extends TestCase
         } finally {
             if ($backup !== null && $backup !== false) {
                 file_put_contents($file, (string) $backup);
-            } elseif ($createdFile && is_file($file)) {
-                @unlink($file);
+            } elseif ($createdFile) {
+                clearstatcache(true, $file);
+                if (is_file($file) || is_link($file)) {
+                    unlink($file);
+                }
             }
 
             if ($createdDir) {
-                @rmdir($dir);
-                @rmdir($base . '/assets');
+                clearstatcache(true, $dir);
+                if (is_dir($dir) && !is_link($dir)) {
+                    $viteEntries = scandir($dir);
+                    if ($viteEntries !== false && count(array_diff($viteEntries, ['.', '..'])) === 0) {
+                        rmdir($dir);
+                    }
+                }
+
+                $buildDir = $base . '/assets/build';
+                clearstatcache(true, $buildDir);
+                if (is_dir($buildDir) && !is_link($buildDir)) {
+                    $buildEntries = scandir($buildDir);
+                    if ($buildEntries !== false && count(array_diff($buildEntries, ['.', '..'])) === 0) {
+                        rmdir($buildDir);
+                    }
+                }
             }
 
             setViteManifestForTests(null);

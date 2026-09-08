@@ -1,0 +1,21 @@
+# Uploads directory hardening (046-E1 review follow-up).
+#
+# - Disables the PHP engine so an uploaded file can never run as code.
+# - Removes script handlers/types so .php/.phtml uploads stay inert.
+# - Denies script extensions plus dotfiles so neither executes nor leaks.
+# - Prefer storage/ (outside the docroot) for private files.
+
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+
+RemoveHandler .php .phtml
+RemoveType .php .phtml
+
+<FilesMatch "(?i)\.(php|phtml|phar|phps|cgi|pl|py|sh)$">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>

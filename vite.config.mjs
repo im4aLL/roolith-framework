@@ -10,7 +10,7 @@ const input = {
     style: "source/scss/app.scss",
 };
 
-// Admin sources are installed by installer.zip, so they are optional
+// Admin sources ship via the CMS release asset (see docs/cms-installer.md), so they are optional
 if (existsSync(adminJsEntry)) {
     input.admin = adminJsEntry;
 }
@@ -22,8 +22,8 @@ if (existsSync(adminScssEntry)) {
 export default defineConfig(({ mode }) => {
     // Content hashes in prod for CDN-safe caching; stable names in dev for
     // fast rebuilds and readable paths. Helpers in app/Utils/functions.php
-    // read the prod manifest (assets/.vite/manifest.json) when present and
-    // fall back to stable built paths plus ?v=version otherwise.
+    // read the prod manifest (assets/build/.vite/manifest.json) when present
+    // and fall back to stable built paths plus ?v=version otherwise.
     const isProd = mode === "production";
 
     return {
@@ -43,7 +43,13 @@ export default defineConfig(({ mode }) => {
             port: 5173,
             // The PHP app on :8080 loads assets cross-origin when browsed directly
             cors: true,
-            // Serve the PHP app through this server, except vite asset urls
+            // 048-E3 proxy limits: everything except Vite internals is proxied
+            // to PHP on :8080. Bypassed prefixes: @vite, @id, @fs,
+            // node_modules, source, __open-in-editor. That means API routes,
+            // websockets, and PHP sessions all flow through the proxy, so the
+            // browser keeps one origin (cookies/sessions work) while HMR uses
+            // the dev websocket. Do not add API bypasses here without testing
+            // session plus HMR together; see docs/frontend-workflow.md.
             proxy: {
                 "^/(?!@vite|@id|@fs|node_modules|source|__open-in-editor).*$": {
                     target: "http://localhost:8080",
@@ -57,8 +63,16 @@ export default defineConfig(({ mode }) => {
         css: {
             postcss: "./postcss.config.cjs",
         },
+        // 046-E1 review: disable the default public/ copy so
+        // public/uploads/* is never duplicated into assets/build/uploads/*.
+        // Uploads are served by Apache/PHP from the docroot, not by Vite.
+        publicDir: false,
         build: {
-            outDir: "assets",
+            // 046-E1: build only under assets/build so `emptyOutDir` can never
+            // wipe user uploads. Uploads must live outside the build output,
+            // e.g. public/uploads/ (web-accessible) or storage/ (outside the
+            // docroot). See README frontend workflow plus docs/frontend-workflow.md.
+            outDir: "assets/build",
             emptyOutDir: true,
             assetsDir: "",
             manifest: isProd ? true : false,
@@ -66,8 +80,9 @@ export default defineConfig(({ mode }) => {
                 input,
                 output: {
                     entryFileNames: isProd ? "js/[name]-[hash].js" : "js/[name].js",
-                    // Hashed names for dynamic chunks, they are not referenced by path
-                    chunkFileNames: "js/[name]-[hash].js",
+                    // Hashed names for dynamic chunks in prod; stable names in
+                    // dev for fast rebuilds and readable paths.
+                    chunkFileNames: isProd ? "js/[name]-[hash].js" : "js/[name].js",
                     assetFileNames: (assetInfo) => {
                         const originalNames = assetInfo.originalFileNames ?? [];
                         const names = originalNames.length > 0 ? originalNames : (assetInfo.names ?? []);

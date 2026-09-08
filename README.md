@@ -68,7 +68,7 @@ For development with hot module replacement set `viteDevServer` to `http://local
 npm run dev
 ```
 
-The site can then be browsed through `http://localhost:5173` where the dev server proxies the PHP app.
+The site can then be browsed through `http://localhost:5173` where the dev server proxies the PHP app (everything except `@vite`, `@id`, `@fs`, `node_modules`, `source`, `__open-in-editor` goes to PHP on `:8080`, so sessions plus HMR share one origin; see `documentation/docs/frontend-workflow.md` for proxy limits).
 
 To rebuild assets on change without the dev server use
 ```
@@ -82,7 +82,7 @@ Use
 npm run build
 ```
 for production build.
-It creates minified files in the `assets` folder.
+It creates minified, content-hashed files in the `assets/build` folder (for example `assets/build/js/app-[hash].js`). Uploads must live outside the build output, e.g. `public/uploads/` (web-accessible fixture survives rebuilds) or `storage/` (outside the docroot); `npm run build` wipes only `assets/build`.
 
 ### Model
 Model files located into `app/Models`

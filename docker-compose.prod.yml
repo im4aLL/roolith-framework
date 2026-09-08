@@ -1,0 +1,49 @@
+# Production-like compose (052-F4). No repo bind mount: the app runs from the
+# COPY in Dockerfile, so permission and persistence issues cannot hide behind
+# the dev mount. Uploads persist in a named volume; build output
+# (assets/build) ships inside the image via `npm run build` before `docker build`.
+# WARNING: `docker compose -f docker-compose.prod.yml down -v` deletes db_data
+# plus uploads_data and wipes the database plus uploaded files.
+# Run: docker compose -f docker-compose.prod.yml up -d --build
+services:
+  app:
+    build: .
+    container_name: roolith-app-prod
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      APP_URL: ${APP_URL:-http://localhost:8080/}
+      DB_HOST: db
+      DB_NAME: ${MYSQL_DATABASE:-roolith_cms}
+      DB_USER: ${MYSQL_USER:-roolith}
+      DB_PASS: ${MYSQL_PASSWORD:-secret}
+    volumes:
+      - uploads_data:/var/www/html/public/uploads
+    depends_on:
+      db:
+        condition: service_healthy
+
+  db:
+    image: mysql:8.0
+    container_name: roolith-db-prod
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-roolith_cms}
+      MYSQL_USER: ${MYSQL_USER:-roolith}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-secret}
+    volumes:
+      - db_data:/var/lib/mysql
+    healthcheck:
+      # CMD-SHELL so $MYSQL_ROOT_PASSWORD expands; plain CMD passes it literally.
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p\"$$MYSQL_ROOT_PASSWORD\""]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+volumes:
+  db_data:
+  uploads_data:

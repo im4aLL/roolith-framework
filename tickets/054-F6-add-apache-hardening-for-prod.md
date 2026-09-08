@@ -1,6 +1,6 @@
 # Ticket F6 - Add Apache hardening for prod
 
-Status: Open
+Status: Done
 
 Order: 54 of 67
 
@@ -24,12 +24,14 @@ Add minimal security and caching headers, document HTTPS termination outside con
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
 
 ## Notes
 
-Update Status to In Progress when started and to Done when verified.
+Done Phase 4: Dockerfile enables headers plus expires plus deflate, sets ServerTokens Prod plus ServerSignature Off plus TraceEnable Off plus FileETag None, adds cache-compression conf for CSS/JS/SVG, COPYs app for prod parity with uploads plus logs ownership, documents HTTPS termination outside container. DOCKER-README documents hardening. Verified: docker compose config OK, composer test 178 OK, Dockerfile inspection shows both confs plus a2enconf.
+
+Review follow-up: apt install uses --no-install-recommends plus curl, image has HEALTHCHECK curl -f http://localhost/, and the build fails fast with a clear message when assets/build/.vite/manifest.json is missing (run npm run build first; DOCKER-README troubleshooting documents it). Verified: composer test green, docker compose config OK for dev plus prod (no daemon here so docker build plus live curl deferred to a Docker host).

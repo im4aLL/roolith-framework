@@ -1,6 +1,6 @@
 # Ticket F3 - Fix Docker credentials drift and add healthchecks
 
-Status: Open
+Status: Done
 
 Order: 51 of 67
 
@@ -24,12 +24,14 @@ Single source of creds via `.env`, add `healthcheck: mysqladmin ping`, add `depe
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
 
 ## Notes
 
-Update Status to In Progress when started and to Done when verified.
+Done Phase 4: docker-compose.yml reads MYSQL_* via ${VAR:-default} (single source .env, .env.example documents MYSQL_* plus DB_HOST=db mapping), db has mysqladmin ping healthcheck with depends_on service_healthy for app plus phpmyadmin, DOCKER-README plus docs/docker.md creds table corrected. Verified: docker compose config shows service_healthy twice plus healthcheck block, custom MYSQL_ROOT_PASSWORD=custom123 interpolates, composer test 178 OK.
+
+Review follow-up: healthcheck test is now CMD-SHELL so $MYSQL_ROOT_PASSWORD expands (plain CMD passed it literally). Verified: docker compose config renders CMD-SHELL, composer test green.
