@@ -1,26 +1,29 @@
 # Docker
 
+> WARNING: `docker compose down -v` deletes the `db_data` volume and wipes all database data. `docker-compose.yml` is a development file that bind-mounts the repo; for prod-like runs use `docker-compose.prod.yml` (COPY build plus a named volume for `public/uploads`).
+
 The project ships with a Docker setup for local development.
 It gives you PHP, MySQL and phpMyAdmin without installing anything on your machine.
 
 ## Services
 
-| Service    | Container name     | URL / Host                 | Notes            |
-|------------|--------------------|-----------------------------|------------------|
-| app        | roolith-app        | `http://localhost:8080`     | PHP 8.2 + Apache |
-| db         | roolith-db         | localhost:3306 (host `db`)  | MySQL 8.0        |
-| phpmyadmin | roolith-phpmyadmin | `http://localhost:8081`     | MySQL web client |
+| Service    | Container name     | URL / Host                 | Notes                 |
+|------------|--------------------|-----------------------------|-----------------------|
+| app        | roolith-app        | `http://localhost:8080`     | PHP 8.2 + Apache      |
+| db         | roolith-db         | localhost:3306 (host `db`)  | MySQL 8.0             |
+| phpmyadmin | roolith-phpmyadmin | `http://localhost:8081`     | MySQL web client (dev only) |
 
-Database credentials:
+Database credentials (single source is `.env`, see `.env.example` `MYSQL_*`):
 
-| Key      | Value         |
-|----------|---------------|
-| host     | `db`          |
-| database | `roolith_cms` |
-| user     | `root`        |
-| password | `root`        |
+| Key      | Default value  | Env key               |
+|----------|----------------|-----------------------|
+| host     | `db`           | `DB_HOST=db` (app)    |
+| database | `roolith_cms`  | `MYSQL_DATABASE`      |
+| user     | `roolith`      | `MYSQL_USER`          |
+| password | `secret`       | `MYSQL_PASSWORD`      |
+| root pw  | `root`         | `MYSQL_ROOT_PASSWORD` |
 
-A second user `roolith` / `secret` also exists with full access to `roolith_cms`.
+`app` and `phpMyAdmin` wait for `db` to report healthy (`mysqladmin ping` plus `depends_on: service_healthy`). See [Security](/security) for Apache and `.htaccess` hardening.
 
 ## Requirements
 
@@ -51,17 +54,19 @@ Then open:
 
 ## App Database Configuration
 
-When you enable the database in `config/config.php`, use the service name
-`db` as host, not `localhost`:
+When you enable the database in `config/config.php`, use the service name `db` as host, not `localhost`. Copy `.env.example` to `.env` and keep `DB_*` in sync with `MYSQL_*`:
 
-```php
-"database" => [
-    "host" => "db",
-    "name" => "roolith_cms",
-    "user" => "root",
-    "pass" => "root",
-],
 ```
+DB_HOST=db
+DB_NAME=roolith_cms
+DB_USER=roolith
+DB_PASS=secret
+```
+
+## Dev vs prod compose
+
+- `docker-compose.yml` (dev) bind-mounts the repo for live reload.
+- `docker-compose.prod.yml` (prod-like) runs from the `COPY` in `Dockerfile` with no bind mount and persists uploads in `uploads_data`. Build assets first: `npm run build && docker compose -f docker-compose.prod.yml up -d --build`.
 
 ## Regular Development
 
@@ -115,5 +120,4 @@ mapping in `docker-compose.yml` to e.g. `3307:3306` and run
 **Port 8080 or 8081 already in use** - change the left side of the port
 mapping for `app` or `phpmyadmin` in `docker-compose.yml`.
 
-**phpMyAdmin shows a connection error right after startup** - MySQL takes a
-few seconds to boot on first run. Wait a moment and reload.
+**phpMyAdmin shows a connection error right after startup** - fixed by the `service_healthy` gate; on very slow disks wait a moment and reload.

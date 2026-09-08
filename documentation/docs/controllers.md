@@ -25,8 +25,7 @@ class WelcomeController extends Controller
 
 ## Returning a View
 
-Use `$this->view($filename, $data)` to render a template from the `views` folder.
-The data array is passed to the template as variables.
+Use `$this->view($filename, $data)` to render a template from the `views` folder. The data array is passed to the template as variables. `view():string` is fail-closed: it returns the rendered HTML string, never echoes, never returns false, and throws `App\Core\Exceptions\Exception` when rendering fails. The base `Controller::__construct()` requires `baseUrl` config and throws when it is missing.
 
 ```php
 return $this->view('home', ['title' => 'Roolith Framework']);
@@ -36,28 +35,26 @@ See [Views](/views) for template syntax.
 
 ## Returning Data
 
-Return an array or a model result to send it as a response.
-This is handy for quick JSON style endpoints.
+Return `$this->json($payload)` to send a JSON envelope response (`App\Core\Response` via `App\Core\ApiResponseTransformer`, `Content-Type: application/json`). The canonical controller returns are `string|App\Core\Response`, emitted by `App\Core\RouterResponse`. See [Response](/response) for the envelope shape, redirects, and status codes.
 
 ```php
 public function users()
 {
-    return User::all();
+    return $this->json(User::all());
 }
 
 public function show($id)
 {
-    return User::orm()->find($id);
+    return $this->json(User::orm()->find($id));
 }
 ```
 
 ## Registering Routes
 
-Point routes to controller methods with the `Controller@method` syntax.
-See [Routing](/routing).
+Point routes to controller methods with the callable `[Controller::class, 'method']` form. The string `Controller::class . "@method"` form is legacy BC only. See [Routing](/routing).
 
 ```php
-$router->get("/example", WelcomeController::class . "@index");
+$router->get("/example", [WelcomeController::class, "index"]);
 ```
 
 ## Generating Controllers

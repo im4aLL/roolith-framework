@@ -1,49 +1,63 @@
 # Seeder
 
-Seeders are handled by the same [roolith/migration](https://github.com/im4aLL/roolith-migration) package used for [migrations](/migration).
-Set up `migration.php` as described there, then use the seeder commands below.
+Seeders are handled by the internal `App\Database\Seeder` (no external package required). Seeder files live in `database/seeders` and applied names are tracked in the `seeds` table so seed data never duplicates between deploys.
 
-## Seeder Commands
+## Commands
 
-Assuming your filename is `migration.php`, you can run the seeder commands as follows.
+Run from the project root:
 
 ```bash
-php migration.php seeder:create seed_name
-php migration.php seeder:run # it will run all pending seeds
-php migration.php seeder:run seed_name
+php roolith seed:create add_users
+php roolith seed
+php roolith seed:status
+php roolith seed:run
+php roolith seed:run add_users
 ```
 
-## Example of Seed File
+- `seed:create <Name>` scaffolds `database/seeders/<timestamp>_<rand>_<Slug>.php` with a `run()` skeleton. The directory is created when missing and the name includes a random suffix so concurrent creates never collide. An empty name after sanitizing throws `InvalidArgumentException`. `seeder:create` is an accepted alias.
+- `seed` runs pending seeders in filename order. Each `run()` runs inside the injected connection transaction and the tracking row is written only on success.
+- `seed:run [Name]` runs all pending seeders, or one named seeder when given. A single already-applied name is a no-op returning `[]`, while an unknown or unsafe name throws `InvalidArgumentException`. `seeder:run` is an accepted alias with the same behavior.
+- `seed:status` lists applied plus pending names without running anything.
+
+## Seeder files
 
 ```bash
-php migration.php seeder:create add_users
+php roolith seed:create add_users
 ```
 
 ```php
 <?php
 
+use App\Database\SeederInterface;
 use Roolith\Store\Interfaces\DatabaseInterface;
-use Roolith\Migration\Interfaces\SeederInterface;
 
 class AddUsers implements SeederInterface
 {
-    public function run(DatabaseInterface $db): void {}
+    /**
+     * Run the seeder.
+     *
+     * @param DatabaseInterface $db Shared database connection.
+     * @return void
+     */
+    public function run(DatabaseInterface $db): void
+    {
+    }
 }
 ```
 
 Inside `run()` you get the [database](/database) connection, so every driver method from the [database](/database) page is available on `$db`.
 
-## Complete Example
+## Complete example
 
 Here is a complete seeder file that inserts dummy users into the `users` table created in the [migration example](/migration#complete-example).
 
 ```php
 <?php
 
-use Roolith\Migration\Interfaces\SeederInterface;
+use App\Database\SeederInterface;
 use Roolith\Store\Interfaces\DatabaseInterface;
 
-class _1764469509_UserData implements SeederInterface
+class UserData implements SeederInterface
 {
     public function run(DatabaseInterface $db): void
     {
@@ -64,3 +78,14 @@ class _1764469509_UserData implements SeederInterface
     }
 }
 ```
+
+Seeders pair with [migrations](/migration): migrate the schema first, then seed the rows.
+
+## Notes
+
+- The `seeds` table (`seed` VARCHAR primary, `batch` INT, `seeded_at` TIMESTAMP) is created automatically when missing.
+- Only `*.php` files in `database/seeders` run, sorted by name so timestamp prefixes order correctly.
+- Read failures log via `App\Core\Log::error()` and rethrow so a failed read never looks like an empty success.
+- Seeder names are restricted to letters, digits, and underscores; anything else throws `InvalidArgumentException` before touching the filesystem, while a missing file, missing class, or class not implementing `SeederInterface` throws `RuntimeException`.
+- The class name is derived by stripping a leading timestamp prefix, splitting on underscores, and StudlyCasing the parts; when the result would start with a digit it is prefixed with `Seeder` so the file always declares a valid PHP class name.
+- Seeders run via the internal `App\Database\Seeder` (and migrations via `App\Database\Migrator`) with `php roolith seed` and `php roolith migrate` commands.

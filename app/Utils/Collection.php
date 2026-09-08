@@ -65,10 +65,10 @@ class Collection implements IteratorAggregate, Countable, ArrayAccess
     /**
      * Filter the collection using the given callback.
      *
-     * @param callable $callback
+     * @param callable|null $callback
      * @return self
      */
-    public function filter(callable $callback = null): self
+    public function filter(?callable $callback = null): self
     {
         if ($callback === null) {
             return new self(array_filter($this->items));
@@ -170,7 +170,7 @@ class Collection implements IteratorAggregate, Countable, ArrayAccess
      * @param callable|null $callback
      * @return self
      */
-    public function sort(callable $callback = null): self
+    public function sort(?callable $callback = null): self
     {
         $items = $this->items;
 
@@ -209,7 +209,7 @@ class Collection implements IteratorAggregate, Countable, ArrayAccess
      * @param callable|null $callback
      * @return mixed
      */
-    public function first(callable $callback = null): mixed
+    public function first(?callable $callback = null): mixed
     {
         if ($callback === null) {
             return array_values($this->items)[0] ?? null;
@@ -227,13 +227,21 @@ class Collection implements IteratorAggregate, Countable, ArrayAccess
     /**
      * Get the last item from the collection.
      *
-     * @param callable|null $callback
-     * @return mixed
+     * Uses an explicit empty-array check instead of `?:` so falsy values
+     * (0, "0", "", false, []) are returned as-is. end() returns false only
+     * for an empty array, which is already handled above.
+     *
+     * @param callable|null $callback Optional predicate; when given, the last matching item is returned.
+     * @return mixed Last item, last match, or null when empty or nothing matches.
      */
-    public function last(callable $callback = null): mixed
+    public function last(?callable $callback = null): mixed
     {
         if ($callback === null) {
-            return end($this->items) ?: null;
+            if ($this->items === []) {
+                return null;
+            }
+
+            return end($this->items);
         }
 
         $items = array_reverse($this->items);
@@ -249,25 +257,38 @@ class Collection implements IteratorAggregate, Countable, ArrayAccess
     /**
      * Calculate the sum of the collection.
      *
-     * @param string|callable $key
-     * @return int|float
+     * String keys are resolved via pluck(); any other callable (Closure,
+     * first-class callable, or [object, method] pair) is applied with
+     * array_map before summing so a callable is never forwarded to
+     * pluck(string). Strings are checked first so a column named like a
+     * function (for example "count") still resolves as a column key.
+     *
+     * @param string|callable|null $key Column key, value callback, or null for raw values.
+     * @return int|float Summed value.
      */
-    public function sum(string|callable $key = null): int|float
+    public function sum(string|callable|null $key = null): int|float
     {
         if ($key === null) {
             return array_sum($this->items);
         }
 
-        return $this->pluck($key)->sum();
+        if (is_string($key)) {
+            return $this->pluck($key)->sum();
+        }
+
+        return array_sum(array_map($key, $this->items));
     }
 
     /**
      * Calculate the average of the collection.
      *
-     * @param string|callable $key
-     * @return int|float|null
+     * Forwards to sum(), so callable support lives there; this method only
+     * handles the empty-collection guard.
+     *
+     * @param string|callable|null $key Column key, value callback, or null for raw values.
+     * @return int|float|null Average value, or null when the collection is empty.
      */
-    public function avg(string|callable $key = null): int|float|null
+    public function avg(string|callable|null $key = null): int|float|null
     {
         $count = $this->count();
         return $count > 0 ? $this->sum($key) / $count : null;

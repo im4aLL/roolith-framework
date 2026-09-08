@@ -6,7 +6,7 @@ Use it for any project, personal or commercial.
 
 ## Requirements
 
-- PHP >= 8.0
+- PHP >= 8.2
 - Composer
 
 ## Installation
@@ -40,32 +40,25 @@ composer create-project roolith/framework your_app_name
 
 ## How a Request Flows
 
-All requests hit `index.php`.
-It bootstraps the `System` class which processes the request through the router defined in `app/Http/routes.php`.
+All requests hit `index.php`. It delegates to `App\Core\System::run()`, which wraps `bootstrap()->processRequest()->complete()` with `RedirectException` emit plus `ErrorHandler` handling and `complete()` in `finally`, and never throws. Do not call the bare `bootstrap()->processRequest()->complete()` chain yourself, it leaks `RedirectException` redirects.
 
 ```php
-$app = new System();
-$app->bootstrap()
-    ->processRequest()
-    ->complete();
+App\Core\System::run();
 ```
 
-If no route matches, the framework renders `views/404.php`.
+If no route matches, the framework renders `views/404.php`. A path that exists for another method responds with 405 `Method Not Allowed` and an `Allow` header. Canonical host redirects are emitted before routing, and uncaught errors go to `ErrorHandler` (Whoops page in development, generic 500 with trace id in production). There is no `views/500.php` override yet.
 
 ## Constants
 
 Application constants live in `constant.php`.
 
 ```php
-// Uncomment to set the environment, defaults to local (uses only config.php)
-//const ROOLITH_ENV = 'development';
-
 const ROOLITH_CONFIG_ROOT = APP_ROOT . '/config';
 const APP_VIEW_ROOT = APP_ROOT . '/views';
-const APP_ENABLE_CMS = false;
+// CMS is env-driven: APP_ENABLE_CMS=1 in .env mounts the CMS release asset.
 ```
 
-When `APP_ENABLE_CMS` is `false`, all files under the `Admin` folder are deactivated.
+When `APP_ENABLE_CMS` is off (default), all files under the `Admin` folder are deactivated. See [CMS installer](/cms-installer) for the release-asset flow; `installer.zip` stays tracked locally for reference and local install but is excluded from distribution archives.
 
 ## Running the App
 

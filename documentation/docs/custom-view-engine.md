@@ -1,11 +1,28 @@
 # Custom View Engine
 
-Roolith renders views with [roolith/template-engine](https://github.com/im4aLL/roolith-template-engine) by default, see [Views](/views).
-You can swap it for any template engine that fits your project, for example [Mustache PHP](https://github.com/bobthecow/mustache.php) or [Twig](https://twig.symfony.com/).
+Roolith renders views with [roolith/template-engine](https://github.com/im4aLL/roolith-template-engine) by default, see [Views](/views). You only need this page if you want to swap it for something else, for example [Mustache PHP](https://github.com/bobthecow/mustache.php) or [Twig](https://twig.symfony.com/).
 
-## Installation
+> Do you need this? For most apps, no. The default engine is plain PHP with no syntax to learn. Switch only if your team already knows Mustache or Twig, or you share templates with another project.
 
-Install the engine you want with Composer.
+## How the swap works
+
+Your controllers keep calling the same method:
+
+```php
+return $this->view('home', ['title' => 'Roolith Framework']);
+```
+
+Only the base controller changes: its constructor builds a different engine, and `view()` forwards to it. The template name maps to a file:
+
+| Call | Default | Mustache | Twig |
+| --- | --- | --- | --- |
+| `$this->view('home', $data)` | `views/home.php` | `views/home.mustache` | `views/home.twig` |
+
+Pick one engine below and follow its three steps. Controllers outside `app/Controllers/Controller.php` stay unchanged.
+
+## Step 1 - Install one engine
+
+Pick one, not both:
 
 ```bash
 composer require mustache/mustache
@@ -15,13 +32,11 @@ composer require mustache/mustache
 composer require "twig/twig:^3.0"
 ```
 
-The base controller owns the template engine, so the swap happens in `app/Controllers/Controller.php`.
-The default engine is resolved by `App\Core\TemplateEngineFactory`.
-`view()` delegates to the engine `compile()` method.
+## Step 2 - Point the base controller at it
 
-## Using Mustache
+Edit `app/Controllers/Controller.php`. Replace the default engine setup with one of these.
 
-### Updating the Controller
+### Mustache
 
 ```php
 <?php
@@ -41,13 +56,6 @@ class Controller
         ]);
     }
 
-    /**
-     * Render a view
-     *
-     * @param $filename
-     * @param array $data
-     * @return string
-     */
     public function view($filename, array $data = []): string
     {
         return $this->templateEngine->render($filename, $data);
@@ -55,72 +63,7 @@ class Controller
 }
 ```
 
-### Creating Templates
-
-Mustache reads templates from the same `views` folder but expects `.mustache` files.
-A template named `home` maps to `views/home.mustache`.
-
-```hbs
-<h1>{{title}}</h1>
-
-<p>{{content}}</p>
-```
-
-### Rendering in a Controller
-
-Controllers stay unchanged: call `$this->view($filename, $data)`.
-
-```php
-<?php
-namespace App\Controllers;
-
-class WelcomeController extends Controller
-{
-    public function index()
-    {
-        return $this->view('home', [
-            'content' => 'Welcome to Roolith framework!',
-            'title' => 'Roolith Framework',
-        ]);
-    }
-}
-```
-
-### Escaping
-
-Text between double mustache tags is HTML-escaped by default.
-Text between triple mustache tags is printed raw.
-
-```hbs
-<p>{{title}}</p>
-<p>{{{content}}}</p>
-```
-
-### Recreating the Base URL Helper
-
-The default engine provides `$this->url()` inside templates.
-With Mustache, add a helper in the constructor instead.
-
-```php
-$this->templateEngine = new Mustache_Engine([
-    'loader' => new Mustache_Loader_FilesystemLoader(APP_VIEW_ROOT),
-    'helpers' => [
-        'url' => function ($text) {
-            return rtrim(Config::get('baseUrl'), '/') . '/' . ltrim($text, '/');
-        },
-    ],
-]);
-```
-
-```hbs
-<link rel="stylesheet" href="{{#url}}assets/app.css{{/url}}">
-```
-
-## Using Twig
-
-### Updating the Controller
-
-Twig compiles templates down to plain PHP and auto-escapes output.
+### Twig
 
 ```php
 <?php
@@ -141,13 +84,6 @@ class Controller
         ]);
     }
 
-    /**
-     * Render a view
-     *
-     * @param $filename
-     * @param array $data
-     * @return string
-     */
     public function view($filename, array $data = []): string
     {
         return $this->templateEngine->render($filename . '.twig', $data);
@@ -155,9 +91,17 @@ class Controller
 }
 ```
 
-### Creating Templates
+If other code resolves the engine through `App\Core\TemplateEngineFactory`, apply the same swap there.
 
-A template named `home` maps to `views/home.twig`.
+## Step 3 - Add a template and render it
+
+Create the file for your engine:
+
+```hbs
+<h1>{{title}}</h1>
+
+<p>{{content}}</p>
+```
 
 ```twig
 <h1>{{ title }}</h1>
@@ -165,9 +109,7 @@ A template named `home` maps to `views/home.twig`.
 <p>{{ content }}</p>
 ```
 
-### Rendering in a Controller
-
-Controllers stay unchanged: call `$this->view($filename, $data)`.
+Render it as usual. This part is identical for both engines:
 
 ```php
 <?php
@@ -185,19 +127,46 @@ class WelcomeController extends Controller
 }
 ```
 
+If the page renders, the swap works. Everything below is only for templates that relied on default-engine features.
+
+## Only if you used these features
+
 ### Escaping
 
-Twig auto-escapes by default.
-Use the `raw` filter to print raw HTML.
+Both replacements escape by default, same as Roolith. Use raw output only for trusted HTML:
+
+```hbs
+<p>{{title}}</p>
+<p>{{{content}}}</p>
+```
 
 ```twig
 <p>{{ title }}</p>
 <p>{{ content|raw }}</p>
 ```
 
-### Recreating the Base URL Helper
+### The `url()` helper
 
-Add a function to the environment in the constructor.
+The default engine provides `$this->url()` inside templates. Recreate it only if your templates call it.
+
+Mustache, in the constructor:
+
+```php
+$this->templateEngine = new Mustache_Engine([
+    'loader' => new Mustache_Loader_FilesystemLoader(APP_VIEW_ROOT),
+    'helpers' => [
+        'url' => function ($text) {
+            return rtrim(Config::get('baseUrl'), '/') . '/' . ltrim($text, '/');
+        },
+    ],
+]);
+```
+
+```hbs
+<link rel="stylesheet" href="{{#url}}assets/app.css{{/url}}">
+```
+
+Twig, in the constructor:
 
 ```php
 $this->templateEngine->addFunction(new \Twig\TwigFunction('url', function ($text) {
@@ -209,12 +178,24 @@ $this->templateEngine->addFunction(new \Twig\TwigFunction('url', function ($text
 <link rel="stylesheet" href="{{ url('assets/app.css') }}">
 ```
 
-## Notes
+### Partials and layouts
 
-- Mustache includes partials and layouts with the partial tag, which resolves to `views/partials/header.mustache` for a template named `partials/header`.
-- Twig includes partials with the include tag and composes layouts with the extend tag and blocks.
-- Neither engine has a `baseUrl` or `escape` method from the default engine; recreate them as helpers or functions if your templates rely on them.
-- Mustache caches templates in memory; leave the cache option unset while iterating in development.
-- Twig caches compiled templates on disk; set the cache option to a writable directory in production.
-- Twig 3.x requires PHP 8.1 or newer.
-- Apply the same swap in `App\Core\TemplateEngineFactory` if other code resolves the engine through the factory.
+Mustache partial, loads `views/partials/header.mustache`:
+
+```hbs
+{{> partials/header }}
+```
+
+Twig partial and layout:
+
+```twig
+{% include 'partials/header.twig' %}
+{% extends 'layout.twig' %}
+{% block content %}{% endblock %}
+```
+
+## Checklist
+
+- Twig caches compiled templates on disk. Keep `cache => false` while developing, point it at a writable directory in production.
+- Twig 3.x needs PHP 8.1+, which Roolith's PHP >= 8.2 requirement already covers.
+- A missing template file is a server error. When one appears, check the name and extension first.

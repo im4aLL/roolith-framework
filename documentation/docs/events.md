@@ -1,49 +1,48 @@
 # Events
 
-The framework ships with [roolith/event](https://github.com/im4aLL/roolith-event) `^2.0`, a simple PHP event listener.
+Events let one part of your code react when something happens elsewhere, such as sending a welcome email after signup. The framework does not fire events itself; you define your own names and listeners.
 
-`Event` is a static facade over a shared `Roolith\Event\Dispatcher` instance. Use `Dispatcher` directly when you want dependency injection or isolated state in tests.
+Register listeners once at boot (for example in `routes.php` or a service provider), then trigger where the action happens.
 
-## Usage
+## Basic usage
 
 ```php
 use Roolith\Event\Event;
 
-Event::listen('login', function () {
-    echo 'Event user login fired! <br>';
+// register once at boot:
+Event::listen('user.created', function (array $user) {
+    return 'welcome:' . $user['email'];
 });
 
-Event::trigger('login'); // returns [null] (ordered listener results)
+// where the action happens:
+$results = Event::trigger('user.created', [['email' => 'a@b.com']]); // ['welcome:a@b.com']
 ```
 
-## Working Example
+## Passing data
+
+No argument calls listeners with zero args, a single value is passed as one arg, and an array is spread into listener params.
 
 ```php
-<?php
 use Roolith\Event\Event;
 
-class User
-{
-    public function login()
-    {
-        return true;
-    }
-}
-
-Event::listen('login', function () {
-    echo 'Event user login fired! <br>';
+Event::listen('logout', function ($who) {
+    echo 'Goodbye ' . $who;
 });
 
-$user = new User();
+Event::trigger('logout', 'a@b.com');
 
-if ($user->login()) {
-    Event::trigger('login');
-}
+Event::listen('updated', function ($field, $by) {
+    echo $field . ' changed by ' . $by;
+});
+
+Event::trigger('updated', ['email', 'admin']);
 ```
 
-## Trigger return value
+Listener params must match what you trigger with, otherwise PHP throws an `ArgumentCountError`.
 
-`trigger()` never throws for a missing listener. It returns ordered listener results, `[]` when nothing matched:
+## Trigger results
+
+`trigger()` returns listener results in order, or `[]` when nothing matched. It does not throw for missing listeners.
 
 ```php
 $results = Event::trigger('login'); // e.g. ['ok', null]
@@ -51,105 +50,56 @@ $results = Event::trigger('login'); // e.g. ['ok', null]
 if ($results === []) {
     // no listener matched
 }
-```
 
-Returning boolean `false` from a listener stops further propagation (exact listeners run first, then wildcard listeners):
-
-```php
-Event::listen('login', fn () => false); // second listener below never runs
-Event::listen('login', fn () => 'never');
-```
-
-Use introspection instead of try/catch:
-
-```php
 if (Event::has('login')) {
     Event::trigger('login');
 }
-
-$all = Event::getListeners(); // all listeners keyed by name
-$forName = Event::getListeners('event.login'); // exact + wildcard matches
 ```
 
-## With Param
+Returning `false` from a listener stops the rest from running:
 
 ```php
-Event::listen('logout', function ($param) {
-    echo 'Event ' . $param . ' logout fired! <br>';
-});
-
-Event::trigger('logout', 'user');
+Event::listen('login', fn () => false); // the next listener never runs
+Event::listen('login', fn () => 'never');
 ```
 
-`null` means zero args, an array is spread into listener params, anything else is passed as one arg. Falsy `0`, `''`, `false` are passed through as one arg. Listener arity must match trigger args, otherwise PHP throws `ArgumentCountError`.
+## Group listeners
 
-## With Param Array
-
-```php
-Event::listen('updated', function ($param1, $param2) {
-    echo 'Event (' . $param1 . ', ' . $param2 . ') updated fired! <br>';
-});
-
-Event::trigger('updated', ['param1', 'param2']);
-```
-
-## Multiple events
-
-Register one shared listener for multiple events. Validation is atomic: failure leaves state untouched. An empty list returns `false` and registers nothing.
+Register one listener for several events, or catch a group with a wildcard. Wildcards match one level: `event.*` matches `event.login` but not `event.login.extra`.
 
 ```php
+use Roolith\Event\Event;
+
 Event::listeners(['login', 'user.login'], function () {
-    // shared listener
-});
-```
-
-## Unregister an Event
-
-```php
-Event::unregister('updated');
-Event::unregister(['a', 'b']); // array form, true only when every name removed something
-
-$callback = function () {};
-Event::listen('updated', $callback);
-Event::unregister('updated', $callback); // remove one callback, leaves others intact
-```
-
-Missing names return `false`. `listen()` always appends with no dedup: registering the same callable twice fires it twice. `unregister($name, $callback)` removes only the first `===` match.
-
-## Wildcard Events
-
-Listen to a group of events with the `*` wildcard.
-
-```php
-Event::listen('event.login', function () {
-    echo 'Login Wild card fired! <br>';
+    // runs for either event
 });
 
-Event::listen('event.logout', function () {
-    echo 'Logout Wild card fired! <br>';
-});
-
-Event::listen('event.*', function ($param) {
-    echo 'Wild card fired! - ' . $param . ' <br>';
+Event::listen('event.*', function ($which) {
+    echo 'Saw ' . $which;
 });
 
 Event::trigger('event.login', 'login');
-Event::trigger('event.logout', 'logout');
 ```
 
-Wildcard matching is single-level: `event.*` matches `event.login` but not `event.login.extra`.
+## Remove listeners
+
+```php
+use Roolith\Event\Event;
+
+Event::unregister('updated'); // remove all listeners for one event
+Event::unregister(['a', 'b']); // remove several at once
+
+$callback = function () {};
+Event::listen('updated', $callback);
+Event::unregister('updated', $callback); // remove just that one
+```
 
 ## Event names
 
-Valid names are segments of letters, digits, underscore joined by single dots, with optional terminal `.*` (e.g. `login`, `user.login`, `event.*`). Invalid names throw `Roolith\Event\Exceptions\InvalidArgumentException`, which extends SPL `\InvalidArgumentException`.
-
-## Exceptions
-
-Invalid names throw `Roolith\Event\Exceptions\InvalidArgumentException` (extends SPL `\InvalidArgumentException`, so standard catches work). Missing listeners do not throw; `trigger()` returns `[]`.
-
-Note: in 2.x `InvalidArgumentException` no longer extends the legacy library `Roolith\Event\Exceptions\Exception` class. That class is kept for BC but no longer thrown, so existing `catch (Roolith\Event\Exceptions\Exception)` blocks around `listen()` / `trigger()` / `unregister()` will not catch validation errors. Catch `Roolith\Event\Exceptions\InvalidArgumentException` (or SPL `\InvalidArgumentException`) instead.
+Names are letters, digits, and underscores joined by dots, with an optional trailing `.*` (for example `login`, `user.login`, `event.*`). Anything else throws an `InvalidArgumentException`:
 
 ```php
+use Roolith\Event\Event;
 use Roolith\Event\Exceptions\InvalidArgumentException;
 
 try {
@@ -159,29 +109,23 @@ try {
 }
 ```
 
-Custom validation messages can be set via `setErrorMessage()`. Only the `name` key is currently thrown.
+## Isolated dispatcher
 
-```php
-Event::setErrorMessage(['name' => 'custom-name-error']);
-```
-
-## Isolated dispatcher (DI / testing)
-
-Prefer instances for DI and test isolation. They do not share state with the `Event` facade.
+Use a `Dispatcher` instance when you want dependency injection or isolated state in tests. Instances do not share listeners with the `Event` facade.
 
 ```php
 use Roolith\Event\Dispatcher;
+use Roolith\Event\Event;
 
 $events = new Dispatcher();
 $events->listen('login', fn () => 'ok');
 $events->trigger('login'); // ['ok']
-```
 
-Isolate facade state in tests:
-
-```php
-Event::reset(); // clears shared dispatcher listeners
+// reset shared facade state in tests:
+Event::reset();
 Event::setSharedDispatcher(new Dispatcher());
 ```
 
-Listeners are snapshotted before dispatch. `listen()` / `unregister()` inside a listener affect the next `trigger()`, not the one in progress. Nested `trigger()` calls run independently.
+## Worked example
+
+See `app/Examples/CacheAndEventExamples.php` (`userCreated`, `registerUserCreatedListeners`) for the register-once-at-boot shape. Use events only for decoupled side effects - welcome emails, order-placed hooks - not for the main request flow.

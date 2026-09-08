@@ -1,90 +1,39 @@
 # Configuration
 
-All application configuration is stored in `config/config.php`.
-Under the hood the framework uses [roolith/config](https://github.com/im4aLL/roolith-config) `^2.0` (PHP `>=8.0`).
+All application settings live in `config/config.php`, and every value comes from `.env`. Copy `.env.example` to `.env` and edit that file; you rarely need to touch `config.php` itself.
 
-The framework already requires `roolith/config: ^2.0` in `composer.json`, and `composer.lock` resolves to `2.0.0`.
-No code change was needed for the upgrade: `Config::get()`, `Config::setEnv()`, and `Config::env()` keep the same signatures.
-What changed in 2.0 is stricter validation, documented merge semantics, and a breaking change to environment detection (see Upgrade note below).
-
-## Setup
-
-Two constants wire the library up. Both live in `constant.php`, which `App\Core\System::__construct()` loads before anything touches `Config`.
-
-```php
-// constant.php
-// const ROOLITH_ENV = 'production'; // optional, see Environment precedence
-const ROOLITH_CONFIG_ROOT = APP_ROOT . '/config';
+```bash
+cp .env.example .env
 ```
 
-- `ROOLITH_CONFIG_ROOT` (required): directory holding `config.php` plus optional `<env>.config.php` files. Must exist and be readable, otherwise `Config::get()` throws `Roolith\Configuration\Exception\Exception`.
-- `ROOLITH_ENV` (optional): default environment name. Read once on first `Config` init. `Config::setEnv()` or process env `ROOLITH_ENVIRONMENT` overrides it.
+## Settings you will actually change
 
-## The Config File
+| What | `.env` key | Default |
+| --- | --- | --- |
+| Site URL | `APP_URL` | `http://localhost:8080/` |
+| Environment | `APP_ENV` | `production` (only exact `development` enables verbose errors) |
+| Database host / name / user / pass | `DB_HOST`, `DB_NAME`, `DB_USER`, `DB_PASS` | empty (runs without a database) |
+| Force non-www (`1`) or www (`0`) | `FORCE_NON_WWW` | `1` |
+| Asset version | `APP_VERSION` | `time()` in development, `1.0.0` otherwise |
+| Vite dev server | `VITE_DEV_SERVER` | empty (uses built assets) |
 
-```php
-<?php
-return [
-    /**
-     * Base URL for app
-     */
-    "baseUrl" => "http://localhost:8080/",
+Leave `DB_HOST` empty to run without a database. Set `APP_VERSION=1.2.3` in production so browsers cache assets; development uses `time()` automatically for no-cache reloads.
 
-    /**
-     * Database configuration
-     */
-    "database" => [
-        "host" => "localhost",
-        "name" => "roolith_cms",
-        "user" => "root",
-        "pass" => "",
-    ],
+## Reading values
 
-    /**
-     * For domain to have www or not www in domain
-     */
-    "forceNonWww" => true,
-
-    /**
-     * Current app version
-     */
-    "version" => time(),
-];
-```
-
-Set `database` to `null` if your application does not need a database (`System::bootstrap()` skips connecting when it is falsy).
-
-## Reading Values
-
-Use dot notation to read nested values.
+Use `Config::get()` with dot notation anywhere after boot. Missing keys return `null`.
 
 ```php
 use Roolith\Configuration\Config;
 
-Config::get('baseUrl');
-Config::get('database.host');
-Config::get('a.b'); // nested values
-Config::get('mail.host'); // nested values from .env wiring, see Using Dot Env
+Config::get('baseUrl'); // e.g. https://example.com/
+Config::get('database.host'); // null when no database is configured
+Config::get('database') !== null; // testing presence: compare to null, stored null also reads as null
 ```
 
-Behavior:
+## Environments
 
-- Missing keys return silent `null` (stored `null` values are also returned as `null`, so use `Config::get('database') !== null` to test presence, not truthiness alone).
-- Invalid keys throw `Roolith\Configuration\Exception\InvalidArgumentException`. Valid keys match `[A-Za-z0-9_.-]+` with no empty segments, so `""`, `".a"`, `"a."`, `"a..b"`, and `"a b"` throw, while `"0"` and `"missing-key-xyz"` are valid and return `null` when absent.
-- `config.php` returning a non-array, or an unreadable file, throws `Roolith\Configuration\Exception\Exception`.
-
-To skip auto environment loading for a specific key, pass `true` as the second argument.
-
-```php
-Config::get('staging.database', true); // resolves staging.config.php literally, ignores active env
-```
-
-With an active env and without the flag, dotted keys first try `env.key`, then fall back to a literal lookup of the full dotted path. So `Config::get('staging.database')` under `production` still resolves the literal `staging.database` when `production.staging.database` is missing.
-
-## Environment Specific Config
-
-The framework picks up environment specific files when an environment is set.
-Place them next to `config.php`.
+Set the environment in `.env` and optionally add an override file next to `config.php`. Values in the environment file win over `config.php`.
 
 ```text
 config/config.php
@@ -92,88 +41,146 @@ config/development.config.php
 config/production.config.php
 ```
 
-Example `config/production.config.php`:
+```bash
+# .env
+APP_ENV=development
+```
 
 ```php
 <?php
+// config/production.config.php
 return [
-    'database' => 'productionDatabase',
-    'log' => [
-        'path' => '/var/log/app.log',
-    ],
-    'a' => [
-        'b' => 'c',
+    'database' => [
+        'host' => 'localhost',
+        'name' => 'roolith_cms',
+        'user' => 'root',
+        'pass' => '',
     ],
 ];
 ```
 
-Set the environment either via the constant in `constant.php`, via process env, or at runtime.
-
 ```php
-// constant.php
-const ROOLITH_ENV = 'development';
-
-// or via process env before Config boots
-putenv('ROOLITH_ENVIRONMENT=production');
-
-// or at runtime (takes effect immediately, no reload needed)
-Config::setEnv('production');
+Config::get('database'); // value from production.config.php when APP_ENV=production
+Config::env(); // production
 ```
 
-Values from the environment file override the base `config.php` values.
+## Common tasks
+
+Change the site URL by setting `APP_URL=https://example.com/` in `.env`. Disable the database by emptying `DB_HOST` or `DB_NAME`. Force `www` with `FORCE_NON_WWW=0`. Point the frontend at the dev server with `VITE_DEV_SERVER=http://localhost:5173` (see [Frontend Workflow](/frontend-workflow)).
+
+## Advanced keys
+
+These keys are optional. You do not need them in `config/config.php` - setting `.env` alone takes effect. An omitted key reads as `null` from `Config::get()` and the code falls back to `Env` directly. `ConfigValidator` skips `null` and validates present values only. Add a key back only for an explicit `config.php` override, kept inline with `Env::get()` and no extra parsing logic.
+
+| Config key | `.env` key | Default |
+| --- | --- | --- |
+| `logPath` | `LOG_PATH` | `APP_ROOT/storage/logs/app.log` |
+| `logEnabled` | `LOG_ENABLED` | `false` (`0`) |
+| `cookiePath` | `COOKIE_PATH` | `/` |
+| `cookieDomain` | `COOKIE_DOMAIN` | empty (host-only) |
+| `cookieSecure` | `COOKIE_SECURE` | derived from `baseUrl` scheme |
+| `cookieSameSite` | `COOKIE_SAMESITE` | `Lax` |
+| `sessionLifetime` | `SESSION_LIFETIME` | `0` (until browser closes) |
+| `trustedProxies` | `TRUSTED_PROXIES` | empty (trust none) |
+| `securityHeaders` | `SECURITY_HEADERS` | `true` (on) |
+
+### logPath
+
+- Env: `LOG_PATH`, default `APP_ROOT/storage/logs/app.log` via `App\Core\Logger::defaultLogPath()`
+- Allowed: non-empty path, no null bytes, no `..` segments; `\` normalized to `/`; relative paths resolve against `APP_ROOT`
+- Override:
 
 ```php
-var_dump(Config::get('database')); // value from production.config.php
-var_dump(Config::env()); // production
+'logPath' => Env::get('LOG_PATH', APP_ROOT . '/storage/logs/app.log'),
 ```
 
-### Environment precedence
+### logEnabled
 
-Highest first:
-
-1. `Config::setEnv('production')` (writes process env `ROOLITH_ENVIRONMENT`, takes effect immediately because all env files are preloaded at init).
-2. `ROOLITH_ENV` constant, read once on first init when no process env value exists yet.
-3. `local` default, which uses only `config.php`.
-
-`Config::env()` reads the namespaced process env key `ROOLITH_ENVIRONMENT` and returns the name, or `false` when nothing has been seeded yet (i.e. before the first `Config::get()` / `getInstance()` call). After boot without explicit env it returns `'local'`.
-
-Notes:
-
-- `local.config.php` is ignored: `local` always uses only `config.php`.
-- `default.config.php` is reserved and ignored, since `config.php` is already loaded under the `default` key.
-- Env names must be non-empty strings without dots (`[A-Za-z0-9_-]+`), otherwise `setEnv()` / init throws `InvalidArgumentException`.
-- A different `ROOLITH_CONFIG_ROOT` requires a fresh process because PHP constants cannot be redefined in-process.
-- `isDevEnvironment()` / `isProductionEnvironment()` in `app/Utils/functions.php` check the `ROOLITH_ENV` constant only, not `Config::env()`. If you switch env at runtime with `Config::setEnv()`, those helpers do not follow. Use `Config::env()` when you need the effective environment.
-
-### Merge semantics (per-key shadowing, no deep merge)
-
-Each `get()` resolves one full dot-notation path only:
-
-- `Config::get('database')` under `production` returns the production value when present, else the `config.php` value. The env file is checked before `config.php`, so a top-level `production` key in `config.php` never shadows the env file.
-- `Config::get('log.path')` falls back to `config.php` when the env file has no `log` key.
-- Fetching a parent array that exists in the env file returns that env array as-is; child keys from `config.php` are NOT deep-merged into it.
-- A bare env name returns its file array: `Config::get('staging', true)` resolves `staging.config.php`.
-- When the first dotted segment names an env file, that file wins over `config.php` (e.g. `staging.database` resolves from `staging.config.php` first).
-
-### Reset (tests and reload)
-
-`Config::reset()` is a test and reload utility on the concrete class only, not part of the `ConfigInterface` consumer contract.
+- Env: `LOG_ENABLED`, default `false` (`'0'`) via `App\Core\Logger::defaultLogEnabled()`
+- Allowed: boolean (`1`/`0`, `true`/`false`); `false` drops debug/info/notice, warning and above are always written
+- Override:
 
 ```php
-Config::reset(); // clear singleton, loaded data, and env state
-Config::reset(false); // force re-init from the current root while preserving env
+'logEnabled' => filter_var(Env::get('LOG_ENABLED', '0'), FILTER_VALIDATE_BOOLEAN),
 ```
 
-## Upgrade Note (2.0 Breaking Change)
+### cookiePath
 
-The generic `environment` process env var is no longer read. If you ever set env via `putenv('environment=...')`, switch to one of these:
+- Env: `COOKIE_PATH`, default `'/'` via `App\Core\Session::cookieParams()` and `App\Core\Storage::cookieOptions()`
+- Allowed: non-empty string
+- Override:
 
 ```php
-Config::setEnv('production');
-// or
-define('ROOLITH_ENV', 'production');
-// or
-putenv('ROOLITH_ENVIRONMENT=production');
+'cookiePath' => Env::get('COOKIE_PATH', '/'),
 ```
 
-The framework itself never used the generic `environment` key, so no framework code needed changing. Just make sure deployment scripts and Docker / server configs export `ROOLITH_ENVIRONMENT` (or define `ROOLITH_ENV`), not `environment`.
+### cookieDomain
+
+- Env: `COOKIE_DOMAIN`, default `''` (host-only) via `Session` and `Storage`
+- Allowed: string (empty means host-only)
+- Override:
+
+```php
+'cookieDomain' => Env::get('COOKIE_DOMAIN', ''),
+```
+
+### cookieSecure
+
+- Env: `COOKIE_SECURE`, default derived from `baseUrl` scheme via `App\Core\Session::defaultSecure()` (true on `https`, false on plain `http` so local dev works, true when `baseUrl` is missing)
+- Allowed: boolean; explicit `1`/`0` always wins over derivation
+- Override:
+
+```php
+'cookieSecure' => Env::get('COOKIE_SECURE') !== null ? filter_var(Env::get('COOKIE_SECURE'), FILTER_VALIDATE_BOOLEAN) : \App\Core\Session::defaultSecure(),
+```
+
+Set `COOKIE_SECURE` in `.env` alone without re-adding the key; re-add the key only for an explicit `config.php` override, and always derive the default from `Session::defaultSecure()` instead of hardcoding `false` so `https` keeps Secure on by default.
+
+### cookieSameSite
+
+- Env: `COOKIE_SAMESITE`, default `'Lax'` via `Session` and `Storage`
+- Allowed: `Lax`, `Strict`, `None`; `None` requires `cookieSecure=true` (browsers reject `None` without `Secure`)
+- Override:
+
+```php
+'cookieSameSite' => Env::get('COOKIE_SAMESITE', 'Lax'),
+```
+
+### sessionLifetime
+
+- Env: `SESSION_LIFETIME`, default `0` via `Session::cookieParams()`
+- Allowed: int `>= 0`; `0` means until the browser closes
+- Override:
+
+```php
+'sessionLifetime' => (int) Env::get('SESSION_LIFETIME', '0'),
+```
+
+### trustedProxies
+
+- Env: `TRUSTED_PROXIES`, default `[]` (trust none, fail-closed) via `trustedProxies()` in `app/Utils/functions.php` falling back to `Env::get('TRUSTED_PROXIES')`
+- Allowed: array of non-empty IP strings; comma-separated env list, exact IP match only, CIDR not supported, invalid IPs filtered out
+- Override: prefer the `trustedProxies()` fallback over parsing in `config.php`; only add the key manually for an explicit override:
+
+```php
+'trustedProxies' => [],
+```
+
+```bash
+# .env
+TRUSTED_PROXIES=10.0.0.1,10.0.0.2
+```
+
+### securityHeaders
+
+- Env: `SECURITY_HEADERS`, default `true` via `App\Core\System::sendSecurityHeaders()` (`is_bool` check falls back to true)
+- Allowed: boolean; `false` disables baseline CSP/nosniff/frame/referrer/HSTS headers
+- Override:
+
+```php
+'securityHeaders' => filter_var(Env::get('SECURITY_HEADERS', '1'), FILTER_VALIDATE_BOOLEAN),
+```
+
+## Going further
+
+`config/config.md` is the source mirror for key names and shapes. For `.env` file format and loading rules, see [Using Dot Env](/using-dot-env).

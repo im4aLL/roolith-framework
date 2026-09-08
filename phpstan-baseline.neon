@@ -1,0 +1,140 @@
+parameters:
+	ignoreErrors:
+		-
+			message: '#^Call to function is_array\(\) with array will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Core/LazyLoad.php
+
+		-
+			message: '#^Instanceof between \*NEVER\* and Traversable will always evaluate to false\.$#'
+			identifier: instanceof.alwaysFalse
+			count: 1
+			path: app/Core/LazyLoad.php
+
+		-
+			message: '#^Instanceof between App\\Models\\Model and App\\Models\\Model will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: app/Core/LazyLoad.php
+
+		-
+			message: '#^Instanceof between Traversable\<mixed, mixed\> and Traversable will always evaluate to true\.$#'
+			identifier: instanceof.alwaysTrue
+			count: 1
+			path: app/Core/LazyLoad.php
+
+		-
+			message: '#^Parameter \#1 \$array \(non\-empty\-list\<mixed\>\) of array_values is already a list, call has no effect\.$#'
+			identifier: arrayValues.list
+			count: 1
+			path: app/Core/LazyLoad.php
+
+		-
+			message: '#^Result of \|\| is always false\.$#'
+			identifier: booleanOr.alwaysFalse
+			count: 1
+			path: app/Core/LazyLoad.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between array and false will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Core/LazyLoad.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between array and null will always evaluate to false\.$#'
+			identifier: identical.alwaysFalse
+			count: 1
+			path: app/Core/LazyLoad.php
+
+		-
+			message: '#^Unreachable statement \- code above always terminates\.$#'
+			identifier: deadCode.unreachable
+			count: 1
+			path: app/Core/LazyLoad.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\<int\|string, array\<mixed\>\|string\> will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 1
+			path: app/Core/Request.php
+
+		-
+			message: '#^Dead catch \- Throwable is never thrown in the try block\.$#'
+			identifier: catch.neverThrown
+			count: 1
+			path: app/Core/Request.php
+
+		-
+			message: '#^Dead catch \- Throwable is never thrown in the try block\.$#'
+			identifier: catch.neverThrown
+			count: 1
+			path: app/Core/Session.php
+
+		-
+			message: '#^Strict comparison using \=\=\= between ''samesite'' and ''samesite'' will always evaluate to true\.$#'
+			identifier: identical.alwaysTrue
+			count: 1
+			path: app/Core/Session.php
+
+		-
+			message: '#^Call to function is_array\(\) with array\<mixed\> will always evaluate to true\.$#'
+			identifier: function.alreadyNarrowedType
+			count: 2
+			path: app/Core/SessionRateLimiter.php
+
+		-
+			message: '#^Constant APP_ROOT not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: app/Core/System.php
+
+		-
+			message: '#^Constant APP_VIEW_ROOT not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: app/Core/TemplateEngineFactory.php
+
+		-
+			message: '#^Constant APP_VIEW_ROOT not found\.$#'
+			identifier: constant.notFound
+			count: 1
+			path: app/Http/routes.php
+
+		-
+			message: '#^Method App\\Utils\\Collection\:\:__construct\(\) has parameter \$items with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Utils/Collection.php
+
+		-
+			message: '#^Method App\\Utils\\Collection\:\:getIterator\(\) return type with generic class ArrayIterator does not specify its types\: TKey, TValue$#'
+			identifier: missingType.generics
+			count: 1
+			path: app/Utils/Collection.php
+
+		-
+			message: '#^Method App\\Utils\\Collection\:\:make\(\) has parameter \$items with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Utils/Collection.php
+
+		-
+			message: '#^Method App\\Utils\\Collection\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Utils/Collection.php
+
+		-
+			message: '#^Property App\\Utils\\Collection\:\:\$items type has no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: app/Utils/Collection.php
+
+		-
+			message: '#^Left side of && is always true\.$#'
+			identifier: booleanAnd.leftAlwaysTrue
+			count: 1
+			path: app/Utils/FS.php
+

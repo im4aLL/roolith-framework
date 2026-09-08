@@ -3,6 +3,8 @@
 Email is sent with [PHPMailer](https://github.com/PHPMailer/PHPMailer) over SMTP.
 The example below wraps it in a small fluent `Mailer` utility so controllers stay clean.
 
+Trade-off: this page is a recipe, not a shipped mailer. The framework provides no mailer class, no `mail` keys in the default config or `.env`, and no queue, so you own the SMTP setup and mail sends synchronously inside the request.
+
 ## Installation
 
 Install PHPMailer with Composer.
@@ -13,8 +15,7 @@ composer require phpmailer/phpmailer
 
 ## Configuration
 
-Add your SMTP settings to `config/config.php`.
-Values are read with `Config::get()`, see [Configuration](/configuration).
+Add your SMTP settings to `config/config.php`. Values are read with `Config::get()`, see [Configuration](/configuration). The default `config/config.php` ships with no `mail` key, so add the whole block below before using the recipe.
 
 ```php
 "mail" => [
@@ -29,7 +30,7 @@ Values are read with `Config::get()`, see [Configuration](/configuration).
 
 ## The Mailer Utility
 
-Create `app/Utils/Mailer.php`.
+Recipe only: the framework ships no `App\Utils\Mailer` class, create `app/Utils/Mailer.php` below to get the fluent wrapper used in this guide.
 
 ```php
 <?php

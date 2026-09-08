@@ -13,6 +13,8 @@ php roolith generate model Product
 php roolith generate middleware AuthMiddleware
 ```
 
+Related CLI commands live in `App\Console\Cli` and are covered in [CLI](/cli): `php roolith route:list` lints and displays routes, `php roolith migrate` / `migrate:status` / `migrate:create` / `migrate:rollback` manage migrations (see [Migration](/migration)), `php roolith seed` / `seed:status` / `seed:create` / `seed:run` plus `seeder:` aliases manage seeders (see [Seeder](/seeder)).
+
 ## Where Files Are Written
 
 Generated files land in the default framework folders.

@@ -1,10 +1,8 @@
 # Database
 
-The framework uses [roolith/database](https://github.com/im4aLL/roolith-database) under the hood.
-The connection is created from the `database` key in `config/config.php`, so there is no manual connect step inside the framework.
+The framework uses [roolith/database](https://github.com/im4aLL/roolith-database) under the hood. The connection is created from the `database` key in `config/config.php`, so there is no manual connect step.
 
-Inside a [Model](/models) you get the connection and table instances through `Model::raw()` and `Model::orm()`.
-This page documents the full driver API available on them.
+Inside a [Model](/models), `Model::raw()` gives the connection and `Model::orm()` gives the table instance. This page documents the full driver API available on both.
 
 ## The Connection
 
@@ -15,61 +13,17 @@ $db = User::raw(); // database connection
 $users = User::orm(); // table instance for the users table
 ```
 
-Set `database` to `null` in `config/config.php` if your application does not need a database.
+Set `database` to `null` to run without a database (see [Configuration](/configuration)).
 
 ## Supported Databases
 
-Supports MySQL, PostgreSQL (`pgsql`), and SQLite via PDO.
-Any other PDO driver only works when you pass a raw DSN string directly.
-
-| Driver | `type` value | `config/config.php` example |
-| --- | --- | --- |
-| MySQL | `mysql` (default) | `['type' => 'mysql', 'host' => 'localhost', 'port' => 3306, 'name' => 'dbname', 'user' => 'username', 'pass' => 'password']` |
-| PostgreSQL | `pgsql` | `['type' => 'pgsql', 'host' => 'localhost', 'port' => 5432, 'name' => 'dbname', 'user' => 'username', 'pass' => 'password']` |
-| SQLite | `sqlite` | `['type' => 'sqlite', 'name' => 'path/to/database.sqlite']` |
-
-The array from `config/config.php` is passed straight to the driver, so `type`, `port`, and SQLite `name` work without any framework change.
-Raw PDO DSN strings are also passed through, for example `$db->connect('sqlite::memory:');`.
-
-Default MySQL configuration:
-
-```php
-"database" => [
-    "host" => "localhost",
-    "name" => "roolith_cms",
-    "user" => "root",
-    "pass" => "",
-],
-```
-
-PostgreSQL configuration:
-
-```php
-"database" => [
-    "type" => "pgsql",
-    "host" => "localhost",
-    "port" => 5432,
-    "name" => "roolith_cms",
-    "user" => "postgres",
-    "pass" => "",
-],
-```
-
-SQLite configuration:
-
-```php
-"database" => [
-    "type" => "sqlite",
-    "name" => "path/to/database.sqlite",
-],
-```
+MySQL is the default; PostgreSQL (`pgsql`) and SQLite work via `type` plus `port` keys, and any other PDO driver works with a raw DSN string such as `$db->connect('sqlite::memory:');`.
 
 ## Raw Query
 
 ```php
 // Get all users
 $users = $db->query("SELECT * FROM users")->get();
-print_r($users);
 
 // Get total record of users table
 $total = $db->query("SELECT id FROM users")->count();
@@ -95,8 +49,7 @@ $db->table('users')->select([
 ])->get();
 ```
 
-Note: `condition` is a trusted SQL literal escape hatch.
-Never interpolate input into it, pass variables via `bindings`.
+Note: `condition` is a trusted SQL literal. Never interpolate input into it, pass variables via `bindings`.
 
 Get usernames only.
 
@@ -112,13 +65,15 @@ Search with the `LIKE` operator.
 $db->table('users')->where('name', '%Hadi%', 'LIKE')->get();
 // new bound style also works
 $db->table('users')->where('age', '>', 18)->get();
+$db->table('users')->orWhere('role', '=', 'admin')->get();
 $db->table('users')->orderBy('id', 'DESC')->limit(10)->offset(5)->get();
 ```
 
-Get a record by primary key.
+Get a record by primary key (`false` when missing), or the first row of a result (`false` when empty).
 
 ```php
 $db->table('users')->find(1);
+$db->table('users')->first();
 ```
 
 Pluck fields from the result.
@@ -164,8 +119,7 @@ $result = $db->table('users')->update(
 );
 ```
 
-Note: array `where` only.
-Raw string where is unsupported to prevent injection.
+Note: array `where` only. Raw string where is rejected to prevent injection.
 
 Update the username only if nobody else is using it.
 
@@ -205,22 +159,15 @@ $total = $db->query("SELECT id FROM users")->count();
 $result = $db->query("SELECT * FROM users")->paginate([
     'perPage' => 5,
     'pageUrl' => 'http://domain.com',
-    'primaryColumn' => 'id',
-    'pageParam' => 'page',
     'total' => $total,
 ]);
+
+print_r($result->getDetails());
 ```
 
-A shorter version, `perPage` defaults to 20.
+`getDetails()` returns `total`, `perPage`, `currentPage`, `lastPage`, page URLs (`firstPageUrl`, `lastPageUrl`, `nextPageUrl`, `prevPageUrl`), `path`, `from`/`to`, and `data`. Past the last page, `from` and `to` are `0`. `pageNumbers()` returns the numbered page links for templates (ellipsis is `'...'`).
 
-```php
-$result = $db->query("SELECT * FROM users")->paginate([
-    'perPage' => 5,
-    'total' => $total,
-]);
-```
-
-CLI / test safe pagination without `$_GET` / `$_SERVER`:
+In CLI or tests there are no `$_GET` / `$_SERVER` values, so build the paginator explicitly instead.
 
 ```php
 use Roolith\Store\Paginate;
@@ -232,56 +179,30 @@ $paginate = Paginate::fromRequest(
 );
 ```
 
-Get the pagination details.
-
-```php
-print_r($result->getDetails());
-```
-
-```text
-{
-    "total": 50,
-    "perPage": 15,
-    "currentPage": 1,
-    "lastPage": 4,
-    "firstPageUrl": "http://domain.com?page=1",
-    "lastPageUrl": "http://domain.com?page=4",
-    "nextPageUrl": "http://domain.com?page=2",
-    "prevPageUrl": null,
-    "path": "http://domain.com",
-    "from": 1,
-    "to": 15,
-    "data": [
-        // records
-    ]
-}
-```
+`Paginate::fromGlobals()` reads `$_SERVER` and `$_GET` for legacy web code; prefer `fromRequest()` with explicit values.
 
 ## Transactions
 
-`transaction()` commits on success, rolls back and rethrows on failure.
-Nesting is unsupported.
-Use `inTransaction()` when a helper may run inside or outside a transaction.
+Write through the factory or model seam so the shared connection commits on success and rolls back plus rethrows on failure. Nesting is unsupported; use `inTransaction()` in helpers that may run inside or outside one.
 
 ```php
-$db->transaction(function ($db) {
+\App\Core\DatabaseFactory::transaction(static function ($db) {
     $db->table('users')->insert(['name' => 'A', 'email' => 'a@test.com']);
-    $db->table('orders')->insert(['user_email' => 'a@test.com', 'total' => 100]);
+});
+
+\App\Models\User::transaction(static function ($db) {
+    $db->table('users')->insert(['name' => 'B', 'email' => 'b@test.com']);
 });
 ```
 
-Return a value from the callback.
+Return a value from the callback when you need it, and throw to roll back.
 
 ```php
 $userId = $db->transaction(function ($db) {
     $result = $db->table('users')->insert(['name' => 'C', 'email' => 'c@test.com']);
     return $result->insertedId();
 });
-```
 
-Throwing inside the callback triggers a rollback.
-
-```php
 try {
     $db->transaction(function ($db) {
         $db->table('users')->insert(['name' => 'B', 'email' => 'b@test.com']);
@@ -292,13 +213,12 @@ try {
 }
 ```
 
-Manual commit and rollback.
+Manual control is available but stray `commit()` / `rollBack()` outside a transaction throw, as does a second `beginTransaction()`.
 
 ```php
 $db->beginTransaction();
 try {
     $db->table('users')->insert(['name' => 'D', 'email' => 'd@test.com']);
-    $db->table('users')->update(['name' => 'D2'], ['email' => 'd@test.com']);
     $db->commit();
 } catch (Throwable $e) {
     $db->rollBack();
@@ -306,66 +226,22 @@ try {
 }
 ```
 
-Reusable helper that is safe in both contexts.
-
-```php
-function createUser($db, array $data): void
-{
-    $run = function () use ($db, $data) {
-        $db->table('users')->insert($data);
-    };
-
-    if ($db->inTransaction()) {
-        $run();
-        return;
-    }
-
-    $db->transaction($run);
-}
-
-$db->transaction(function ($db) {
-    createUser($db, ['name' => 'E', 'email' => 'e@test.com']);
-    createUser($db, ['name' => 'F', 'email' => 'f@test.com']);
-});
-```
-
-These all throw.
-
-```php
-$db->commit(); // throws when no transaction is active
-$db->rollBack(); // throws when no transaction is active
-
-$db->beginTransaction();
-$db->beginTransaction(); // throws, nesting is unsupported
-
-$db->transaction(function ($db) {
-    $db->transaction(function ($db) {}); // throws, nesting is unsupported
-});
-```
-
 ## Debug Mode
 
-Once debug mode is active queries are collected via `getDebugLog()` with no echo output!
+Queries are logged only in development (`APP_ENV=development`); production stays silent. Force it on for one request and read the log with no echo side effects.
 
 ```php
-$db->debugMode()->table('users')->find(1);
+$db->debugMode(true)->table('users')->find(1);
 print_r($db->getDebugLog());
+$db->clearDebugLog();
 ```
 
 ## Upgrade to Database 2.0
 
-The framework requires `roolith/database: 2.0.0`.
-If you are coming from 1.x, these are the breaking changes:
+The framework requires `roolith/database: 2.0.0`. Breaking changes:
 
 1. `update()` requires array `where` (string where removed).
-2. `delete()` return shape drops `debug` key.
+2. `delete()` return shape drops the `debug` key.
 3. `pageNumbers()` ellipsis is `'...'` (was `'.'`).
 4. `new Paginate` no longer reads `$_GET` / `$_SERVER` (use `Paginate::fromGlobals()` for legacy web or `Paginate::fromRequest()`).
-5. New required interface methods (`buildConditionFragment`, transactions, debug log, `orderBy` / `limit` / `offset`).
-6. Requires `php >= 8.0`.
-
-Notes:
-
-1. `getDetails()` returns `from=0,to=0` past the last page.
-2. `fromRequest()` preserves query params minus `pageParam`.
-3. Transactions reject nesting and stray `commit` / `rollBack` (check `inTransaction()`).
+5. Requires `php >= 8.2`.

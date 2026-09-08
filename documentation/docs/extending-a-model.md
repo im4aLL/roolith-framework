@@ -188,21 +188,32 @@ namespace App\Middlewares;
 
 use App\Misc\AuthHelper;
 use App\Models\User;
-use Roolith\Route\Middleware;
-use Roolith\Route\Request;
-use Roolith\Route\Response;
+use Roolith\Route\Interfaces\NextMiddlewareInterface;
+use Roolith\Route\Request as RouterRequest;
+use Roolith\Route\Response as VendorResponse;
 
-class RoleMiddleware extends Middleware
+class RoleMiddleware implements NextMiddlewareInterface
 {
-    public function process(Request $request, Response $response): bool
+    public function process(RouterRequest $request, callable $next): mixed
     {
         if (!AuthHelper::isAuthenticated()) {
-            return false;
+            $redirect = new VendorResponse();
+            $redirect->setStatusCode(302);
+            $redirect->redirect('/login');
+
+            return $redirect;
         }
 
         $currentUser = User::current();
 
-        return $currentUser->role == 'manager' || $currentUser->role == 'admin';
+        if ($currentUser->role == 'manager' || $currentUser->role == 'admin') {
+            return $next($request);
+        }
+
+        $redirect = new VendorResponse();
+        $redirect->setStatusCode(403);
+
+        return $redirect;
     }
 }
 ```
@@ -210,5 +221,6 @@ class RoleMiddleware extends Middleware
 ## Notes
 
 - `orm()` and `raw()` are documented in [Models](/models).
+- Helpers that call `orm()` directly bypass `$casts`, `$fillable`, and `validate()` unless the helper calls `castRow()`, `filterFillable()`, or `validate()` itself; use the [validated writes plus transaction pattern](/models#validated-writes) when a helper writes user input.
 - Keep private helpers prefixed with a clear name (like `record...`) so only the public API of the model is visible to callers.
 - Sessions are handled by the [Storage](/storage) class and are started automatically by the front controller.

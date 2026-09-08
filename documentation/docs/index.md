@@ -3,7 +3,7 @@
 layout: home
 
 hero:
-  name: "Roolith PHP Framework"
+  name: "Roolith PHP Framework v5"
   text: "Less framework. More PHP."
   tagline: A minimalistic PHP micro-framework for any project. Plain PHP views, fluent routing, models and validation out of the box.
   actions:
