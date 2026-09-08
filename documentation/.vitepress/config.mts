@@ -23,6 +23,7 @@ export default defineConfig({
           { text: 'Architecture', link: '/architecture' },
           { text: 'Configuration', link: '/configuration' },
           { text: 'Generator', link: '/generator' },
+          { text: 'CLI', link: '/cli' },
           { text: 'Frontend Workflow', link: '/frontend-workflow' },
           { text: 'Docker', link: '/docker' }
         ]

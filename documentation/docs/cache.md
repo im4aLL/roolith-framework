@@ -1,12 +1,12 @@
 # Cache
 
-The framework ships with [roolith/cache](https://github.com/im4aLL/roolith-cache).
-It only supports the file driver.
+File-based cache for expensive reads such as DB queries or config snapshots. Only the file driver is supported.
+
+Use this for data that is slow to build and shared between requests. For per-visitor state use [Storage](/storage) sessions instead.
 
 ## Setup
 
-Define the cache directory before `vendor/autoload.php` is loaded.
-The directory is created automatically.
+Pick a writable directory once, before the first cache call.
 
 ```php
 <?php
@@ -15,37 +15,59 @@ define('ROOLITH_CACHE_DIR', APP_ROOT . '/cache');
 require APP_ROOT . '/vendor/autoload.php';
 ```
 
-If you cannot define the constant early, use one of these instead.
-Explicit config wins over everything else.
+The directory is created automatically. Without this, cache falls back to the system temp dir.
+
+To override per call instead:
 
 ```php
+use Roolith\Caching\Cache\CacheFactory;
+
 CacheFactory::driver('file', ['dir' => APP_ROOT . '/cache']);
-CacheFactory::$fileDriverCacheDir = APP_ROOT . '/cache';
 ```
 
 ## Basic usage
 
-This covers most use cases.
-TTL is in seconds and defaults to 3600 (1 hour).
+Always pass TTL in seconds. `get()` returns `false` on miss or expiry, so check `has()` first.
 
 ```php
 <?php
 use Roolith\Caching\Cache\CacheFactory;
 
-CacheFactory::put('user_1', $user, 3600); // save
-$user = CacheFactory::get('user_1'); // value, or false on miss / expiry
+CacheFactory::put('user_1', $user, 3600); // save for 1 hour
 $exists = CacheFactory::has('user_1'); // bool
+$user = CacheFactory::get('user_1'); // value, or false on miss / expiry
 CacheFactory::remove('user_1'); // delete one key
 CacheFactory::flush(); // delete everything
 ```
 
-Always check `has()` before trusting `get()`, since `get()` returns `false` for missing, expired, or corrupt entries.
+Common TTLs: `60` for a minute, `3600` for an hour.
 
-## TTL examples
+## Remember pattern
+
+Check the cache, fall back to the loader, then store. Give each query its own key so entries never collide, and delete the key when the source data changes.
 
 ```php
-CacheFactory::put('short', $value, 60); // 1 minute
-CacheFactory::put('hour', $value, 3600); // 1 hour (default)
+<?php
+use Roolith\Caching\Cache\CacheFactory;
+
+function activeUsers(callable $loader): mixed
+{
+    if (CacheFactory::has('users:active')) {
+        $cached = CacheFactory::get('users:active');
+
+        if ($cached !== false) {
+            return $cached;
+        }
+    }
+
+    $fresh = $loader();
+    CacheFactory::put('users:active', $fresh, 3600);
+
+    return $fresh;
+}
+
+$users = activeUsers(fn () => $db->query('SELECT * FROM users'));
+CacheFactory::remove('users:active'); // invalidate when users change
 ```
 
 ## Other ways to use it

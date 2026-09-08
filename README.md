@@ -12,6 +12,10 @@ Shared services are exposed through small singleton factories (`RouterFactory`, 
 
 Interested in the whole picture? Start with [ARCHITECTURE.md](ARCHITECTURE.md) for the system overview, layer map, request lifecycle, and extension points, also available as [Architecture](documentation/docs/architecture.md) in the docs site. `ARCHITECTURE.md` is canonical; the docs page mirrors it.
 
+### Requirements
+- PHP >= 8.2 with `intl`, `zip`, `opcache` (see `Dockerfile` and `composer check-platform-reqs`)
+- Composer
+
 ### Install
 ```
 composer create-project roolith/framework your_app_name

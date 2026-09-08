@@ -1,13 +1,8 @@
 # Middleware
 
-Middleware lets you run checks before a route is executed.
-A middleware receives the [request](/request) and the response and returns a boolean.
-When it returns `false`, the router rejects the request with an "Invalid request" response and the route is never executed. The status defaults to `403 Forbidden` and can be customized per middleware with the `$status_code` property.
+Middleware runs a check before a route handler. Either it lets the request through or it stops it with a response, in which case the controller never runs.
 
-## Creating a Middleware
-
-Every middleware must extend `Roolith\Route\Middleware` and implement `process()`.
-Generate a new one with the [generator](/generator).
+## Creating one
 
 ```bash
 php roolith generate middleware AuthMiddleware
@@ -17,133 +12,84 @@ php roolith generate middleware AuthMiddleware
 <?php
 namespace App\Middlewares;
 
-use Roolith\Route\Middleware;
-use Roolith\Route\Request;
-use Roolith\Route\Response;
+use Roolith\Route\Interfaces\NextMiddlewareInterface;
+use Roolith\Route\Request as RouterRequest;
 
-class AuthMiddleware extends Middleware
+class AuthMiddleware implements NextMiddlewareInterface
 {
-    public function process(Request $request, Response $response): bool
+    public function process(RouterRequest $request, callable $next): mixed
     {
-        return true;
+        return $next($request); // let it through
     }
 }
 ```
 
-The `process()` method receives the current `Request` and `Response`, so you can inspect headers, cookies, session and URL params before deciding whether to let the request through. It must stay `public` and return `bool`.
+To block, return a response instead of calling `$next()`. Middleware classes live in `app/Middlewares`.
 
-Set a custom rejection status with `$status_code`:
+## Attaching to routes
 
 ```php
-use Roolith\Route\HttpConstants\HttpResponseCode;
-
-class AuthMiddleware extends Middleware
-{
-    public int $status_code = HttpResponseCode::UNAUTHORIZED;
-
-    public function process(Request $request, Response $response): bool
-    {
-        return false;
-    }
-}
+$router->get('/dashboard', [DashboardController::class, 'index'])->middleware(AuthMiddleware::class);
 ```
 
-## Checking Authentication
-
-A typical authentication middleware checks whether a session is active before the route runs.
+Stack several with repeated calls or an array. They run in order and the first one to return a response wins.
 
 ```php
-<?php
-namespace App\Middlewares;
-
-use App\Core\Storage;
-use Roolith\Route\Middleware;
-use Roolith\Route\Request;
-use Roolith\Route\Response;
-
-class AuthMiddleware extends Middleware
-{
-    public function process(Request $request, Response $response): bool
-    {
-        return Storage::hasSession(AUTH_STORAGE_NAME);
-    }
-}
+$router->get('/admin', fn () => 'Dashboard')->middleware([AuthMiddleware::class, CsrfMiddleware::class]);
 ```
 
-## Checking Roles
-
-You can combine checks inside a single middleware or by stacking middlewares.
-The example below lets the request through only for authenticated users whose role is `manager` or `admin`.
+Share one across many routes with a group (see [Routing](/routing)).
 
 ```php
-<?php
-namespace App\Middlewares;
-
-use App\Misc\AuthHelper;
-use App\Models\User;
-use Roolith\Route\Middleware;
-use Roolith\Route\Request;
-use Roolith\Route\Response;
-
-class RoleMiddleware extends Middleware
-{
-    public function process(Request $request, Response $response): bool
-    {
-        if (!AuthHelper::isAuthenticated()) {
-            return false;
-        }
-
-        $currentUser = User::current();
-
-        return $currentUser->role == 'manager' || $currentUser->role == 'admin';
-    }
-}
-```
-
-## Using Middleware on a Route
-
-Attach a middleware to a single route with the `middleware()` method.
-
-```php
-$router->get('/admin/dashboard', function () {
-    return 'Dashboard content';
-})->middleware(\App\Middlewares\RoleMiddleware::class);
-```
-
-Stack multiple middlewares with repeated calls or an array. They run in order and the first one to return `false` stops the request.
-
-```php
-$router->get('/admin/dashboard', function () {
-    return 'Dashboard content';
-})->middleware(\App\Middlewares\AuthMiddleware::class)->middleware(\App\Middlewares\RoleMiddleware::class);
-
-$router->get('/admin/users', function () {
-    return 'User list';
-})->middleware([\App\Middlewares\AuthMiddleware::class, \App\Middlewares\RoleMiddleware::class]);
-```
-
-Already-instantiated entries also work and string entries resolve via the DI container with plain-instantiation fallback. An unknown or invalid entry responds with 500, and a throwing `process()` is logged and responds with a generic 500.
-
-## Using Middleware on a Route Group
-
-Share a middleware across many routes with a route group.
-Combined with a URL prefix, this protects a whole section with one declaration.
-
-```php
-$router->group(['middleware' => \App\Middlewares\RoleMiddleware::class, 'urlPrefix' => 'admin'], function () use ($router) {
-    $router->get('dashboard', function () {
-        return 'Dashboard content';
-    });
-
-    $router->get('users', function () {
-        return 'User list';
-    });
+$router->group(['middleware' => AuthMiddleware::class, 'urlPrefix' => 'admin'], function () use ($router) {
+    $router->get('dashboard', fn () => 'Dashboard content');
+    $router->get('users', fn () => 'User list');
 });
 ```
 
-## Notes
+## Protecting pages with AuthMiddleware
 
-- Combine multiple checks either inside a single middleware class or by stacking middlewares. Group `middleware` runs outer-first, then route-level `->middleware()`.
-- When `process()` returns `false`, the router stops and responds with the middleware's `$status_code` (`403` by default).
-  Redirect to a login page instead of returning `false` if you want unauthenticated users to see a nicer flow.
-- Middleware classes live in `app/Middlewares`.
+`App\Middlewares\AuthMiddleware` redirects guests to `/login` and lets logged-in users through. Pass a custom path or session key when constructing it directly.
+
+```php
+$router->get('/dashboard', [DashboardController::class, 'index'])->middleware(AuthMiddleware::class);
+```
+
+## Protecting forms with CsrfMiddleware
+
+`App\Middlewares\CsrfMiddleware` blocks forged posts. Reading routes (`GET`, `HEAD`, `OPTIONS`) pass through; `POST`, `PUT`, `PATCH`, and `DELETE` need a valid token or the request stops with a `403` before your controller runs.
+
+```php
+$router->post('/form', [FormController::class, 'submit'])->middleware(CsrfMiddleware::class);
+```
+
+Every protected form needs the hidden token field:
+
+```html
+<form method="POST" action="/form">
+    <?= csrf_field() ?>
+    <button type="submit">Submit</button>
+</form>
+```
+
+Fetch or XHR clients can send the `X-CSRF-TOKEN` header instead.
+
+## Slowing brute force with rate limiting
+
+Throttle repeated attempts such as logins with `SessionRateLimiter`. Check before verifying credentials and clear on success.
+
+```php
+use App\Core\SessionRateLimiter;
+
+$limiter = new SessionRateLimiter('login:' . $ip, 5, 60);
+
+if ($limiter->tooManyAttempts()) {
+    return 'Too many attempts, try again later.';
+}
+
+if ($loginOk) {
+    $limiter->clear();
+} else {
+    $limiter->hit();
+}
+```

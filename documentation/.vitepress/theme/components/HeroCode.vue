@@ -28,11 +28,11 @@ const active = ref(0)
         </div>
       </div>
 
-      <pre v-show="active === 0" class="code"><code><span class="v">$router</span><span class="o">-></span><span class="f">get</span>(<span class="s">'/users/{id}'</span>, <span class="cls">UserController</span><span class="o">::</span><span class="k">class</span><span class="o">.</span><span class="s">'@show'</span>)
+      <pre v-show="active === 0" class="code"><code><span class="v">$router</span><span class="o">-></span><span class="f">get</span>(<span class="s">'/users/{id}'</span>, [<span class="cls">UserController</span><span class="o">::</span><span class="k">class</span>, <span class="s">'show'</span>])
     <span class="o">-></span><span class="f">middleware</span>(<span class="cls">AuthMiddleware</span><span class="o">::</span><span class="k">class</span>)
     <span class="o">-></span><span class="f">name</span>(<span class="s">'users.show'</span>);</code></pre>
 
-      <pre v-show="active === 1" class="code"><code><span class="k">public function</span> <span class="f">show</span>(<span class="v">$id</span>)
+      <pre v-show="active === 1" class="code"><code><span class="k">public function</span> <span class="f">show</span>(<span class="k">string</span> <span class="v">$id</span>): <span class="k">string</span>
 {
     <span class="v">$user</span> = <span class="cls">User</span><span class="o">::</span><span class="f">orm</span>()-><span class="f">find</span>(<span class="v">$id</span>);
 
@@ -41,7 +41,7 @@ const active = ref(0)
 
       <pre v-show="active === 2" class="code"><code><span class="k">class</span> <span class="cls">User</span> <span class="k">extends</span> <span class="cls">Model</span>
 {
-    <span class="k">protected</span> <span class="v">$table</span> = <span class="s">'users'</span>;
+    <span class="k">protected string</span> <span class="v">$table</span> = <span class="s">'users'</span>;
 }
 
 <span class="cls">User</span><span class="o">::</span><span class="f">orm</span>()-><span class="f">where</span>(<span class="s">'name'</span>, <span class="s">'%Hadi%'</span>, <span class="s">'LIKE'</span>)-><span class="f">get</span>();</code></pre>
@@ -57,13 +57,13 @@ const active = ref(0)
 
       <pre v-show="active === 4" class="code"><code><span class="o">&lt;?php</span> <span class="v">$this</span><span class="o">-></span><span class="f">inject</span>(<span class="s">'partials/header'</span>) <span class="o">?&gt;</span>
 
-<span class="t">&lt;h1&gt;</span><span class="o">&lt;?=</span> <span class="v">$user</span><span class="o">-></span>name <span class="o">?&gt;</span><span class="t">&lt;/h1&gt;</span>
+<span class="t">&lt;h1&gt;</span><span class="o">&lt;?=</span> <span class="f">escape</span>(<span class="v">$user</span><span class="o">-></span>name) <span class="o">?&gt;</span><span class="t">&lt;/h1&gt;</span>
 <span class="t">&lt;a</span> <span class="a">href</span>=<span class="s">"&lt;?= route('users.index') ?&gt;"</span><span class="t">&gt;</span>Back<span class="t">&lt;/a&gt;</span>
 
 <span class="o">&lt;?php</span> <span class="v">$this</span><span class="o">-></span><span class="f">inject</span>(<span class="s">'partials/footer'</span>) <span class="o">?&gt;</span></code></pre>
 
       <div class="hero-code-status">
-        <span class="status-left"><span class="pulse"></span>php 8.0+</span>
+        <span class="status-left"><span class="pulse"></span>php 8.2+</span>
         <span class="status-right">roolith/framework</span>
       </div>
     </div>
@@ -86,7 +86,6 @@ const active = ref(0)
   background: var(--r-code-bg);
   box-shadow: 0 28px 56px -28px rgba(12, 12, 26, 0.55);
   overflow: hidden;
-  animation: hero-float 7s ease-in-out infinite;
 }
 
 .hero-code-bar {
@@ -232,21 +231,7 @@ const active = ref(0)
   }
 }
 
-@keyframes hero-float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-7px);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .hero-code-window {
-    animation: none;
-  }
-
   .pulse {
     animation: none;
   }

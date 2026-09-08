@@ -13,8 +13,7 @@ composer require phpmailer/phpmailer
 
 ## Configuration
 
-Add your SMTP settings to `config/config.php`.
-Values are read with `Config::get()`, see [Configuration](/configuration).
+Add your SMTP settings to `config/config.php`. Values are read with `Config::get()`, see [Configuration](/configuration). The default `config/config.php` ships with no `mail` key, so add the whole block below before using the recipe.
 
 ```php
 "mail" => [
@@ -29,7 +28,7 @@ Values are read with `Config::get()`, see [Configuration](/configuration).
 
 ## The Mailer Utility
 
-Create `app/Utils/Mailer.php`.
+Recipe only: the framework ships no `App\Utils\Mailer` class, create `app/Utils/Mailer.php` below to get the fluent wrapper used in this guide.
 
 ```php
 <?php

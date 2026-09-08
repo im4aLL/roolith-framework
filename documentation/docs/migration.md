@@ -15,7 +15,7 @@ php roolith migrate:rollback
 php roolith migrate:rollback create_users_table
 ```
 
-- `migrate:create <Name>` scaffolds `database/migrations/<timestamp>_<rand>_<Slug>.php` with an `up()` plus `down()` skeleton. The directory is created when missing and the name includes a random suffix so concurrent creates never collide.
+- `migrate:create <Name>` scaffolds `database/migrations/<timestamp>_<rand>_<Slug>.php` with an `up()` plus `down()` skeleton. The directory is created when missing and the name includes a random suffix so concurrent creates never collide. An empty name after sanitizing defaults to `migration`; creation retries with a numeric suffix up to 100 attempts for a unique name and throws `RuntimeException` when the directory or file cannot be written, when `random_bytes()` fails, or when no unique name is found.
 - `migrate` runs pending migrations in filename order. Each `up()` runs inside the injected connection transaction and the tracking row is written only on success.
 - `migrate:status` lists applied plus pending names without running anything.
 - `migrate:rollback` reverts the last batch in reverse order (or one named migration when given). Each `down()` runs inside a transaction.
@@ -114,7 +114,10 @@ One model class maps to one table via `protected string $table` plus `$primaryCo
 - The `migrations` table (`migration` VARCHAR primary, `batch` INT, `migrated_at` TIMESTAMP) is created automatically when missing.
 - Only `*.php` files in `database/migrations` run, sorted by name so timestamp prefixes order correctly.
 - Read failures log via `App\Core\Log::error()` and rethrow so a failed read never looks like an empty success.
-- Migration names are restricted to letters, digits, and underscores; anything else is rejected before touching the filesystem.
+- Migration names are restricted to letters, digits, and underscores; anything else throws `InvalidArgumentException` before touching the filesystem, while a missing file, missing class, or class not implementing `MigrationInterface` throws `RuntimeException`.
+- The class name is derived by stripping a leading timestamp prefix (`digits` plus underscore), splitting on underscores, and StudlyCasing the parts.
+- Batch helpers `nextBatch()`, `latestBatch()`, and `migrationsInBatch()` group applied rows by batch; batch and applied-list read failures log via `App\Core\Log::error()` and rethrow.
+- `Migrator` is injectable via `__construct(?string $dir = null, ?DatabaseInterface $db = null)` with `DEFAULT_DIR = 'database/migrations'`, `TABLE = 'migrations'`, and `directory()` exposing the active dir.
 
 ## Seeding data
 

@@ -4,7 +4,7 @@
 
 Roolith is a minimal, synchronous PHP micro-framework with an MVC shape. One entrypoint boots shared services, routes one HTTP request to one controller action, optionally touches the database, renders a view, then cleans up.
 
-The framework is thin glue (`app/`, `config/`, `views/`, `index.php`, `constant.php`) over seven standalone `roolith/*` Composer libraries, plus Carbon for time and Whoops for dev errors. There is no DI container, no background worker, and no built-in ORM relationship manager.
+The framework is thin glue (`app/`, `config/`, `views/`, `index.php`, `constant.php`) over seven standalone `roolith/*` Composer libraries, plus Carbon for time and Whoops for dev errors. The vendor router defaults to PHP-DI for controller dispatch; the framework itself has no app-level container, only factories. There is no background worker, and no built-in ORM relationship manager.
 
 This page is the short, scannable overview. The repository root holds the full [ARCHITECTURE.md](https://github.com/im4aLL/roolith-framework/blob/master/ARCHITECTURE.md) with more detail. For the file layout, see [Getting Started](/getting-started).
 
@@ -112,7 +112,7 @@ Delivery depends on application, application depends on domain/data and presenta
 
 ## How a request flows
 
-The happy path is `bootstrap -> processRequest -> complete`, orchestrated by `App\Core\System` from `index.php`. See [Getting Started](/getting-started) for the bootstrap snippet.
+The entry is `App\Core\System::run()` (never throws), which wraps `bootstrap -> processRequest -> complete` with `RedirectException` emit plus `ErrorHandler` handling and `complete()` in `finally`. See [Getting Started](/getting-started) for the entry snippet.
 
 ```mermaid
 sequenceDiagram
@@ -126,31 +126,34 @@ sequenceDiagram
     participant M as Model + Database
     participant V as View
     Browser->>Entry: HTTP request
-    Entry->>Sys: new System - load constants + helpers + error handler
-    Sys->>Pre: forceNonWww / forceWww
-    Sys->>Cfg: read database + baseUrl + flags
-    Sys->>Sys: connect DB only if configured
-    Sys->>R: load app-Http-routes.php + run
+    Entry->>Sys: System-run - bootstrap plus processRequest plus complete
+    Sys->>Sys: load constants + helpers + traceId + logger + shutdown fallback + error mode
+    Sys->>Cfg: ConfigValidator-validate + read database + baseUrl + flags
+    Sys->>Sys: Session-start + security headers (CSP-HSTS)
+    Sys->>Pre: forceNonWww / forceWww (301, allowlisted, RedirectException on match)
+    Sys->>Sys: connect DB only if configured (null or empty skips)
+    Sys->>R: reset RouterFactory + load app-Http-routes.php + log-only handler validation
     R->>R: match method + path, run middleware chain
     alt no match
-        R-->>Browser: render views-404.php
+        R-->>Browser: render views-404.php (405 plus Allow header when path exists for another method)
     else match
-        R->>C: dispatch Controller@action
+        R->>C: dispatch Controller-action via callable [Class-method]
         C->>M: query via base Model if needed
         M-->>C: rows
-        C->>V: compile view with data OR return data-string
-        V-->>Browser: HTML
+        C->>V: compile view to string OR return json-Response
+        V-->>Browser: emit string or App-Core-Response via RouterResponse
     end
-    Sys->>Sys: complete - disconnect DB + removeTemp session
+    Sys->>Sys: complete - disconnect DB + removeTemp session (also in finally and shutdown fallback)
+    Sys-->>Entry: ErrorHandler on failure - rethrow in dev for Whoops, 500 plus trace id in prod
 ```
 
-1. `index.php` starts the session and delegates to `System`.
-2. `System` loads constants, helpers, and the error mode.
-3. `PreProcessor` applies `forceNonWww` / `forceWww` (may redirect before routing).
-4. `System` reads config and connects to the DB only if configured.
-5. Router matches method + path and runs the middleware chain.
-6. On match, one `Controller@action` runs: reads input, optionally queries models, renders a view or returns data. On no match, `views/404.php` renders.
-7. `System::complete()` clears one-shot temp session data and disconnects the DB.
+1. `index.php` delegates to `System::run()`, which never throws and always runs `complete()` in `finally` plus a shutdown fallback.
+2. `System` loads constants, helpers, trace id plus logger, and the error mode (Whoops in development only).
+3. `System::bootstrap()` validates config via `ConfigValidator::validate()`, starts the session via `Session::start()`, and sends baseline security headers (CSP, HSTS on https, nosniff, frame, referrer).
+4. `PreProcessor` applies `forceNonWww` / `forceWww` as 301 with host allowlist; on match it throws `RedirectException` carrying an `App\Core\Response`, which is emitted with cleanup still running. Unsafe redirect targets fall back to `/` via `resolveSafeRedirectTarget()`.
+5. `System` reads config and connects to the DB only if configured (`null` or `[]` skips); `System::processRequest()` resets `RouterFactory`, loads `routes.php` (which must set baseUrl and view dir), then log-only validates handlers (never throws, `php roolith route:list` is the lint tool).
+6. On match, one controller action runs: reads input, optionally queries models, returns `string|App\Core\Response` (HTML via `view():string`, JSON via `$this->json():Response`) emitted by `RouterResponse`. On no match, `views/404.php` renders; on wrong method, 405 with `Allow` header.
+7. `System::complete()` clears one-shot temp session data and disconnects the DB (idempotent, also runs on redirect and shutdown). Failures go to `ErrorHandler` with trace id correlation (rethrow in dev for Whoops, generic 500 with security headers plus trace id in prod).
 
 ::: tip Errors
 Unhandled bootstrap errors print as plain messages. Runtime errors in dev render through Whoops.
@@ -184,11 +187,11 @@ See [Configuration](/configuration) and [Using Dot ENV](/using-dot-env).
 
 #### Routing and middleware
 
-- `RouterFactory` holds one shared router instance.
-- `routes.php` sets `baseUrl` and view directory, declares verb routes to closures or `Controller@method`, names routes for reverse routing (`route('welcome.form')`, `getActiveRoute()`).
+- `RouterFactory` holds one shared router instance (reset per request, built with `RouterResponse` to emit `App\Core\Response`).
+- `routes.php` sets `baseUrl` and view directory (router is not pre-configured), declares verb routes to closures or callable `[Controller::class, 'method']` (`Controller@method` string is legacy BC only), names routes for reverse routing (`route('welcome.form')`, `getActiveRoute()`).
 - Conditionally mounts CMS routes when `APP_ENABLE_CMS` is true.
 - Middleware extends the router base `Middleware` and votes allow/deny via `process(request, response)` before the controller runs.
-- Router owns the 404 fallback to `views/404.php`.
+- Router owns the 404 fallback to `views/404.php` (405 plus `Allow` header when the path exists for another method). Bootstrap handler validation is log-only; `php roolith route:list` is the lint tool.
 
 See [Routing](/routing) and [Middleware](/middleware).
 
@@ -197,8 +200,8 @@ See [Routing](/routing) and [Middleware](/middleware).
 The orchestration point. Keep them thin.
 
 - Read input via `Request`, validate via `Validator`, load data via models.
-- Pick an HTML view or a data response.
-- Base `Controller` only provides view compilation through a shared template engine preconfigured with `baseUrl`.
+- Return `string|App\Core\Response`: HTML via `view():string` (fail-closed, throws on failure), JSON via `$this->json():Response` (via `ApiResponseTransformer`).
+- Base `Controller` only provides view compilation through a shared template engine preconfigured with `baseUrl` (constructor requires `baseUrl`) plus the `json()` helper; `RouterResponse` emits `App\Core\Response` status plus headers.
 
 See [Controllers](/controllers).
 
@@ -310,9 +313,9 @@ No cache or queue is required for the default flow.
 
 ## Cross-cutting concerns
 
-- **Errors:** Whoops pretty pages in dev, silent posture in prod, typed app exceptions for bootstrap and template failures.
-- **Security:** sanitize-on-read inputs, escaped view output, upload allowlist plus size cap, session-backed rate limiting, www canonicalization.
-- **Observability:** minimal by design. Version query strings for cache busting, `getActiveRoute()` for navigation state. Add logging in `System`, middleware, or model access.
+- **Errors:** Whoops pretty pages in dev via rethrow, silent posture in prod (generic 500 with baseline security headers plus escaped trace id), typed app exceptions for bootstrap and template failures. `System::run()` never throws; `ErrorHandler` correlates logs by trace id.
+- **Security:** sanitize-on-read inputs, escaped view output, upload allowlist plus size cap, session-backed rate limiting, www canonicalization with host allowlist and safe-redirect fallback to `/`, baseline headers (CSP default-src self, HSTS on https, nosniff, SAMEORIGIN, referrer policy).
+- **Observability:** `System` already logs bootstrap, config validation, route validation, and dispatch with a per-request trace id (`bootstrap started`, `route validation completed`, `router dispatch started`, `route not found`, `unhandled exception`). Version query strings for cache busting, `getActiveRoute()` for navigation state. `ConfigValidator::validate()` runs at bootstrap, `Session::start()` runs before routing, DB connect skips on `null` or `[]`, and a shutdown fallback guarantees `complete()` (disconnect plus temp cleanup) even on exit or die.
 - **Conventions as contracts:** factories guarantee one shared router, view engine, and DB handle per request. Global helpers guarantee stable URL, redirect, asset, and i18n seams. See [Sending Email](/sending-email) for adding an integration.
 
 ## Extension map
