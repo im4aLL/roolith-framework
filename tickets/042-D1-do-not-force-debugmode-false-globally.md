@@ -1,6 +1,6 @@
 # Ticket D1 - Do not force debugMode(false) globally
 
-Status: Open
+Status: Done
 
 Order: 42 of 67
 
@@ -24,12 +24,14 @@ Tie debug to env, log queries in dev, throw or log in prod, document how to enab
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
 
 ## Notes
 
-Update Status to In Progress when started and to Done when verified.
+Verified: DatabaseFactory ties debugMode to APP_ENV via isDebugEnabled() (dev on, prod off) with per-request override documented. tests/SettingsAndDbTest.php asserts dev true plus prod false; composer test 126 OK.
+
+Phase 2 fix: DatabaseFactory::getInstance() now applies the env default only on creation (plus RouterFactory-style reset() production method with resetForTests() alias) so a per-request ->debugMode(true) override survives later getInstance() calls instead of being overwritten every call. tests/SettingsAndDbTest.php::testDbFactoryPreservesPerRequestOverride arms a DatabaseInterface spy and asserts no debugMode() call on reuse; composer test 142 OK.

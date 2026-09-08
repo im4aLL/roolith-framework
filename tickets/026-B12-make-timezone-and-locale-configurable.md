@@ -1,6 +1,6 @@
 # Ticket B12 - Make timezone and locale configurable
 
-Status: Open
+Status: Done
 
 Order: 26 of 67
 
@@ -24,12 +24,14 @@ Read `timezone` and `locale` from config or env with sane default `UTC`, documen
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
 
 ## Notes
 
-Update Status to In Progress when started and to Done when verified.
+Verified: index.php reads APP_TIMEZONE with UTC default plus validation; Settings::defaultTimezone/defaultLocale read Config then Env with UTC/en defaults and are documented. tests/SettingsAndDbTest.php asserts defaults plus Env honors; composer test 126 OK.
+
+Phase 2 fix: index.php now loads Env before the early timezone read (Env::load(APP_ROOT) then Settings::applyDefaultTimezone()) so a .env-only APP_TIMEZONE is honored instead of falling back to UTC; System::__construct re-applies after Env::load and System::bootstrap re-applies after Config validation so Config `timezone` still wins; new Settings::applyDefaultTimezone(): string installs and returns the zone; Settings::defaultLocale() dead branch (duplicate return) cleaned. tests/SettingsAndDbTest.php::testApplyDefaultTimezoneHonorsEnv asserts Env wins and date_default_timezone_get() updates; composer test 142 OK.

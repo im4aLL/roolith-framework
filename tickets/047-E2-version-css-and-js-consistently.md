@@ -1,6 +1,6 @@
 # Ticket E2 - Version CSS and JS consistently
 
-Status: Open
+Status: Done
 
 Order: 47 of 67
 
@@ -24,12 +24,14 @@ Enable content hash in filenames for prod, keep stable names only in dev, update
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
 
 ## Notes
 
-Update Status to In Progress when started and to Done when verified.
+Verified with 025-B11: vite.config.mjs hashes entry and CSS/media names only in prod plus manifest:true, stable names in dev; helpers read manifest via viteManifestFile with stable fallback. tests/VersionTest.php asserts manifest hashed plus fallback; asset URL stable in prod; composer test 126 OK.
+
+Phase 2 fix: same as 025-B11 - viteManifest() $GLOBALS cache fully cleared by setViteManifestForTests(null) plus viteClientTag() $GLOBALS with resetViteClientTagForTests() seam; Sanitize::param/email/string now typed string with full PHPDoc and null-safe preg handling. tests/VersionTest.php covers cache-clear and client-tag reset; composer test 142 OK.

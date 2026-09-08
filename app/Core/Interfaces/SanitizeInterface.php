@@ -5,42 +5,42 @@ namespace App\Core\Interfaces;
 interface SanitizeInterface
 {
     /**
-     * Sanitize url string
+     * Sanitize url string.
      *
-     * @param $string
-     * @return string
+     * @param string $string Raw param value.
+     * @return string Sanitized param.
      */
-    public static function param($string): string;
+    public static function param(string $string): string;
 
     /**
-     * Sanitize email string
+     * Sanitize email string.
      *
-     * @param $string
-     * @return string
+     * @param string $string Raw email value.
+     * @return string Sanitized email.
      */
-    public static function email($string): string;
+    public static function email(string $string): string;
 
     /**
-     * Sanitize any string
+     * Sanitize any string.
      *
-     * @param $str
-     * @return string
+     * @param mixed $str Raw value (stringified when scalar).
+     * @return string Sanitized string.
      */
-    public static function any($str): string;
+    public static function any(mixed $str): string;
 
     /**
-     * Sanitize string
+     * Sanitize string.
      *
-     * @param $string
-     * @return string
+     * @param string $string Raw string value.
+     * @return string Sanitized string.
      */
-    public static function string($string): string;
+    public static function string(string $string): string;
 
     /**
-     * Sanitize multiple items at once
+     * Sanitize multiple items at once.
      *
-     * @param $items array
-     * @return array
+     * @param array<int|string, mixed> $items Raw items.
+     * @return array<int|string, mixed> Sanitized items.
      */
     public static function items(array $items): array;
 }

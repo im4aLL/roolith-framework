@@ -1,6 +1,6 @@
 # Ticket B16 - Harden filesystem helpers against deletion mistakes
 
-Status: Open
+Status: Done
 
 Order: 30 of 67
 
@@ -24,12 +24,14 @@ Add path allowlist check to refuse `/`, `APP_ROOT`, empty path, handle dotfiles 
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
 
 ## Notes
 
-Update Status to In Progress when started and to Done when verified.
+Verified: FS refuses empty, /, APP_ROOT, handles dotfiles via scandir and symlinks via unlink, returns false on failure. tests/FSTest.php covers guards plus temp-dir dotfile and symlink cases; composer test 126 OK.
+
+Phase 2 fix: FS::removeFile() now calls assertDeletablePath() like removeDirectory()/removeFilesInDirectory(), refuses directories (non-symlink) with false, and wraps unlink in try/catch returning false instead of warning; class-level PHPDoc added. tests/FSTest.php::testRemoveFileGuardsAndDeletes asserts empty///APP_ROOT throw plus real temp file delete and missing returns false; composer test 142 OK.

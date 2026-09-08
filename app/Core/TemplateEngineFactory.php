@@ -32,4 +32,18 @@ class TemplateEngineFactory
 
         return self::$view;
     }
+
+    /**
+     * Clear the cached view engine instance (test seam).
+     *
+     * Keeps the facade a thin proxy: no dependencies are injected here,
+     * this only drops the singleton so tests can boot an isolated engine
+     * per test without order dependence.
+     *
+     * @return void
+     */
+    public static function resetForTests(): void
+    {
+        self::$view = null;
+    }
 }

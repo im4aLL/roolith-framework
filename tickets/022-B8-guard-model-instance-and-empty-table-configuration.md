@@ -1,6 +1,6 @@
 # Ticket B8 - Guard Model::instance and empty table configuration
 
-Status: Open
+Status: Done
 
 Order: 22 of 67
 
@@ -24,12 +24,12 @@ Throw on failure instead of returning false, assert non-empty table in `getOrm`,
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
 
 ## Notes
 
-Update Status to In Progress when started and to Done when verified.
+Verified: Model::instance() throws RuntimeException with chain instead of false, getOrm asserts non-empty table. tests/ModelGuardTest.php asserts misconfigured model throws; composer test 126 OK.

@@ -18,16 +18,22 @@ if (!defined('ROOLITH_ENV')) {
 /**
  * Where the configuration files are stored.
  */
-const ROOLITH_CONFIG_ROOT = APP_ROOT . '/config';
+if (!defined('ROOLITH_CONFIG_ROOT')) {
+    define('ROOLITH_CONFIG_ROOT', APP_ROOT . '/config');
+}
 
 /**
  * Where the views are stored.
  */
-const APP_VIEW_ROOT = APP_ROOT . '/views';
+if (!defined('APP_VIEW_ROOT')) {
+    define('APP_VIEW_ROOT', APP_ROOT . '/views');
+}
 
 /**
  * Turn on or off CMS feature
  *
  * If you turn it off, all files under admin folder (Admin/*) will be deactivated
  */
-const APP_ENABLE_CMS = false;
+if (!defined('APP_ENABLE_CMS')) {
+    define('APP_ENABLE_CMS', false);
+}

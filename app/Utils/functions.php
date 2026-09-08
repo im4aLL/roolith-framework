@@ -7,10 +7,11 @@ use Roolith\Configuration\Config;
 use Roolith\Configuration\Exception\InvalidArgumentException;
 
 /**
- * Print anything
+ * Print anything for debugging.
  *
  * @param mixed $any Value to print.
- * @param bool $exit
+ * @param bool $exit Whether to terminate after printing.
+ * @return void
  */
 function p(mixed $any, bool $exit = false): void
 {
@@ -24,26 +25,68 @@ function p(mixed $any, bool $exit = false): void
 }
 
 /**
- * Prefix app url in a path
+ * Prefix the app base URL to a path with slash normalization.
  *
- * @param string $path Path to prefix.
- * @return string
+ * Joins as rtrim(base, '/') . '/' . ltrim(path, '/') so both
+ * baseUrl with/without trailing slash and paths with/without leading
+ * slash produce one slash. When baseUrl is missing or empty, the
+ * misconfiguration is logged and in development throws so it fails fast;
+ * in production it falls back to a root-relative path.
+ *
+ * @param string $path Path to prefix (for example assets/css/app.css or /assets/css/app.css).
+ * @return string Absolute URL when baseUrl exists, otherwise a root-relative path.
+ * @throws InvalidArgumentException When baseUrl is missing and APP_ENV is development.
  */
 function url(string $path): string
 {
+    $fallback = '/' . ltrim($path, '/');
+
     try {
-        return Config::get("baseUrl") . $path;
+        $baseUrl = Config::get("baseUrl");
     } catch (InvalidArgumentException $e) {
-        return $path;
+        error_log('[Roolith url] Missing baseUrl config: ' . $e->getMessage());
+
+        if (isDevEnvironment()) {
+            throw new InvalidArgumentException("Missing baseUrl config: " . $e->getMessage(), 0, $e);
+        }
+
+        return $fallback;
+    } catch (\Throwable $e) {
+        error_log('[Roolith url] Cannot read baseUrl config: ' . $e->getMessage());
+
+        if (isDevEnvironment()) {
+            throw new InvalidArgumentException("Missing baseUrl config: " . $e->getMessage(), 0, $e);
+        }
+
+        return $fallback;
     }
+
+    if (!is_string($baseUrl) || trim($baseUrl) === '') {
+        error_log('[Roolith url] Missing baseUrl config: empty value.');
+
+        if (isDevEnvironment()) {
+            throw new InvalidArgumentException("Missing baseUrl config: empty value.");
+        }
+
+        return $fallback;
+    }
+
+    $base = rtrim(trim($baseUrl), '/');
+    $suffix = ltrim($path, '/');
+
+    if ($suffix === '') {
+        return $base . '/';
+    }
+
+    return $base . '/' . $suffix;
 }
 
 /**
- * Get vite dev server url from configuration
+ * Get vite dev server url from configuration.
  *
- * Empty means vite dev server is not used
+ * Empty means vite dev server is not used.
  *
- * @return string
+ * @return string Dev server base URL or empty string.
  */
 function viteDevServerUrl(): string
 {
@@ -55,10 +98,15 @@ function viteDevServerUrl(): string
 }
 
 /**
- * Get a built asset url with version query
+ * Get a built asset url with version query.
  *
- * @param string $path e.g. assets/css/app.css
- * @return string
+ * Version comes from config `version` (explicit APP_VERSION, else time()
+ * in dev / 1.0.0 in prod) so prod URLs stay stable across requests for
+ * browser/CDN caching. When a Vite prod manifest maps the built path, callers via
+ * viteCss/viteJs prefer the hashed file instead (no query needed).
+ *
+ * @param string $path Built path e.g. assets/css/app.css.
+ * @return string Absolute asset URL with ?v=version.
  */
 function viteBuiltAssetUrl(string $path): string
 {
@@ -66,30 +114,150 @@ function viteBuiltAssetUrl(string $path): string
 }
 
 /**
- * Render the vite client tag once per page
+ * Read the Vite prod manifest when present.
  *
- * @param string $devServer
- * @return string
+ * Looks for assets/.vite/manifest.json (Vite 5 default when manifest:true)
+ * then assets/manifest.json, decoding to an array. Missing or invalid files
+ * yield []. Results are cached per request in $GLOBALS so the test seam
+ * fully clears; tests can override via setViteManifestForTests().
+ *
+ * @return array<string, array<string, mixed>> Manifest source to entry map.
+ */
+function viteManifest(): array
+{
+    $override = $GLOBALS['_VITE_MANIFEST_OVERRIDE'] ?? null;
+
+    if (is_array($override)) {
+        return $override;
+    }
+
+    $cached = $GLOBALS['_VITE_MANIFEST_CACHE'] ?? null;
+
+    if (is_array($cached)) {
+        return $cached;
+    }
+
+    $base = defined('APP_ROOT') ? (string) APP_ROOT : dirname(__DIR__, 2);
+    $candidates = [
+        rtrim($base, "/\\") . '/assets/.vite/manifest.json',
+        rtrim($base, "/\\") . '/assets/manifest.json',
+    ];
+
+    foreach ($candidates as $file) {
+        try {
+            if (!is_file($file) || !is_readable($file)) {
+                continue;
+            }
+
+            $raw = file_get_contents($file);
+
+            if (!is_string($raw) || trim($raw) === '') {
+                continue;
+            }
+
+            $decoded = json_decode($raw, true);
+
+            if (is_array($decoded)) {
+                $GLOBALS['_VITE_MANIFEST_CACHE'] = $decoded;
+
+                return $decoded;
+            }
+        } catch (\Throwable) {
+            continue;
+        }
+    }
+
+    $GLOBALS['_VITE_MANIFEST_CACHE'] = [];
+
+    return [];
+}
+
+/**
+ * Arm a Vite manifest override for tests (test seam).
+ *
+ * Pass an array to fake manifest entries, null to clear the override and
+ * the cached file read so the next viteManifest() re-reads from disk.
+ * Both the $GLOBALS override and the $GLOBALS file cache are cleared so
+ * no stale read survives across tests.
+ *
+ * @param array<string, array<string, mixed>>|null $manifest Manifest map or null to clear.
+ * @return void
+ */
+function setViteManifestForTests(?array $manifest): void
+{
+    if ($manifest === null) {
+        unset($GLOBALS['_VITE_MANIFEST_OVERRIDE'], $GLOBALS['_VITE_MANIFEST_CACHE']);
+    } else {
+        $GLOBALS['_VITE_MANIFEST_OVERRIDE'] = $manifest;
+    }
+}
+
+/**
+ * Resolve a hashed built file from the manifest when available.
+ *
+ * Looks up the source entry (for example source/js/app.js) and returns
+ * assets/<file> when the manifest has it; otherwise returns the stable
+ * built path fallback.
+ *
+ * @param string $sourcePath Vite source entry (manifest key).
+ * @param string $builtPath Stable built path fallback e.g. assets/js/app.js.
+ * @return string Hashed or fallback built path.
+ */
+function viteManifestFile(string $sourcePath, string $builtPath): string
+{
+    $manifest = viteManifest();
+    $entry = $manifest[$sourcePath] ?? null;
+
+    if (is_array($entry) && isset($entry['file']) && is_string($entry['file']) && trim($entry['file']) !== '') {
+        return 'assets/' . ltrim(trim($entry['file']), '/');
+    }
+
+    return $builtPath;
+}
+
+/**
+ * Render the vite client tag once per page.
+ *
+ * Render-once state lives in $GLOBALS so tests can reset it via
+ * resetViteClientTagForTests() without process isolation.
+ *
+ * @param string $devServer Vite dev server base URL.
+ * @return string Script tag HTML on first call, empty string afterwards.
  */
 function viteClientTag(string $devServer): string
 {
-    static $rendered = false;
-
-    if ($rendered) {
+    if (!empty($GLOBALS['_VITE_CLIENT_RENDERED'])) {
         return "";
     }
 
-    $rendered = true;
+    $GLOBALS['_VITE_CLIENT_RENDERED'] = true;
 
     return "<script type=\"module\" src=\"{$devServer}/@vite/client\"></script>";
 }
 
 /**
- * Render a stylesheet tag for a vite entry
+ * Reset the vite client once-per-page flag (test seam).
  *
- * @param string $sourcePath e.g. source/scss/app.scss
- * @param string $builtPath e.g. assets/css/app.css
- * @return string
+ * Clears the $GLOBALS render flag so the next viteClientTag() call emits
+ * again. Safe to call when no flag is armed.
+ *
+ * @return void
+ */
+function resetViteClientTagForTests(): void
+{
+    unset($GLOBALS['_VITE_CLIENT_RENDERED']);
+}
+
+/**
+ * Render a stylesheet tag for a vite entry.
+ *
+ * In dev with a Vite server, points at the server source. In prod, prefers
+ * the hashed file from the Vite manifest (content-hashed filename, no query
+ * needed) and falls back to the stable built path plus ?v=version.
+ *
+ * @param string $sourcePath Vite source entry e.g. source/scss/app.scss (manifest key).
+ * @param string $builtPath Stable built fallback e.g. assets/css/app.css.
+ * @return string Link tag HTML.
  */
 function viteCss(string $sourcePath, string $builtPath): string
 {
@@ -100,15 +268,25 @@ function viteCss(string $sourcePath, string $builtPath): string
             "<link rel=\"stylesheet\" href=\"{$devServer}/{$sourcePath}\">";
     }
 
+    $resolved = viteManifestFile($sourcePath, $builtPath);
+
+    if ($resolved !== $builtPath) {
+        return "<link rel=\"stylesheet\" href=\"" . url($resolved) . "\">";
+    }
+
     return "<link rel=\"stylesheet\" href=\"" . viteBuiltAssetUrl($builtPath) . "\">";
 }
 
 /**
- * Render a script tag for a vite entry
+ * Render a script tag for a vite entry.
  *
- * @param string $sourcePath e.g. source/js/app.js
- * @param string $builtPath e.g. assets/js/app.js
- * @return string
+ * In dev with a Vite server, points at the server source. In prod, prefers
+ * the hashed file from the Vite manifest and falls back to the stable built
+ * path plus ?v=version.
+ *
+ * @param string $sourcePath Vite source entry e.g. source/js/app.js (manifest key).
+ * @param string $builtPath Stable built fallback e.g. assets/js/app.js.
+ * @return string Script tag HTML.
  */
 function viteJs(string $sourcePath, string $builtPath): string
 {
@@ -118,15 +296,21 @@ function viteJs(string $sourcePath, string $builtPath): string
         return "<script type=\"module\" src=\"{$devServer}/{$sourcePath}\"></script>";
     }
 
+    $resolved = viteManifestFile($sourcePath, $builtPath);
+
+    if ($resolved !== $builtPath) {
+        return "<script src=\"" . url($resolved) . "\"></script>";
+    }
+
     return "<script src=\"" . viteBuiltAssetUrl($builtPath) . "\"></script>";
 }
 
 /**
- * Get url by router name
+ * Get url by router name.
  *
  * @param string $name Route name.
- * @param array $settings
- * @return string
+ * @param array<string, mixed> $settings Route params keyed by placeholder.
+ * @return string Absolute URL for the named route.
  */
 function route(string $name, array $settings = []): string
 {
@@ -136,12 +320,12 @@ function route(string $name, array $settings = []): string
 }
 
 /**
- * Get active route
+ * Get active route.
  *
  * Returns the matched route with payload, or an empty array when
  * nothing matches (the router returns null on no-match).
  *
- * @return array
+ * @return array<string, mixed> Active route data or empty array.
  */
 function getActiveRoute(): array
 {
@@ -155,10 +339,10 @@ function getActiveRoute(): array
 }
 
 /**
- * Get a message
+ * Get a message.
  *
  * @param string $name Message key.
- * @return mixed|null
+ * @return mixed Message value or null when missing.
  */
 function __(string $name): mixed
 {
@@ -166,7 +350,7 @@ function __(string $name): mixed
 }
 
 /**
- * Redirect to URL
+ * Redirect to URL.
  *
  * Status is deliberate: 303 (See Other) is the default because it implements
  * Post/Redirect/Get safely by always following up with GET. Pass 302 for a
@@ -178,7 +362,7 @@ function __(string $name): mixed
  * //evil.com, javascript:) falls back to / to block open redirects.
  *
  * @param string $url Redirect target.
- * @param integer $statusCode HTTP redirect code, 303 by default.
+ * @param int $statusCode HTTP redirect code, 303 by default.
  * @return void
  */
 function redirect(string $url, int $statusCode = 303): void
@@ -191,14 +375,14 @@ function redirect(string $url, int $statusCode = 303): void
 }
 
 /**
- * Redirect to route name
+ * Redirect to route name.
  *
  * Uses 303 by default for the same Post/Redirect/Get reason as redirect().
  * Pass an explicit code when a different redirect semantic is intended.
  *
  * @param string $routeName Route name.
- * @param array $settings Route params.
- * @param integer $statusCode HTTP redirect code, 303 by default.
+ * @param array<string, mixed> $settings Route params.
+ * @param int $statusCode HTTP redirect code, 303 by default.
  * @return void
  */
 function redirectToRoute(string $routeName, array $settings = [], int $statusCode = 303): void
@@ -209,9 +393,9 @@ function redirectToRoute(string $routeName, array $settings = [], int $statusCod
 }
 
 /**
- * Generate unique alpha numeric number
+ * Generate unique alpha numeric number.
  *
- * @return string
+ * @return string Unique identifier with alpha prefix and timestamp.
  */
 function generateUniqueAlphaNumericNumber(): string
 {
@@ -222,9 +406,9 @@ function generateUniqueAlphaNumericNumber(): string
 }
 
 /**
- * Generate unique number
+ * Generate unique number.
  *
- * @return string
+ * @return string Unique identifier with random and timestamp parts.
  */
 function generateUniqueNumber(): string
 {
@@ -236,9 +420,9 @@ function generateUniqueNumber(): string
 }
 
 /**
- * Get Current date and time
+ * Get current date and time.
  *
- * @return string
+ * @return string Current datetime string (Y-m-d H:i:s).
  */
 function getCurrentDateTime(): string
 {
@@ -246,9 +430,9 @@ function getCurrentDateTime(): string
 }
 
 /**
- * Get today's date
+ * Get today's date.
  *
- * @return string
+ * @return string Current date string (Y-m-d).
  */
 function getCurrentDate(): string
 {
@@ -256,12 +440,12 @@ function getCurrentDate(): string
 }
 
 /**
- * Is dev environment
+ * Is dev environment.
  *
  * Single source is APP_ENV via App\Core\Env. Fail-closed: only an explicit
  * APP_ENV=development returns true.
  *
- * @return bool
+ * @return bool True in development, false otherwise.
  */
 function isDevEnvironment(): bool
 {
@@ -269,11 +453,11 @@ function isDevEnvironment(): bool
 }
 
 /**
- * Is production environment
+ * Is production environment.
  *
  * Fail-closed: anything that is not development counts as production-safe.
  *
- * @return bool
+ * @return bool True outside development, false in development.
  */
 function isProductionEnvironment(): bool
 {
@@ -404,10 +588,13 @@ function parseBasicTemplate(string|array $string, array $data = []): array|strin
 }
 
 /**
- * Get a version
+ * Get a version.
  *
- * @return string
- * @throws InvalidArgumentException
+ * Stable in prod when APP_VERSION is set so asset URLs
+ * stay cacheable; time() in dev.
+ *
+ * @return string Version string.
+ * @throws InvalidArgumentException When the version key is missing.
  */
 function getVersion(): string
 {

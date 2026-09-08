@@ -4,12 +4,33 @@ namespace App\Core;
 
 use Roolith\Route\Router;
 
+/**
+ * Shared router factory with a resettable singleton.
+ *
+ * The singleton is intentional: routes.php expects one shared Router per
+ * request via getInstance(). System::processRequest() resets before each
+ * load so re-entry (tests, long-lived workers) never double-registers
+ * routes on a stale instance.
+ */
 class RouterFactory
 {
-    private static Router|null $router = null;
+    /**
+     * Cached router instance.
+     *
+     * @var Router|null
+     */
+    private static ?Router $router = null;
 
+    /**
+     * Private constructor to enforce factory use.
+     */
     private function __construct() {}
 
+    /**
+     * Get the shared router instance.
+     *
+     * @return Router Shared router.
+     */
     public static function getInstance(): Router
     {
         if (self::$router === null) {
@@ -17,5 +38,34 @@ class RouterFactory
         }
 
         return self::$router;
+    }
+
+    /**
+     * Clear the cached router instance.
+     *
+     * Production reset: drops the singleton so the next getInstance()
+     * creates a fresh Router with an empty route table. System calls this
+     * before loading routes.php to keep re-entry idempotent.
+     *
+     * @return void
+     */
+    public static function reset(): void
+    {
+        self::$router = null;
+    }
+
+    /**
+     * Clear the cached router instance (test seam).
+     *
+     * Keeps the facade a thin proxy: no dependencies are injected here,
+     * this only drops the singleton so tests can boot an isolated router
+     * per test without order dependence. Alias of reset() for suites that
+     * reset all facades uniformly.
+     *
+     * @return void
+     */
+    public static function resetForTests(): void
+    {
+        self::reset();
     }
 }

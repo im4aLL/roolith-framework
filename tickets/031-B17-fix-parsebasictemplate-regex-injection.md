@@ -1,6 +1,6 @@
 # Ticket B17 - Fix parseBasicTemplate regex injection
 
-Status: Open
+Status: Done
 
 Order: 31 of 67
 
@@ -24,12 +24,12 @@ Use `str_replace('{{'.$key.'}}', $value, $string)` or quoted pattern, add test.
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
 
 ## Notes
 
-Update Status to In Progress when started and to Done when verified.
+Verified: parseBasicTemplate() already uses str_replace (no regex); tests/UrlAndTemplateTest.php asserts regex-char keys like a.b*c replace literally; composer test 126 OK.

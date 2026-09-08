@@ -6,6 +6,10 @@ use App\Core\Env;
 /**
  * Minimal app config with Env-only values.
  *
+ * Version is simple: explicit APP_VERSION wins, else time() in development
+ * for no-cache dev, else static 1.0.0 in prod until the user sets a fixed
+ * version.
+ *
  * @return array{baseUrl: string, viteDevServer: string, database: array{host: string, name: string, user: string, pass: string}|null, forceNonWww: bool, version: string}
  */
 return [
@@ -18,5 +22,5 @@ return [
         "pass" => Env::get('DB_PASS', ''),
     ] : null,
     "forceNonWww" => filter_var(Env::get('FORCE_NON_WWW', '1'), FILTER_VALIDATE_BOOLEAN),
-    "version" => Env::get('APP_VERSION', (string) time()),
+    "version" => Env::get('APP_VERSION', Env::isDevelopment() ? (string) time() : '1.0.0'),
 ];

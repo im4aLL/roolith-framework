@@ -1,6 +1,6 @@
 # Ticket B5 - Harden requiredArray, minLength, maxLength, requiredIf
 
-Status: Open
+Status: Done
 
 Order: 19 of 67
 
@@ -24,12 +24,12 @@ Guard with `isset` and `is_array`, use `mb_strlen`, define strict condition stru
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
 
 ## Notes
 
-Update Status to In Progress when started and to Done when verified.
+Verified: requiredArray guards isset/is_array, min/maxLength guard null and use mb_strlen, requiredIf uses limit explode(...,3) plus struct and documents operators. tests/RulesHardeningTest.php covers colon values and guards; composer test 126 OK.

@@ -67,6 +67,16 @@ class System
 
         require_once $basePath . "/app/Utils/functions.php";
 
+        // Re-apply timezone after Env::load() so a .env-only APP_TIMEZONE
+        // (invisible to index.php before Env loads) still takes effect.
+        // index.php also loads Env before its early read; this second call
+        // covers workers/tests that construct System directly.
+        try {
+            Settings::applyDefaultTimezone();
+        } catch (Throwable) {
+            // Timezone must never break construction.
+        }
+
         $this->db = null;
         try {
             $this->traceId = bin2hex(random_bytes(8));
@@ -98,10 +108,16 @@ class System
     }
 
     /**
-     * Bootstrap application
+     * Bootstrap application.
      *
-     * @return $this
-     * @throws Exception
+     * Preserves the exception chain on every failure via
+     * new Exception(message, 0, previous) so file, line, and trace survive.
+     * Config-missing (InvalidArgumentException from Config::get/validate)
+     * and connect-failed (failure inside connectToDatabase) are kept
+     * distinct with distinct messages and each logs exactly once.
+     *
+     * @return static Self for chaining.
+     * @throws Exception When bootstrap fails, chained to the cause.
      */
     public function bootstrap(): static
     {
@@ -130,6 +146,14 @@ class System
             ConfigValidator::validate();
             $this->logger->info('config validated');
 
+            // Re-apply timezone after config boots so Config `timezone`
+            // wins over the early index.php default when set.
+            try {
+                Settings::applyDefaultTimezone();
+            } catch (Throwable) {
+                // Timezone must never break bootstrap.
+            }
+
             Session::start();
             $this->sendSecurityHeaders();
 
@@ -144,16 +168,19 @@ class System
 
         try {
             $dbConfig = Config::get("database");
-
-            try {
-                $this->connectToDatabase($dbConfig);
-            } catch (Exception $e) {
-                $this->logger->error('database connect failed', ['error' => $e->getMessage()]);
-                throw new Exception($e->getMessage(), 0, $e);
-            }
         } catch (InvalidArgumentException $e) {
             $this->logger->error('bootstrap failed', ['error' => $e->getMessage()]);
-            throw new Exception($e->getMessage(), 0, $e);
+            throw new Exception("Invalid configuration: cannot read database config: " . $e->getMessage(), 0, $e);
+        }
+
+        try {
+            $this->connectToDatabase($dbConfig);
+        } catch (Exception $e) {
+            $this->logger->error('database connect failed', ['error' => $e->getMessage()]);
+            throw new Exception("Database connection failed: " . $e->getMessage(), 0, $e);
+        } catch (Throwable $e) {
+            $this->logger->error('database connect failed', ['error' => $e->getMessage()]);
+            throw new Exception("Database connection failed: " . $e->getMessage(), 0, $e);
         }
 
         $this->logger->info('bootstrap completed');
@@ -162,9 +189,9 @@ class System
     }
 
     /**
-     * Close application
+     * Close application.
      *
-     * @return $this
+     * @return static Self for chaining.
      */
     public function complete(): static
     {
@@ -181,11 +208,18 @@ class System
      * repeat calls) and verifies the RouterInterface contract so a bad
      * return fails fast with context instead of a TypeError.
      *
-     * @return $this
+     * Re-entry guard: resets the shared RouterFactory singleton before
+     * loading so a second processRequest() in the same process (tests,
+     * workers) starts from an empty route table instead of appending the
+     * same routes twice.
+     *
+     * @return static Self for chaining.
      * @throws Exception When routes.php does not return a RouterInterface.
      */
     public function processRequest(): static
     {
+        RouterFactory::reset();
+
         $router = require APP_ROOT . "/app/Http/routes.php";
 
         if (!$router instanceof RouterInterface) {
@@ -198,10 +232,10 @@ class System
     }
 
     /**
-     * Router
+     * Run the router for the current request.
      *
      * @param RouterInterface $router Active router.
-     * @return $this
+     * @return static Self for chaining.
      */
     protected function router(RouterInterface $router): static
     {
@@ -211,30 +245,41 @@ class System
     }
 
     /**
-     * Connect to database
+     * Connect to database.
      *
-     * @param array|null $databaseConfig Validated database config (array) or null to skip.
-     * @return $this
-     * @throws Exception When the database connection fails.
+     * Skips when the config is null (runs without a database). Preserves
+     * the cause: a thrown driver error is chained, a false return becomes
+     * a clear message with no previous (nothing to chain).
+     *
+     * @param array<string, mixed>|null $databaseConfig Validated database config (array) or null to skip.
+     * @return static Self for chaining.
+     * @throws Exception When the database connection fails, chained to the driver error when available.
      */
     protected function connectToDatabase(?array $databaseConfig): static
     {
-        if ($databaseConfig) {
-            $this->db = DatabaseFactory::getInstance();
-            $isConnected = $this->db->connect($databaseConfig);
+        if ($databaseConfig === null || $databaseConfig === []) {
+            return $this;
+        }
 
-            if (!$isConnected) {
-                throw new Exception("Unable to connect to the database");
-            }
+        $this->db = DatabaseFactory::getInstance();
+
+        try {
+            $isConnected = $this->db->connect($databaseConfig);
+        } catch (Throwable $e) {
+            throw new Exception("Unable to connect to the database: " . $e->getMessage(), 0, $e);
+        }
+
+        if (!$isConnected) {
+            throw new Exception("Unable to connect to the database");
         }
 
         return $this;
     }
 
     /**
-     * Disconnect from a database
+     * Disconnect from the database when connected.
      *
-     * @return $this
+     * @return static Self for chaining.
      */
     protected function disconnectFromDatabase(): static
     {

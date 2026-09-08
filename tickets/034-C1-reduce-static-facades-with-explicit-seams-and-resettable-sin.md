@@ -1,6 +1,6 @@
 # Ticket C1 - Reduce static facades with explicit seams and resettable singletons
 
-Status: Open
+Status: Done
 
 Order: 34 of 67
 
@@ -24,12 +24,12 @@ Add `resetForTests()` to each factory, introduce constructor injection for new c
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
 
 ## Notes
 
-Update Status to In Progress when started and to Done when verified.
+Verified C1a minimal: resetForTests() added to Request, Storage, Sanitize, RouterFactory, DatabaseFactory, TemplateEngineFactory, Lang (Language already had it; vendor Config uses existing reset()). Facades stay thin proxies. tests/FacadeResetTest.php proves fresh instances; composer test 126 OK. Full injection (C1b) deferred.

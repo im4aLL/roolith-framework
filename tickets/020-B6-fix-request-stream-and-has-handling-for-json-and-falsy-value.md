@@ -1,6 +1,6 @@
 # Ticket B6 - Fix Request stream and has handling for JSON and falsy values
 
-Status: Open
+Status: Done
 
 Order: 20 of 67
 
@@ -24,12 +24,14 @@ Read `php://input` once, support `application/json` via `json_decode`, fix `has`
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
 
 ## Notes
 
-Update Status to In Progress when started and to Done when verified.
+Verified: Request reads php://input once with cache, decodes application/json, has() uses array_key_exists. tests/RequestTest.php asserts has("0"), JSON {"a":0} has true plus input 0, and cache per request; composer test 126 OK.
+
+Phase 2 fix: Request::input() now sanitizes stream values consistently with all() - strings via Sanitize::any (so JSON {"comment":"<script>hi"} never returns raw markup), arrays via Sanitize::items, null stays null, int/float/bool preserved for type stability; all() stream documented plus skipSanitization path kept, unsafeInput() documented for raw access. tests/RequestTest.php adds testJsonStringInputIsSanitized, testAllSanitizesStreamUnlessSkipped, testJsonIntInputPreservesType; composer test 142 OK.

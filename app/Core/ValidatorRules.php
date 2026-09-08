@@ -4,17 +4,36 @@ namespace App\Core;
 
 use App\Core\Interfaces\ValidatorRulesInterface;
 
+/**
+ * Fluent builder for Validator rule maps.
+ *
+ * Each method records a Rules method name plus its rule value; Validator
+ * dispatches via Rules::$method($inputs, $field, $value). Presence rules
+ * (isRequired, isRequiredArray, isRequiredIf) run even when the key is
+ * missing; all others are skipped for missing keys so optional fields
+ * pass when absent.
+ */
 class ValidatorRules implements ValidatorRulesInterface
 {
+    /**
+     * Recorded rules keyed by Rules method name.
+     *
+     * @var array<string, mixed>
+     */
     protected array $rules;
 
+    /**
+     * Create an empty rule set.
+     */
     public function __construct()
     {
         $this->rules = [];
     }
 
     /**
-     * @inheritDoc
+     * Get the recorded rule map.
+     *
+     * @return array<string, mixed> Rule name to rule value map.
      */
     public function rules(): array
     {
@@ -32,10 +51,10 @@ class ValidatorRules implements ValidatorRulesInterface
     }
 
     /**
-     * Is required array
+     * Is required array.
      *
-     * @param array $fields
-     * @return $this
+     * @param array<int, string|int> $fields Required sub-field names.
+     * @return static Self for chaining.
      */
     public function isRequiredArray(array $fields = []): static
     {
@@ -67,7 +86,7 @@ class ValidatorRules implements ValidatorRulesInterface
     /**
      * @inheritDoc
      */
-    public function maxLength($length): static
+    public function maxLength(int $length): static
     {
         $this->rules['maxLength'] = $length;
 
@@ -85,19 +104,38 @@ class ValidatorRules implements ValidatorRulesInterface
     }
 
     /**
-     * @inheritDoc
+     * Mark a field required when another field meets a condition.
+     *
+     * Accepts a strict struct or a colon string. String form is
+     * `field:operator:value` split with limit 3 so values may contain
+     * colons (for example `time:equals:10:30` keeps `10:30` as the value).
+     * Array form is `[field, operator, value]` and is used as-is. Operators
+     * are documented on Rules::requiredIf(): equals, less_than,
+     * less_than_equals_to, greater_than, greater_than_equals_to.
+     *
+     * @param string|array<int, mixed> $condition Condition string or 3-tuple struct.
+     * @return static Self for chaining.
      */
-    public function isRequiredIf($condition): static
+    public function isRequiredIf(string|array $condition): static
     {
-        $this->rules['requiredIf'] = explode(':', $condition);
+        if (is_array($condition)) {
+            $this->rules['requiredIf'] = array_values($condition);
+
+            return $this;
+        }
+
+        $this->rules['requiredIf'] = explode(':', $condition, 3);
 
         return $this;
     }
 
     /**
-     * @inheritDoc
+     * Value must not exist in the supplied model table.
+     *
+     * @param string|object $condition Model class name or instance for Rules::notExistsInTable().
+     * @return static Self for chaining.
      */
-    public function notExists($condition): static
+    public function notExists(string|object $condition): static
     {
         $this->rules['notExistsInTable'] = $condition;
 
@@ -105,13 +143,13 @@ class ValidatorRules implements ValidatorRulesInterface
     }
 
     /**
-     * If value exists in a table
+     * Value must exist in the supplied model table.
      *
-     * @param $condition
-     * @param string $localKey
-     * @return $this
+     * @param string|object $condition Model class name or instance for Rules::existsInTable().
+     * @param string $localKey Column/field to match (for example id).
+     * @return static Self for chaining.
      */
-    public function exists($condition, string $localKey = 'id'): static
+    public function exists(string|object $condition, string $localKey = 'id'): static
     {
         $this->rules['existsInTable'] = [
             'condition' => $condition,

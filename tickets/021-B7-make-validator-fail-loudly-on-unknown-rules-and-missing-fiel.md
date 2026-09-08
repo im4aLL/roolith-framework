@@ -1,6 +1,6 @@
 # Ticket B7 - Make Validator fail loudly on unknown rules and missing fields
 
-Status: Open
+Status: Done
 
 Order: 21 of 67
 
@@ -24,12 +24,14 @@ Throw `InvalidArgumentException` for unknown rule, collect field-missing as fail
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
 
 ## Notes
 
-Update Status to In Progress when started and to Done when verified.
+Verified: Validator::check() throws InvalidArgumentException for unknown rules and records missing required as failure (documented). tests/ValidatorTest.php asserts throw plus missing-required fails; composer test 126 OK.
+
+Phase 2 fix: Validator now supports optional fields - missing keys skip all non-presence rules and only evaluate required/requiredArray/requiredIf (Validator::PRESENCE_RULES), so a missing optional email/url/numeric passes while a present invalid value still fails; ValidatorRules::notExists/exists now typed string|object with full PHPDoc and Rules::exists/notExists throw InvalidArgumentException with chain plus struct validation. tests/ValidatorTest.php updated plus testMissingOptionalFieldPasses, testPresentInvalidOptionalFieldFails, testMissingFieldWithRequiredIfRespectsCondition; tests/RulesHardeningTest.php asserts throw with previous; composer test 142 OK.

@@ -1,6 +1,6 @@
 # Ticket B2 - Fix require_once for routes to allow re-entry and tests
 
-Status: Open
+Status: Done
 
 Order: 16 of 67
 
@@ -24,12 +24,14 @@ Use `require`, validate returned value implements `RouterInterface`, throw clear
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
 
 ## Notes
 
-Update Status to In Progress when started and to Done when verified.
+Verified: System::processRequest() uses require plus RouterInterface check (app/Core/System.php:187-198). FacadeResetTest proves RouterFactory isolation; composer test 126 OK.
+
+Phase 2 fix: System::processRequest() now calls RouterFactory::reset() before require (RouterFactory::reset() production method, resetForTests() alias) so re-entry starts from an empty route table instead of double-registering on the shared singleton; constant.php guards redefined so System is constructible in-process. tests/SystemTest.php::testProcessRequestReEntryDoesNotDuplicateRoutes buffers router output, calls processRequest() twice, and asserts stable route count; composer test 142 OK.

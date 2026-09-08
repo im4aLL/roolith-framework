@@ -16,6 +16,20 @@ class Storage
     protected static string $tempKey = '_temp_';
 
     /**
+     * Clear facade state for tests (test seam).
+     *
+     * Storage holds no process cache besides the flash key name; this resets
+     * it to the default so a test that overrides the key cannot leak into
+     * the next test. Keeps the facade a thin proxy over $_SESSION/$_COOKIE.
+     *
+     * @return void
+     */
+    public static function resetForTests(): void
+    {
+        self::$tempKey = '_temp_';
+    }
+
+    /**
      * Set cookie with hardened defaults.
      *
      * Uses the options array so path, Secure, HttpOnly, and SameSite are

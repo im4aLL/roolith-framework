@@ -1,6 +1,6 @@
 # Ticket B11 - Replace time() version with content hash
 
-Status: Open
+Status: Done
 
 Order: 25 of 67
 
@@ -24,12 +24,16 @@ Use `filemtime` of built asset or git short hash or static `APP_VERSION`, fallba
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
 
 ## Notes
 
-Update Status to In Progress when started and to Done when verified.
+Verified with 047-E2: config version uses AppVersion::resolve() (filemtime, else git hash, else time() only in dev else 1.0.0); explicit APP_VERSION wins. tests/VersionTest.php asserts stable prod URL plus static fallback; composer test 126 OK.
+
+Phase 2 fix: AppVersion PHPDoc now notes scope - only front entries (assets/css/app.css, assets/js/app.js) drive mtime while optional admin entries from installer.zip resolve via the Vite manifest and reuse the front version for the query fallback; viteManifest() cache moved from static to $GLOBALS with setViteManifestForTests(null) clearing both override and file cache; viteClientTag() render-once moved to $GLOBALS with resetViteClientTagForTests() seam. tests/VersionTest.php adds testViteManifestCacheClearedByNull (real manifest rewrite proving stale-until-clear then fresh-after-clear) plus testViteClientTagResetSeam; composer test 142 OK.
+
+Simplification: AppVersion class removed per owner request. config version is now explicit APP_VERSION, else time() in development else static 1.0.0 in prod. Dev uses time() for no-cache, prod user sets a fixed version. tests/VersionTest.php AppVersion test removed; composer test 141 OK.

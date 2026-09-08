@@ -31,7 +31,7 @@
 
 ### version
 
-- Env: `APP_VERSION`, default `(string) time()` (per-boot, dev-friendly)
+- Env: `APP_VERSION`, default `time()` in development else `1.0.0` in prod (set a fixed version in prod)
 - Allowed: non-empty string or number
 - Example: `APP_VERSION=1.2.3`
 
@@ -110,7 +110,7 @@ return [
         "pass" => Env::get('DB_PASS', ''),
     ] : null,
     "forceNonWww" => filter_var(Env::get('FORCE_NON_WWW', '1'), FILTER_VALIDATE_BOOLEAN),
-    "version" => Env::get('APP_VERSION', (string) time()),
+    "version" => Env::get('APP_VERSION', Env::isDevelopment() ? (string) time() : '1.0.0'),
     // Advanced override example:
     "logPath" => Env::get('LOG_PATH', APP_ROOT . '/storage/logs/app.log'),
 ];

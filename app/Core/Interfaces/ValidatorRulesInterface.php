@@ -13,10 +13,10 @@ interface ValidatorRulesInterface
     public function isRequired(): static;
 
     /**
-     * Is value multidimensional array and each row's values are required
+     * Is value multidimensional array and each row's values are required.
      *
-     * @param array $fields
-     * @return $this
+     * @param array<int, string|int> $fields Required sub-field names.
+     * @return static Self for chaining.
      * @uses Rules::set()->isRequiredArray(['name', 'type'])
      */
     public function isRequiredArray(array $fields): static;
@@ -30,10 +30,10 @@ interface ValidatorRulesInterface
     public function isEmail(): static;
 
     /**
-     * Is value's length at least n
+     * Is value's length at least n.
      *
-     * @param $length int
-     * @return $this
+     * @param int $length Minimum length.
+     * @return static Self for chaining.
      * @uses Rules::set()->minLength(2)
      */
     public function minLength(int $length): static;
@@ -41,11 +41,11 @@ interface ValidatorRulesInterface
     /**
      * Is value's length less than or equal to given number?
      *
-     * @param $length
-     * @return $this
+     * @param int $length Maximum length.
+     * @return static Self for chaining.
      * @uses Rules::set()->maxLength(2)
      */
-    public function maxLength($length): static;
+    public function maxLength(int $length): static;
 
     /**
      * Is array field
@@ -56,36 +56,41 @@ interface ValidatorRulesInterface
     public function isArray(): static;
 
     /**
-     * Field will be required if it matches with condition
+     * Field will be required if it matches with condition.
      *
-     * @param $condition
-     * @return $this
+     * Condition is a `field:operator:value` string (split with limit 3 so
+     * values may contain colons) or a `[field, operator, value]` struct.
+     * Operators: equals, less_than, less_than_equals_to, greater_than,
+     * greater_than_equals_to.
+     *
+     * @param string|array<int, mixed> $condition Condition string or 3-tuple struct.
+     * @return static Self for chaining.
      * @uses Rules::set()->isRequiredIf('age:greater_than:10')
      * @uses Rules::set()->isRequiredIf('age:greater_than_equals_to:10')
      * @uses Rules::set()->isRequiredIf('age:equals:10')
      * @uses Rules::set()->isRequiredIf('age:less_than:10')
      * @uses Rules::set()->isRequiredIf('age:less_than_equals_to:10')
      */
-    public function isRequiredIf($condition): static;
+    public function isRequiredIf(string|array $condition): static;
 
     /**
-     * If a defined field's value doesn't exist in a supplied model
+     * If a defined field's value doesn't exist in a supplied model.
      *
-     * @param $condition
-     * @return $this
+     * @param string|object $condition Model class name or instance.
+     * @return static Self for chaining.
      * @uses ["email" => Rules::set()->exists(Model::class)]
      */
-    public function notExists($condition): static;
+    public function notExists(string|object $condition): static;
 
     /**
-     * Defined field's value should exist in a supplied model
+     * Defined field's value should exist in a supplied model.
      *
-     * @param $condition
-     * @param string $localKey
-     * @return $this
+     * @param string|object $condition Model class name or instance.
+     * @param string $localKey Column/field to match.
+     * @return static Self for chaining.
      * @uses Rules::set()->exists(Model::class, 'id')
      */
-    public function exists($condition, string $localKey = 'id'): static;
+    public function exists(string|object $condition, string $localKey = 'id'): static;
 
     /**
      * Is value a URL
@@ -104,9 +109,9 @@ interface ValidatorRulesInterface
     public function isNumeric(): static;
 
     /**
-     * Get rules
+     * Get rules.
      *
-     * @return array
+     * @return array<string, mixed> Rule name to rule value map.
      */
     public function rules(): array;
 }

@@ -6,6 +6,14 @@ use App\Core\Interfaces\FileInterface;
 use App\Core\Interfaces\RequestInterface;
 use App\Utils\_;
 
+/**
+ * HTTP request facade over POST, GET, and php://input streams.
+ *
+ * input() returns sanitized values (POST via Sanitize::any, GET via
+ * Sanitize::param, stream strings via Sanitize::any with scalar types
+ * preserved); unsafeInput() returns the raw value for validated/escaped
+ * uses. all() sanitizes unless skipSanitization is set.
+ */
 class Request implements RequestInterface
 {
     /**
@@ -16,29 +24,73 @@ class Request implements RequestInterface
     private static ?array $streamInputsCache = null;
 
     /**
+     * Raw php://input override for tests (null means read the real stream).
+     *
+     * @var string|null
+     */
+    private static ?string $rawInputOverride = null;
+
+    /**
+     * Whether a raw input override is armed (distinguishes null-body from no override).
+     *
+     * @var bool
+     */
+    private static bool $hasRawInputOverride = false;
+
+    /**
+     * Content-Type override for tests (null means read $_SERVER).
+     *
+     * @var string|null
+     */
+    private static ?string $contentTypeOverride = null;
+
+    /**
      * Get a sanitized request input value.
      *
-     * Checks POST, then GET, then the php://input stream. Stream values of
-     * "0" or 0 are returned (only a missing key falls through to default).
+     * Checks POST, then GET, then the php://input stream. Uses
+     * array_key_exists so falsy values ("0", 0, null, false) count as
+     * present; only a missing key falls through to the default. POST/GET
+     * values are sanitized; stream (JSON/urlencoded) string values are
+     * sanitized via Sanitize::any so a JSON body like
+     * {"comment":"<script>alert(1)</script>hi"} never returns raw markup
+     * from input(). Non-string stream scalars (int, float, bool) are
+     * returned as-is to preserve types, arrays via Sanitize::items, and
+     * null stays null. Use unsafeInput() for the raw stream value.
      *
      * @param string $name Input key.
      * @param mixed $default Fallback when the key is missing everywhere.
-     * @return mixed Sanitized value or the default.
+     * @return mixed Sanitized value, stream value, or the default.
      */
     public static function input(string $name, mixed $default = null): mixed
     {
-        if (isset($_POST[$name])) {
-            return Sanitize::any($_POST[$name]);
+        if (array_key_exists($name, $_POST)) {
+            $value = $_POST[$name];
+
+            if ($value === null) {
+                return null;
+            }
+
+            if (is_array($value)) {
+                return Sanitize::items($value);
+            }
+
+            return Sanitize::any($value);
         }
 
-        if (isset($_GET[$name])) {
-            return is_array($_GET[$name]) ? Sanitize::params($_GET[$name]) : Sanitize::param($_GET[$name]);
+        if (array_key_exists($name, $_GET)) {
+            $value = $_GET[$name];
+
+            if ($value === null) {
+                return null;
+            }
+
+            return is_array($value) ? Sanitize::params($value) : Sanitize::param((string) $value);
         }
 
-        $streamInput = self::streamInput($name);
+        $inputs = self::streamInputs();
 
-        if ($streamInput !== false) {
-            return $streamInput;
+        if (array_key_exists($name, $inputs)) {
+            return self::sanitizeStreamValue($inputs[$name]);
         }
 
         return $default;
@@ -48,25 +100,26 @@ class Request implements RequestInterface
      * Get a raw (unsanitized) request input value.
      *
      * Same lookup order as input() but without sanitization. Only use for
-     * values that are validated or escaped later.
+     * values that are validated or escaped later. Uses array_key_exists so
+     * falsy values ("0", 0, null, false) count as present.
      *
      * @param string $name Input key.
      * @return mixed Raw value or null when missing.
      */
     public static function unsafeInput(string $name): mixed
     {
-        if (isset($_POST[$name])) {
+        if (array_key_exists($name, $_POST)) {
             return $_POST[$name];
         }
 
-        if (isset($_GET[$name])) {
+        if (array_key_exists($name, $_GET)) {
             return $_GET[$name];
         }
 
-        $streamInput = self::streamInput($name);
+        $inputs = self::streamInputs();
 
-        if ($streamInput !== false) {
-            return $streamInput;
+        if (array_key_exists($name, $inputs)) {
+            return $inputs[$name];
         }
 
         return null;
@@ -77,8 +130,8 @@ class Request implements RequestInterface
      *
      * Returns the parsed value for the key, or false when the key is absent.
      * The false sentinel (not null) keeps stored null/"0"/0 distinguishable
-     * from missing. Phase 2 JSON bodies (020-B6) are out of scope; this only
-     * guarantees no TypeError on empty/false bodies.
+     * from missing for internal callers; public has()/input() use
+     * array_key_exists on streamInputs() directly.
      *
      * @param string $name Stream key.
      * @return mixed Stream value or false when missing.
@@ -87,16 +140,18 @@ class Request implements RequestInterface
     {
         $var = self::streamInputs();
 
-        return $var[$name] ?? false;
+        return array_key_exists($name, $var) ? $var[$name] : false;
     }
 
     /**
      * Get all php://input stream values with per-request caching.
      *
-     * Reads php://input once per request and caches the parse result. Empty
-     * or unreadable bodies yield an empty array instead of a TypeError, and
-     * non-array parse results are normalized to an array. JSON bodies are not
-     * decoded here (deferred to Phase 2); parse_str output is returned as-is.
+     * Reads php://input once per request and caches the parse result. When
+     * the Content-Type is application/json (optionally with charset), the
+     * body is decoded via json_decode(assoc=true); valid JSON objects yield
+     * their assoc array, otherwise an empty array. All other bodies use
+     * parse_str. Empty or unreadable bodies yield an empty array instead of
+     * a TypeError, and non-array parse results are normalized to an array.
      *
      * @return array<string, mixed> Parsed stream inputs.
      */
@@ -106,13 +161,27 @@ class Request implements RequestInterface
             return self::$streamInputsCache;
         }
 
-        try {
-            $raw = file_get_contents("php://input");
-        } catch (\Throwable) {
-            $raw = false;
-        }
+        $raw = self::readRawInput();
 
         if (!is_string($raw) || $raw === '') {
+            self::$streamInputsCache = [];
+
+            return self::$streamInputsCache;
+        }
+
+        if (self::isJsonContentType()) {
+            try {
+                $decoded = json_decode($raw, true);
+            } catch (\Throwable) {
+                $decoded = null;
+            }
+
+            if (is_array($decoded)) {
+                self::$streamInputsCache = $decoded;
+
+                return self::$streamInputsCache;
+            }
+
             self::$streamInputsCache = [];
 
             return self::$streamInputsCache;
@@ -136,36 +205,164 @@ class Request implements RequestInterface
     }
 
     /**
+     * Read the raw request body, preferring the test override.
+     *
+     * In production reads php://input once per request (result cached by
+     * streamInputs()). In tests setRawInputForTests() arms an override so
+     * JSON and urlencoded bodies can be asserted without a real stream.
+     *
+     * @return string|false Raw body string or false when unreadable.
+     */
+    private static function readRawInput(): string|false
+    {
+        if (self::$hasRawInputOverride) {
+            return self::$rawInputOverride ?? '';
+        }
+
+        try {
+            $raw = file_get_contents("php://input");
+        } catch (\Throwable) {
+            $raw = false;
+        }
+
+        return $raw;
+    }
+
+    /**
+     * Check whether the current request carries a JSON content type.
+     *
+     * Matches `application/json` with optional parameters (for example
+     * `application/json; charset=utf-8`), case-insensitively. Reads the
+     * test override when armed, otherwise CONTENT_TYPE then
+     * HTTP_CONTENT_TYPE from $_SERVER.
+     *
+     * @return bool True when the body should be JSON-decoded.
+     */
+    private static function isJsonContentType(): bool
+    {
+        $contentType = self::$contentTypeOverride;
+
+        if ($contentType === null) {
+            $serverType = $_SERVER['CONTENT_TYPE'] ?? $_SERVER['HTTP_CONTENT_TYPE'] ?? '';
+            $contentType = is_string($serverType) ? $serverType : '';
+        }
+
+        $mediaType = strtolower(trim(explode(';', $contentType)[0] ?? ''));
+
+        return $mediaType === 'application/json';
+    }
+
+    /**
+     * Arm a raw body plus content type for tests (test seam).
+     *
+     * Sets the body returned by readRawInput() and the content type checked
+     * by isJsonContentType(), clearing the parsed cache so the next
+     * streamInputs() call re-parses. Pass null to simulate an empty body.
+     * Clear with resetForTests().
+     *
+     * @param string|null $rawBody Raw body to parse (null means empty body).
+     * @param string|null $contentType Content-Type header value (null means urlencoded default).
+     * @return void
+     */
+    public static function setRawInputForTests(?string $rawBody, ?string $contentType = null): void
+    {
+        self::$rawInputOverride = $rawBody;
+        self::$hasRawInputOverride = true;
+        self::$contentTypeOverride = $contentType;
+        self::$streamInputsCache = null;
+    }
+
+    /**
      * Clear the cached php://input parse result (test seam).
+     *
+     * Canonical test seam for this facade: drops the per-request stream
+     * cache plus any raw-body/content-type override so each test parses a
+     * fresh body without order dependence. Kept as the canonical name;
+     * resetStreamInputsForTests() remains as a BC alias.
+     *
+     * @return void
+     */
+    public static function resetForTests(): void
+    {
+        self::$streamInputsCache = null;
+        self::$rawInputOverride = null;
+        self::$hasRawInputOverride = false;
+        self::$contentTypeOverride = null;
+    }
+
+    /**
+     * Clear the cached php://input parse result (test seam).
+     *
+     * Alias of resetForTests() kept for backwards compatibility.
      *
      * @return void
      */
     public static function resetStreamInputsForTests(): void
     {
-        self::$streamInputsCache = null;
+        self::resetForTests();
     }
 
     /**
      * Check whether a request input key exists.
      *
-     * Uses a !== false stream check so falsy stream values like "0" still
-     * count as present.
+     * Uses array_key_exists on POST, GET, and parsed stream inputs so falsy
+     * values like "0", 0, false, null, and [] count as present; only a
+     * missing key returns false.
      *
      * @param string $name Input key.
      * @return bool True when the key exists in POST, GET, or stream inputs.
      */
     public static function has(string $name): bool
     {
-        $streamInput = self::streamInput($name);
+        if (array_key_exists($name, $_POST)) {
+            return true;
+        }
 
-        return isset($_POST[$name]) || isset($_GET[$name]) || $streamInput !== false;
+        if (array_key_exists($name, $_GET)) {
+            return true;
+        }
+
+        $inputs = self::streamInputs();
+
+        return array_key_exists($name, $inputs);
+    }
+
+    /**
+     * Sanitize a single stream (JSON/urlencoded) value preserving scalar types.
+     *
+     * Strings are cleaned via Sanitize::any so embedded markup like
+     * `<script>` never returns raw; arrays recurse via Sanitize::items;
+     * null stays null; int/float/bool pass through unchanged because they
+     * carry no markup and preserving them keeps `assertSame(0, ...)` style
+     * checks stable across input() and streamInputs().
+     *
+     * @param mixed $value Parsed stream value.
+     * @return mixed Sanitized value with scalar types preserved.
+     */
+    private static function sanitizeStreamValue(mixed $value): mixed
+    {
+        if ($value === null) {
+            return null;
+        }
+
+        if (is_array($value)) {
+            return Sanitize::items($value);
+        }
+
+        if (is_string($value)) {
+            return Sanitize::any($value);
+        }
+
+        return $value;
     }
 
     /**
      * Get all request inputs for the current method.
      *
      * POST merges sanitized $_POST plus files under _files; GET returns
-     * sanitized $_GET; other methods return parsed stream inputs.
+     * sanitized $_GET; other methods return parsed stream inputs sanitized
+     * via Sanitize::items (strings cleaned, `<script>` stripped) unless
+     * skipSanitization is set, in which case the raw parse is returned.
      *
      * @param array<string, mixed> $settings Optional flags (skipSanitization).
      * @return iterable<string, mixed> All inputs.

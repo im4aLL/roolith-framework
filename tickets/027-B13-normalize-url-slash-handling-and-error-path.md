@@ -1,6 +1,6 @@
 # Ticket B13 - Normalize url() slash handling and error path
 
-Status: Open
+Status: Done
 
 Order: 27 of 67
 
@@ -24,12 +24,12 @@ Use `rtrim($base,'/').'/'.ltrim($path,'/')`, throw or log when `baseUrl` missing
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
 
 ## Notes
 
-Update Status to In Progress when started and to Done when verified.
+Verified: url() joins via rtrim/ltrim, logs plus throws in dev when baseUrl missing. tests/UrlAndTemplateTest.php asserts slash normalization; composer test 126 OK.
