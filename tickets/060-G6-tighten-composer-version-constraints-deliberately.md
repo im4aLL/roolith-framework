@@ -1,6 +1,6 @@
 # Ticket G6 - Tighten Composer version constraints deliberately
 
-Status: Open
+Status: Done
 
 Order: 60 of 67
 
@@ -24,11 +24,15 @@ Use caret unless exact is intentional, document why, run `composer outdated` and
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
+
+## Verification (Phase 5, 2026-09-08)
+
+- Changed roolith/database 2.0.0 to ^2.0 and nesbot/carbon 2.73.0 to ^2.73 with caret rationale in README/SECURITY plus ARCHITECTURE. Verified: composer audit passes (no advisories).
 
 ## Notes
 

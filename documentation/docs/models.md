@@ -2,6 +2,7 @@
 
 Model files live in `app/Models` under the `App\Models` namespace.
 They extend the base `Model` class which wraps the [database](/database) driver.
+One model maps to one table via `protected string $table` plus `$primaryColumn` (default `id`).
 
 ## Basic Model
 
@@ -13,7 +14,9 @@ namespace App\Models;
 
 class User extends Model
 {
-    protected $table = 'users';
+    protected string $table = 'users';
+    protected array $fillable = ['name', 'email'];
+    protected array $casts = ['id' => 'int'];
 }
 ```
 
@@ -21,7 +24,25 @@ The primary column defaults to `id`.
 Override it if your table uses a different one.
 
 ```php
-protected $primaryColumn = 'uuid';
+protected string $primaryColumn = 'uuid';
+```
+
+## Validated writes
+
+Filter to `$fillable`, validate with `validationRules()`, then write inside a transaction:
+
+```php
+$model = new User();
+$data = $model->filterFillable(Request::all());
+$errors = $model->validate($data);
+
+if ($errors !== []) {
+    return $errors;
+}
+
+User::transaction(static function ($db) use ($data): void {
+    $db->table('users')->insert($data);
+});
 ```
 
 ## Reading Records

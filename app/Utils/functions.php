@@ -1,19 +1,22 @@
 <?php
 
-use App\Utils\Str;
+use App\Support\Debug;
+use App\Support\Html;
+use App\Support\IdGenerator;
+use App\Support\Redirect as RedirectSupport;
+use App\Support\Translator;
+use App\Support\Url as UrlSupport;
 use Carbon\Carbon;
-use App\Core\RouterFactory;
-use Roolith\Configuration\Config;
 use Roolith\Configuration\Exception\InvalidArgumentException;
 
 /**
  * Print anything for debugging.
  *
- * Dev-only exit (015-B1, M1): $exit terminates via exit() only when
- * isDevEnvironment() is true (explicit APP_ENV=development). In any other
- * environment the flag is ignored and the function returns, so production
- * can never truncate emission or skip System::complete() (disconnect plus
- * temp cleanup) through this helper.
+ * Thin BC alias over App\Support\Debug::dump(). CLI-aware: web SAPIs
+ * wrap escaped output in pre tags, CLI prints plain text. Dev-only
+ * exit (015-B1, M1): $exit terminates via exit() only when
+ * APP_ENV=development, otherwise ignored so production can never
+ * truncate emission or skip System::complete().
  *
  * @param mixed $any Value to print.
  * @param bool $exit Terminate after printing, dev environments only.
@@ -21,23 +24,29 @@ use Roolith\Configuration\Exception\InvalidArgumentException;
  */
 function p(mixed $any, bool $exit = false): void
 {
-    echo "<pre>";
-    print_r($any);
-    echo "</pre>";
+    Debug::dump($any, $exit);
+}
 
-    if ($exit && isDevEnvironment()) {
-        exit(0);
-    }
+/**
+ * Escape a value for HTML output at render time.
+ *
+ * Thin BC helper over App\Support\Html::escape(). Use in views for
+ * every untrusted value instead of sanitizing on input, so stored
+ * data like O'Reilly keeps its raw form and markup cannot execute.
+ *
+ * @param mixed $value Raw value to escape.
+ * @return string Escaped string safe for HTML output.
+ */
+function escape(mixed $value): string
+{
+    return Html::escape($value);
 }
 
 /**
  * Prefix the app base URL to a path with slash normalization.
  *
- * Joins as rtrim(base, '/') . '/' . ltrim(path, '/') so both
- * baseUrl with/without trailing slash and paths with/without leading
- * slash produce one slash. When baseUrl is missing or empty, the
- * misconfiguration is logged and in development throws so it fails fast;
- * in production it falls back to a root-relative path.
+ * Thin BC alias over App\Support\Url::to(). See that method for
+ * slash and fail-closed baseUrl semantics.
  *
  * @param string $path Path to prefix (for example assets/css/app.css or /assets/css/app.css).
  * @return string Absolute URL when baseUrl exists, otherwise a root-relative path.
@@ -45,46 +54,7 @@ function p(mixed $any, bool $exit = false): void
  */
 function url(string $path): string
 {
-    $fallback = '/' . ltrim($path, '/');
-
-    try {
-        $baseUrl = Config::get("baseUrl");
-    } catch (InvalidArgumentException $e) {
-        error_log('[Roolith url] Missing baseUrl config: ' . $e->getMessage());
-
-        if (isDevEnvironment()) {
-            throw new InvalidArgumentException("Missing baseUrl config: " . $e->getMessage(), 0, $e);
-        }
-
-        return $fallback;
-    } catch (\Throwable $e) {
-        error_log('[Roolith url] Cannot read baseUrl config: ' . $e->getMessage());
-
-        if (isDevEnvironment()) {
-            throw new InvalidArgumentException("Missing baseUrl config: " . $e->getMessage(), 0, $e);
-        }
-
-        return $fallback;
-    }
-
-    if (!is_string($baseUrl) || trim($baseUrl) === '') {
-        error_log('[Roolith url] Missing baseUrl config: empty value.');
-
-        if (isDevEnvironment()) {
-            throw new InvalidArgumentException("Missing baseUrl config: empty value.");
-        }
-
-        return $fallback;
-    }
-
-    $base = rtrim(trim($baseUrl), '/');
-    $suffix = ltrim($path, '/');
-
-    if ($suffix === '') {
-        return $base . '/';
-    }
-
-    return $base . '/' . $suffix;
+    return UrlSupport::to($path);
 }
 
 /**
@@ -97,7 +67,7 @@ function url(string $path): string
 function viteDevServerUrl(): string
 {
     try {
-        return rtrim((string) Config::get("viteDevServer"), "/");
+        return rtrim((string) \Roolith\Configuration\Config::get("viteDevServer"), "/");
     } catch (InvalidArgumentException $e) {
         return "";
     }
@@ -360,55 +330,66 @@ function viteJs(string $sourcePath, string $builtPath): string
 /**
  * Get url by router name.
  *
+ * Thin BC alias over App\Support\Url::route().
+ *
  * @param string $name Route name.
  * @param array<string, mixed> $settings Route params keyed by placeholder.
  * @return string Absolute URL for the named route.
  */
 function route(string $name, array $settings = []): string
 {
-    $routerInstance = RouterFactory::getInstance();
-
-    return $routerInstance->getUrlByName($name, $settings);
+    return UrlSupport::route($name, $settings);
 }
 
 /**
  * Get active route.
  *
- * Returns the matched route with payload, or an empty array when
- * nothing matches (the router returns null on no-match).
+ * Thin BC alias over App\Support\Url::activeRoute().
  *
  * @return array<string, mixed> Active route data or empty array.
  */
 function getActiveRoute(): array
 {
-    $routerInstance = RouterFactory::getInstance();
+    return UrlSupport::activeRoute();
+}
 
-    try {
-        return $routerInstance->activeRoute() ?? [];
-    } catch (\Throwable) {
-        return [];
-    }
+/**
+ * Get a translated message.
+ *
+ * Canonical helper is trans(); __() stays as a thin gettext-compatible
+ * alias so existing views keep working while new code prefers trans().
+ *
+ * @param string $key Message key in dot notation.
+ * @return mixed Message value or null when missing.
+ */
+function trans(string $key): mixed
+{
+    return Translator::trans($key);
 }
 
 /**
  * Get a message.
+ *
+ * BC alias over trans() kept for gettext familiarity and existing
+ * views. New code should call trans() directly.
  *
  * @param string $name Message key.
  * @return mixed Message value or null when missing.
  */
 function __(string $name): mixed
 {
-    return Str::getMessage($name);
+    return trans($name);
 }
 
 /**
  * Build a redirect response for a URL.
  *
- * No-exit by design: returns an immutable App\Core\Response instead of
- * sending headers plus die() so System::complete() (disconnect plus temp
- * cleanup) always runs. Callers must `return redirect(...)` from the
- * controller (emitted via RouterResponse) or throw RedirectException.
- * BC break: previously void plus die().
+ * Thin BC alias over App\Support\Redirect::to() which reuses
+ * PreProcessor::resolveSafeRedirectTarget(). No-exit by design:
+ * returns an immutable App\Core\Response instead of sending headers
+ * plus die() so System::complete() always runs. Callers must
+ * `return redirect(...)` from the controller (emitted via
+ * RouterResponse) or throw RedirectException.
  *
  * Status is deliberate: 303 (See Other) is the default because it implements
  * Post/Redirect/Get safely by always following up with GET. Pass 302 for a
@@ -416,8 +397,7 @@ function __(string $name): mixed
  * permanent redirect (308 preserves the method, 301 may not).
  *
  * Only single-slash relative URLs or absolute URLs allowlisted against the
- * base URL are sent; anything else (for example ?next=https://evil.com,
- * //evil.com, javascript:) falls back to / to block open redirects.
+ * base URL are sent; anything else falls back to / to block open redirects.
  *
  * L3 accepted: this 303 default differs from Request::redirect() 302 by
  * design (global helper favors PRG, Request::redirect keeps legacy BC).
@@ -428,17 +408,15 @@ function __(string $name): mixed
  */
 function redirect(string $url, int $statusCode = 303): \App\Core\Response
 {
-    $target = \App\Core\PreProcessor::resolveSafeRedirectTarget($url);
-
-    return \App\Core\Response::redirect($target, $statusCode);
+    return RedirectSupport::to($url, $statusCode);
 }
 
 /**
  * Build a redirect response for a route name.
  *
- * No-exit: returns a Response instead of dying. Uses 303 by default for the
- * same Post/Redirect/Get reason as redirect(). Pass an explicit code when a
- * different redirect semantic is intended. Callers must return the response.
+ * Thin BC alias over App\Support\Redirect::toRoute(). No-exit: returns
+ * a Response instead of dying. Uses 303 by default for the same
+ * Post/Redirect/Get reason as redirect().
  *
  * @param string $routeName Route name.
  * @param array<string, mixed> $settings Route params.
@@ -447,9 +425,7 @@ function redirect(string $url, int $statusCode = 303): \App\Core\Response
  */
 function redirectToRoute(string $routeName, array $settings = [], int $statusCode = 303): \App\Core\Response
 {
-    $url = route($routeName, $settings);
-
-    return redirect($url, $statusCode);
+    return RedirectSupport::toRoute($routeName, $settings, $statusCode);
 }
 
 /**
@@ -501,28 +477,30 @@ function csrf_field(): string
 /**
  * Generate unique alpha numeric number.
  *
- * @return string Unique identifier with alpha prefix and timestamp.
+ * Thin BC alias over App\Support\IdGenerator::alphaNumeric(). Format is
+ * 4 uppercase hex chars, dash, 16 hex chars (for example
+ * 3F2A-9f4c2a1be07d83c1), all from random_bytes() so IDs are
+ * unpredictable and collision-resistant.
+ *
+ * @return string Unique crypto-random identifier.
  */
 function generateUniqueAlphaNumericNumber(): string
 {
-    $prefix = substr(str_shuffle(str_repeat("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 4)), 0, 4);
-    $postfix = time();
-
-    return "{$prefix}-{$postfix}";
+    return IdGenerator::alphaNumeric();
 }
 
 /**
  * Generate unique number.
  *
- * @return string Unique identifier with random and timestamp parts.
+ * Thin BC alias over App\Support\IdGenerator::uniqueNumber(). Format is
+ * 16 hex chars, dash, 8 hex chars (for example
+ * 9f4c2a1be07d83c1-4d2e9a0b), all from random_bytes().
+ *
+ * @return string Unique crypto-random identifier.
  */
 function generateUniqueNumber(): string
 {
-    return substr(str_shuffle(str_repeat("ABCDEFGHIJKLMNOPQRSTUVWXYZ", 4)), 0, 2) .
-        "-" .
-        mt_rand(100000, 999999) .
-        "-" .
-        time();
+    return IdGenerator::uniqueNumber();
 }
 
 /**
@@ -584,7 +562,7 @@ function isProductionEnvironment(): bool
 function trustedProxies(): array
 {
     try {
-        $configured = Config::get('trustedProxies');
+        $configured = \Roolith\Configuration\Config::get('trustedProxies');
     } catch (\Throwable) {
         $configured = null;
     }
@@ -674,9 +652,9 @@ function getIpAddress(): string
  *
  * @param string|array<string> $string Template string or strings.
  * @param array<string, mixed> $data Placeholder values keyed by name.
- * @return string|string[]|null Replaced template(s).
+ * @return string|string[] Replaced template(s).
  */
-function parseBasicTemplate(string|array $string, array $data = []): array|string|null
+function parseBasicTemplate(string|array $string, array $data = []): array|string
 {
     $findArray = [];
     $replaceArray = [];
@@ -704,7 +682,7 @@ function parseBasicTemplate(string|array $string, array $data = []): array|strin
  */
 function getVersion(): string
 {
-    return Config::get("version");
+    return \Roolith\Configuration\Config::get("version");
 }
 
 /**
@@ -720,8 +698,6 @@ function getVersion(): string
  * Gate parity with System.php and routes.php: defined plus flag plus is_file
  * plus is_readable so CMS helpers never load in core-only mode or from an
  * unreadable path.
- *
- * @var string $cmsAdminFunctions Absolute path to the optional CMS helpers file.
  */
 $cmsAdminFunctions = (defined('APP_ROOT') ? (string) APP_ROOT : dirname(__DIR__, 2)) . "/app/Utils/Admin/functions.php";
 

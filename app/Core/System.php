@@ -117,6 +117,7 @@ class System
             $this->traceId = uniqid('trace-', true);
         }
         $this->logger = $logger ?? new Logger(Logger::defaultLogPath(), $this->traceId, Logger::defaultLogEnabled());
+        Log::setLogger($this->logger);
         $this->registerCustomError();
         $this->registerShutdownFallback();
     }
@@ -342,6 +343,11 @@ class System
      * workers) starts from an empty route table instead of appending the
      * same routes twice.
      *
+     * Route handlers using the string Controller@method form are
+     * validated via RouteValidator (class_exists plus method_exists) and
+     * failures are logged with context; the vendor router still owns
+     * runtime dispatch so behavior stays identical.
+     *
      * @return static Self for chaining.
      * @throws Exception When routes.php does not return a RouterInterface.
      */
@@ -352,23 +358,105 @@ class System
         $router = require APP_ROOT . "/app/Http/routes.php";
 
         if (!$router instanceof RouterInterface) {
+            $this->logger->error('router bootstrap failed', ['error' => 'routes.php must return RouterInterface']);
+
             throw new Exception("Router bootstrap failed: app/Http/routes.php must return a RouterInterface.");
         }
 
+        $this->assertRouteHandlers($router);
         $this->router($router);
 
         return $this;
     }
 
     /**
+     * Assert string-based Controller@method handlers resolve.
+     *
+     * Logs every invalid string handler with route context so typos
+     * surface in the correlated log stream instead of only as a vendor
+     * 404 or 500 at request time. Never throws so a lint failure can
+     * never break the request; the vendor router still handles the
+     * runtime response.
+     *
+     * @param object $router Active router (RouterInterface plus optional getRouteList).
+     * @return void
+     */
+    public function assertRouteHandlers(object $router): void
+    {
+        try {
+            if (!method_exists($router, 'getRouteList')) {
+                return;
+            }
+
+            $routes = $router->getRouteList();
+        } catch (Throwable $e) {
+            $this->logger->warning('route list unavailable', ['error' => substr(str_replace(["\r", "\n"], ' ', $e->getMessage()), 0, 200)]);
+
+            return;
+        }
+
+        if (!is_array($routes)) {
+            return;
+        }
+
+        /** @var array<int, array<string, mixed>> $routeList */
+        $routeList = $routes;
+        $errors = RouteValidator::validateRouteList($routeList);
+
+        foreach ($errors as $error) {
+            $this->logger->warning('invalid route handler', ['error' => substr(str_replace(["\r", "\n"], ' ', $error), 0, 500)]);
+        }
+
+        if ($errors !== []) {
+            $this->logger->info('route validation completed with errors', ['count' => count($errors)]);
+        } else {
+            $this->logger->info('route validation completed', ['count' => count($routeList)]);
+        }
+    }
+
+    /**
      * Run the router for the current request.
+     *
+     * Logs the dispatch start plus method and URI, then logs 404
+     * outcomes (no matched route renders views/404.php) and any
+     * dispatch throwable so router and 404 error paths share the
+     * correlated PSR-3 stream with bootstrap and controller errors.
+     * Throwables bubble to ErrorHandler so the 500 contract is
+     * unchanged.
      *
      * @param RouterInterface $router Active router.
      * @return static Self for chaining.
      */
     protected function router(RouterInterface $router): static
     {
-        $router->run();
+        $method = (string) ($_SERVER['REQUEST_METHOD'] ?? 'GET');
+        $uri = (string) ($_SERVER['REQUEST_URI'] ?? '/');
+        $this->logger->info('router dispatch started', ['method' => $method, 'uri' => substr($uri, 0, 500)]);
+
+        try {
+            $router->run();
+        } catch (Throwable $e) {
+            $this->logger->error('router dispatch failed', [
+                'error' => substr(str_replace(["\r", "\n"], ' ', $e->getMessage()), 0, 500),
+                'class' => get_class($e),
+                'method' => $method,
+                'uri' => substr($uri, 0, 500),
+            ]);
+
+            throw $e;
+        }
+
+        try {
+            $code = http_response_code();
+
+            if ($code === 404) {
+                $this->logger->warning('route not found', ['method' => $method, 'uri' => substr($uri, 0, 500)]);
+            } else {
+                $this->logger->info('router dispatch completed', ['code' => $code === false ? 200 : $code]);
+            }
+        } catch (Throwable) {
+            // Logging must never break dispatch.
+        }
 
         return $this;
     }

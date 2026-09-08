@@ -1,6 +1,6 @@
 # Ticket H5 - Document middleware attachment, rate limiter reset, and i18n fallback
 
-Status: Open
+Status: Done
 
 Order: 65 of 67
 
@@ -24,11 +24,15 @@ Add three short recipes with code and expected output, note cookie timing for `s
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
+
+## Verification (Phase 5, 2026-09-08)
+
+- Added middleware attach plus group, SessionRateLimiter::clear, trans fallback plus setLang cookie-timing recipes in README plus localization.md plus storage.md. Verified: docs present.
 
 ## Notes
 

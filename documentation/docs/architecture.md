@@ -1,5 +1,7 @@
 # Architecture
 
+> Canonical source: `ARCHITECTURE.md` at the repo root is the single source of truth. This page is a short mirror; when they differ, `ARCHITECTURE.md` wins.
+
 Roolith is a minimal, synchronous PHP micro-framework with an MVC shape. One entrypoint boots shared services, routes one HTTP request to one controller action, optionally touches the database, renders a view, then cleans up.
 
 The framework is thin glue (`app/`, `config/`, `views/`, `index.php`, `constant.php`) over seven standalone `roolith/*` Composer libraries, plus Carbon for time and Whoops for dev errors. There is no DI container, no background worker, and no built-in ORM relationship manager.

@@ -1,6 +1,6 @@
 # Ticket H3 - Correct contradictory validator example
 
-Status: Open
+Status: Done
 
 Order: 63 of 67
 
@@ -24,11 +24,15 @@ Split into string example and array example, show `errors()` output, link to `Va
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
+
+## Verification (Phase 5, 2026-09-08)
+
+- Split README validator into string plus array examples, show errors() output, fixed Validator.php usage block, documented notExists. Verified: README plus Validator.php consistent.
 
 ## Notes
 

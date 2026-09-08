@@ -1,6 +1,6 @@
 # Ticket H4 - Document request helper nuances and file upload flow end to end
 
-Status: Open
+Status: Done
 
 Order: 64 of 67
 
@@ -24,11 +24,15 @@ Add full form plus JSON plus files example with validation and error display, do
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
+
+## Verification (Phase 5, 2026-09-08)
+
+- Documented only/except string-or-array, JSON body, raw plus escape, _files merging, hasFile plus File limits with full form/JSON/files example in README plus request.md. Verified: docs present.
 
 ## Notes
 

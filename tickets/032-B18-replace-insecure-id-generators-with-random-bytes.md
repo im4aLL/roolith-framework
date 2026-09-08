@@ -1,6 +1,6 @@
 # Ticket B18 - Replace insecure ID generators with random_bytes
 
-Status: Open
+Status: Done
 
 Order: 32 of 67
 
@@ -24,11 +24,15 @@ Use `bin2hex(random_bytes(8))` or `uniqid` with crypto randomness, document form
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
+
+## Verification (Phase 5, 2026-09-08)
+
+- Replaced str_shuffle/mt_rand/time() with App\Support\IdGenerator using bin2hex(random_bytes()). Formats: alphaNumeric 4 upper hex dash 16 hex, uniqueNumber 16 hex dash 8 hex. Verified: Phase5Test regex plus uniqueness pass, grep shows no str_shuffle/mt_rand/time in new code.
 
 ## Notes
 

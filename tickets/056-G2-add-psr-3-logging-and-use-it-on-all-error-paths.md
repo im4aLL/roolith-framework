@@ -37,6 +37,10 @@ Add `monolog/monolog`, log bootstrap, DB, router, and 404 with context and trace
 - `tests/LoggerTest.php` plus `tests/ErrorHandlerTest.php`; logs show correlated bootstrap entries; reviewer satisfied.
 - Full error-path coverage (router, 404, controllers) deferred to Phase 5 per plan.
 
+## Verification (Phase 5 full, 2026-09-08)
+
+- Full coverage: `App\Core\Log` shared holder set by `System`, `Url` plus `Request` plus `Controller` plus `System::router` plus 404 logging on same trace stream, `ErrorHandler` unchanged. Verified: `composer test` 192 pass, logs show router plus 404 plus view lines.
+
 ## Notes
 
 Update Status to In Progress when started and to Done when verified.

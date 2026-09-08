@@ -1,6 +1,6 @@
 # Ticket H1 - Fix README typos and broken paths
 
-Status: Open
+Status: Done
 
 Order: 61 of 67
 
@@ -24,11 +24,15 @@ Proofread, use `views/`, `config/config.php`, `constant.php`, add PR checklist f
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
+
+## Verification (Phase 5, 2026-09-08)
+
+- Fixed viwes to views/, stored on to stored in, defined into to defined in, leading slash consistency, PR checklist. Verified: manual README proofread.
 
 ## Notes
 

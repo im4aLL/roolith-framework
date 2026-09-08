@@ -262,6 +262,17 @@ print_r($result->getDetails());
 `transaction()` commits on success, rolls back and rethrows on failure.
 Nesting is unsupported.
 Use `inTransaction()` when a helper may run inside or outside a transaction.
+App code should use the `DatabaseFactory::transaction()` plus `Model::transaction()` seams:
+
+```php
+\App\Core\DatabaseFactory::transaction(static function ($db) {
+    $db->table('users')->insert(['name' => 'A', 'email' => 'a@test.com']);
+});
+
+\App\Models\User::transaction(static function ($db) {
+    $db->table('users')->insert(['name' => 'B', 'email' => 'b@test.com']);
+});
+```
 
 ```php
 $db->transaction(function ($db) {

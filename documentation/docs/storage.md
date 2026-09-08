@@ -31,3 +31,19 @@ Storage::deleteSession('name');
 ```
 
 A session is started automatically by the front controller.
+
+## Rate limiting
+
+`SessionRateLimiter` tracks timestamps per key in the session and reports `tooManyAttempts()` inside a sliding window. Clear on success so logins do not stay throttled:
+
+```php
+use App\Core\SessionRateLimiter;
+
+if (SessionRateLimiter::tooManyAttempts('login:' . getIpAddress(), 5, 60)) {
+    return 'Too many attempts.';
+}
+
+if ($loginOk) {
+    SessionRateLimiter::clear('login:' . getIpAddress());
+}
+```

@@ -9,10 +9,13 @@ use App\Utils\_;
 /**
  * HTTP request facade over POST, GET, and php://input streams.
  *
- * input() returns sanitized values (POST via Sanitize::any, GET via
- * Sanitize::param, stream strings via Sanitize::any with scalar types
- * preserved); unsafeInput() returns the raw value for validated/escaped
- * uses. all() sanitizes unless skipSanitization is set.
+ * Output-at-render contract (014-A14): input() returns raw values
+ * with types preserved (no stripping or entity encoding) so stored
+ * data like O'Reilly, unicode, and HTML payloads keep their exact
+ * form. Validate by type with Validator plus Rules, then escape at
+ * render with escape() or $this->escape() in views. unsafeInput()
+ * remains as a BC alias of input(). Use Sanitize::param() or
+ * Sanitize::email() only for narrow slug or email lookup cases.
  */
 class Request implements RequestInterface
 {
@@ -45,68 +48,22 @@ class Request implements RequestInterface
     private static ?string $contentTypeOverride = null;
 
     /**
-     * Get a sanitized request input value.
+     * Get a raw request input value.
      *
-     * Checks POST, then GET, then the php://input stream. Uses
-     * array_key_exists so falsy values ("0", 0, null, false) count as
-     * present; only a missing key falls through to the default. POST/GET
-     * values are sanitized; stream (JSON/urlencoded) string values are
-     * sanitized via Sanitize::any so a JSON body like
-     * {"comment":"<script>alert(1)</script>hi"} never returns raw markup
-     * from input(). Non-string stream scalars (int, float, bool) are
-     * returned as-is to preserve types, arrays via Sanitize::items, and
-     * null stays null. Use unsafeInput() for the raw stream value.
+     * Checks POST, then GET, then the php://input stream. Returns the
+     * stored value unchanged so O'Reilly keeps its apostrophe, unicode
+     * stays intact, and HTML payloads like <script> survive until
+     * render-time escaping with escape(). Uses array_key_exists so
+     * falsy values ("0", 0, null, false) count as present; only a
+     * missing key falls through to the default. Validate by type with
+     * Validator plus Rules; escape in views; use Sanitize::param() or
+     * Sanitize::email() only for narrow slug or email cases.
      *
      * @param string $name Input key.
      * @param mixed $default Fallback when the key is missing everywhere.
-     * @return mixed Sanitized value, stream value, or the default.
+     * @return mixed Raw value or the default.
      */
     public static function input(string $name, mixed $default = null): mixed
-    {
-        if (array_key_exists($name, $_POST)) {
-            $value = $_POST[$name];
-
-            if ($value === null) {
-                return null;
-            }
-
-            if (is_array($value)) {
-                return Sanitize::items($value);
-            }
-
-            return Sanitize::any($value);
-        }
-
-        if (array_key_exists($name, $_GET)) {
-            $value = $_GET[$name];
-
-            if ($value === null) {
-                return null;
-            }
-
-            return is_array($value) ? Sanitize::params($value) : Sanitize::param((string) $value);
-        }
-
-        $inputs = self::streamInputs();
-
-        if (array_key_exists($name, $inputs)) {
-            return self::sanitizeStreamValue($inputs[$name]);
-        }
-
-        return $default;
-    }
-
-    /**
-     * Get a raw (unsanitized) request input value.
-     *
-     * Same lookup order as input() but without sanitization. Only use for
-     * values that are validated or escaped later. Uses array_key_exists so
-     * falsy values ("0", 0, null, false) count as present.
-     *
-     * @param string $name Input key.
-     * @return mixed Raw value or null when missing.
-     */
-    public static function unsafeInput(string $name): mixed
     {
         if (array_key_exists($name, $_POST)) {
             return $_POST[$name];
@@ -122,7 +79,22 @@ class Request implements RequestInterface
             return $inputs[$name];
         }
 
-        return null;
+        return $default;
+    }
+
+    /**
+     * Get a raw (unsanitized) request input value.
+     *
+     * BC alias of input(): both return raw values under the
+     * output-at-render contract. Kept so existing unsafeInput() call
+     * sites keep working without change.
+     *
+     * @param string $name Input key.
+     * @return mixed Raw value or null when missing.
+     */
+    public static function unsafeInput(string $name): mixed
+    {
+        return self::input($name);
     }
 
     /**
@@ -328,51 +300,26 @@ class Request implements RequestInterface
     }
 
     /**
-     * Sanitize a single stream (JSON/urlencoded) value preserving scalar types.
-     *
-     * Strings are cleaned via Sanitize::any so embedded markup like
-     * `<script>` never returns raw; arrays recurse via Sanitize::items;
-     * null stays null; int/float/bool pass through unchanged because they
-     * carry no markup and preserving them keeps `assertSame(0, ...)` style
-     * checks stable across input() and streamInputs().
-     *
-     * @param mixed $value Parsed stream value.
-     * @return mixed Sanitized value with scalar types preserved.
-     */
-    private static function sanitizeStreamValue(mixed $value): mixed
-    {
-        if ($value === null) {
-            return null;
-        }
-
-        if (is_array($value)) {
-            return Sanitize::items($value);
-        }
-
-        if (is_string($value)) {
-            return Sanitize::any($value);
-        }
-
-        return $value;
-    }
-
-    /**
      * Get all request inputs for the current method.
      *
-     * POST merges sanitized $_POST plus files under _files; GET returns
-     * sanitized $_GET; other methods return parsed stream inputs sanitized
-     * via Sanitize::items (strings cleaned, `<script>` stripped) unless
-     * skipSanitization is set, in which case the raw parse is returned.
+     * Output-at-render contract: returns raw inputs with types
+     * preserved (no stripping). POST merges raw $_POST plus files
+     * under _files; GET returns raw $_GET; other methods return the
+     * raw parsed stream inputs. Validate by type, escape at render.
+     * Pass ['sanitize' => true] for the legacy sanitized shape on
+     * narrow slug or email paths; skipSanitization is a deprecated
+     * BC alias (both plain and skipped now return raw unless
+     * sanitize is set).
      *
-     * @param array<string, mixed> $settings Optional flags (skipSanitization).
+     * @param array<string, mixed> $settings Optional flags (sanitize, skipSanitization).
      * @return iterable<string, mixed> All inputs.
      */
     public static function all(array $settings = []): iterable
     {
-        $isSkipSanitization = isset($settings['skipSanitization']) && $settings['skipSanitization'];
+        $wantSanitize = isset($settings['sanitize']) && $settings['sanitize'];
 
         if (self::isMethod('POST')) {
-            $items = $isSkipSanitization ? $_POST : Sanitize::items($_POST);
+            $items = $wantSanitize ? Sanitize::items($_POST) : $_POST;
             $files = self::allFiles();
 
             if (count($files) > 0) {
@@ -383,12 +330,12 @@ class Request implements RequestInterface
         }
 
         if (self::isMethod('GET')) {
-            return $isSkipSanitization ? $_GET : Sanitize::items($_GET);
+            return $wantSanitize ? Sanitize::items($_GET) : $_GET;
         }
 
         $inputs = self::streamInputs();
 
-        return $isSkipSanitization ? $inputs : Sanitize::items($inputs);
+        return $wantSanitize ? Sanitize::items($inputs) : $inputs;
     }
 
     /**
@@ -579,7 +526,15 @@ class Request implements RequestInterface
         $baseUrl = self::configuredBaseUrl();
 
         if ($baseUrl !== null && !PreProcessor::isAllowedHost($host, $baseUrl)) {
-            error_log('[Roolith Request] Host mismatch, falling back to baseUrl host: ' . substr(str_replace(["\r", "\n"], ' ', $host), 0, 200));
+            $safeHost = substr(str_replace(["\r", "\n"], ' ', $host), 0, 200);
+
+            try {
+                Log::warning('request host mismatch, falling back to baseUrl host', ['host' => $safeHost]);
+            } catch (\Throwable) {
+                // Logging must never break URL building.
+            }
+
+            error_log('[Roolith Request] Host mismatch, falling back to baseUrl host: ' . $safeHost);
 
             return self::fallbackUrl($uri, $baseUrl);
         }

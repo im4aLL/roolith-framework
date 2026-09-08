@@ -13,10 +13,12 @@ lang/
 
 ## Getting a Message
 
-Use the `__()` helper with a dot path key.
+Use the `trans()` helper (with `__()` as a BC alias) with a dot path key.
+Missing keys or locales return null, so coalesce to a default.
 
 ```php
-__('errors.required'); // This field is required
+trans('errors.required') ?? 'This field is required'; // This field is required
+__('errors.required') ?? 'This field is required'; // same via alias
 ```
 
 ## Setting the Language
@@ -26,10 +28,12 @@ Settings::setLang('es');
 Settings::getLang();
 ```
 
+Note: `setLang()` writes a cookie, so the new locale applies on the next request, not the current one.
+
 Once `es` is set, the helper reads from `lang/es/message.php`.
 
 ```php
-__('errors.required'); // este campo es requerido
+trans('errors.required'); // este campo es requerido
 ```
 
 ## Adding a Language

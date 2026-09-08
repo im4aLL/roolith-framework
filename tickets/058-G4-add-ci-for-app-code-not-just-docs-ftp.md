@@ -35,6 +35,10 @@ Add `ci.yml` running `composer install`, `composer test`, `npm ci`, `npm run bui
 - `.github/workflows/ci.yml` runs on push/PR with PHP 8.2/8.3/8.4 matrix: `composer install`, `composer check-platform-reqs`, `composer test`, `php -l`.
 - Full CI (`npm build`, `composer audit`) deferred to Phase 5 per plan.
 
+## Verification (Phase 5 full, 2026-09-08)
+
+- Extended `ci.yml` with `composer lint`, `composer analyse`, `composer audit`, `php roolith route:list`, plus frontend job `npm ci` plus `npm run build`. Verified: `npm run build` succeeds, `composer audit` passes.
+
 ## Notes
 
 Update Status to In Progress when started and to Done when verified.

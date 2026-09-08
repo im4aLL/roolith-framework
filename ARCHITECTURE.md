@@ -1,5 +1,7 @@
 # Roolith Framework - System Architecture
 
+> Canonical source: this file (`ARCHITECTURE.md`) is the single source of truth. `documentation/docs/architecture.md` is a short mirror with a pointer back here; update this file first and keep the mirror in sync.
+
 This document describes Roolith at the system level: what the major parts are, how a request flows through them, and where to extend the system. It intentionally omits implementation details such as method signatures and class internals.
 
 Audience: developers building apps on Roolith, and contributors evolving the framework itself.
@@ -154,11 +156,11 @@ Server rendering uses plain PHP templates with `inject` for partials (`partials/
 
 ### 6.6 HTTP surface (`app/Core/Request.php`, `File.php`, `Sanitize.php`, `Validator.php`, `Rules.php`, `ValidatorRules.php`)
 
-`Request` is a static facade over `$_GET`, `$_POST`, `php://input`, `$_FILES`, `$_COOKIE`, and `$_SERVER`, with sanitization applied by default and an explicit unsafe path when raw input is needed. `Sanitize` strips tags and scripts and constrains params, emails, and strings. `Validator` checks an input map against a fluent `Rules` declaration per field and reports `success`, `fails`, and `errors`. `File` validates extension, size, and upload error, then moves uploads through the `FS` utility. Together they form the trust boundary between the network and the app.
+`Request` is a static facade over `$_GET`, `$_POST`, `php://input`, `$_FILES`, `$_COOKIE`, and `$_SERVER`, returning raw values with output-at-render escaping (validate by type with `Validator` plus `Rules`, escape in views with `escape()` or `$this->escape()`). `Sanitize` is narrow: `param()` for URL slugs and `email()` for email lookups; `any()` plus `string()` plus `items()` are legacy for BC. `Validator` checks an input map against a fluent `Rules` declaration per field and reports `success`, `fails`, and `errors`. `File` validates extension, size, and upload error, then moves uploads through the `FS` utility. Together they form the trust boundary between the network and the app.
 
-### 6.7 Domain and data (`app/Models/Model.php`, app models, `app/Core/LazyLoad.php`, `DatabaseFactory.php`, `roolith/database`)
+### 6.7 Domain and data (`app/Models/Model.php`, app models, `app/Core/LazyLoad.php`, `DatabaseFactory.php`, `app/Database/Migrator.php`, `roolith/database`)
 
-The base `Model` binds one class to one table plus primary key and exposes three access styles: full-table fetch (`all`), fluent query builder (`orm`), and raw connection (`raw`). `DatabaseFactory` holds one shared PDO-backed `Database` in non-debug mode. There are no declarative relations; `LazyLoad::with(model, foreignKey, localKey)` performs one batched manual eager load and attaches results to a result set. Migrations, seeders, custom ORMs (including Cycle ORM), and per-model extension are documented patterns, not core mandates.
+The base `Model` binds one class to one table (`protected string $table`) plus primary key (`$primaryColumn`, default `id`) and exposes three access styles: full-table fetch (`all`), fluent query builder (`orm`), and raw connection (`raw`). Validated writes filter through `$fillable`, cast reads through `$casts`, and check `validate()` plus `validationRules()` before insert or update; `DatabaseFactory::transaction(fn)` keeps multi-write paths atomic. `DatabaseFactory` holds one shared PDO-backed `Database` in non-debug mode. There are no declarative relations; `LazyLoad::with(model, foreignKey, localKey)` performs one batched manual eager load and attaches results to a result set. `App\Database\Migrator` (`php roolith migrate`, `migrate:status`, `migrate:create`, `migrate:rollback`) tracks schema in a `migrations` table under `database/migrations`; `App\Database\Seeder` (`php roolith seed`, `seed:status`, `seed:create`, `seed:run`) tracks seed data in a `seeds` table under `database/seeders`; custom ORMs (including Cycle ORM) remain documented patterns.
 
 ### 6.8 State and abuse control (`app/Core/Storage.php`, `Settings.php`, `SessionRateLimiter.php`)
 
@@ -166,15 +168,15 @@ The base `Model` binds one class to one table plus primary key and exposes three
 
 ### 6.9 Localization (`app/Core/Language.php`, `Lang.php`, `lang/en`, `lang/es`, `Str`)
 
-`Language` lazy-loads `lang/{locale}/message.php` dictionaries; the global `__()` helper resolves dotted keys for the active locale from `Settings::getLang()`. Adding a locale is adding one directory plus message file, with no code change.
+`Language` lazy-loads `lang/{locale}/message.php` dictionaries; the global `trans()` helper (with `__()` as a BC alias) resolves dotted keys for the active locale from `Settings::getLang()`. Missing keys or locales return null so views fall back. Adding a locale is adding one directory plus message file, with no code change.
 
-### 6.10 Standard utilities (`app/Utils/_.php`, `Collection.php`, `Str.php`, `FS.php`, `functions.php`, `ApiResponseTransformer.php`)
+### 6.10 Standard utilities (`app/Utils/_.php`, `Collection.php`, `Str.php`, `FS.php`, `functions.php`, `app/Support/*`, `ApiResponseTransformer.php`)
 
-Framework-wide helpers with no HTTP or DB dependencies: array manipulation (`_`), fluent lists (`Collection`), strings and messages (`Str`), filesystem (`FS`), and global functions for debugging (`p`), URLs, redirects, IP detection, dates via Carbon, and Vite tags. `ApiResponseTransformer` standardizes JSON-style envelopes as `{status, payload, message}` for API actions.
+Framework-wide helpers with no HTTP or DB dependencies: array manipulation (`_`), fluent lists (`Collection`), strings and messages (`Str`), filesystem (`FS`), and namespaced supports (`App\Support\Debug` for CLI-aware `p()`, `Url` for `url()` plus `route()`, `Translator` for `trans()` plus `__()`, `Redirect` for `redirect()`, `Html` for `escape()`, `IdGenerator` for crypto IDs) with thin global BC aliases in `functions.php`, plus IP detection, dates via Carbon, and Vite tags. `ApiResponseTransformer` standardizes JSON-style envelopes as `{status, payload, message}` for API actions.
 
 ### 6.11 Platform packages (`vendor/roolith/*`, `vendor/nesbot/carbon`, `vendor/filp/whoops`)
 
-The seven Roolith packages provide routing, configuration, database access, templating, PSR-6/16 caching, events, and scaffolding. Cache and event are shipped capabilities consumed on demand by app code rather than wired into every request. Carbon standardizes dates and cookie expirations; Whoops standardizes dev diagnostics. This separation keeps the framework replaceable piece by piece.
+The seven Roolith packages provide routing, configuration, database access, templating, PSR-6/16 caching, events, and scaffolding. Cache and event are shipped capabilities consumed on demand by app code rather than wired into every request: cache `CacheFactory::put()` plus `get()` plus `has()` for expensive config or model-query reads (see `App\Examples\CacheAndEventExamples::cachedModelQuery()`), events `Event::listen()` plus `Event::trigger('user.created')` for decoupled side effects like welcome mail (see `CacheAndEventExamples::userCreated()`). Composer constraints use caret (`^`) deliberately so patches flow; exact pins require a comment. Carbon standardizes dates and cookie expirations; Whoops standardizes dev diagnostics. This separation keeps the framework replaceable piece by piece.
 
 ### 6.12 Scaffolding (`roolith` script, `app/Core/generator-templates`, `roolith/generator`)
 
@@ -195,9 +197,9 @@ The operational data store is MySQL accessed over PDO through `roolith/database`
 ## 8. Cross-cutting concerns
 
 - Error handling: Whoops pretty pages in development, silent logging posture in production, plus typed app exceptions for bootstrap and template failures.
-- Security: sanitize-on-read inputs, escaped view output, upload allowlist plus size cap, session-backed rate limiting, and www canonicalization to reduce duplicate-origin issues.
-- Observability: minimal by design; version query strings for cache busting, active-route helper for navigation state, and conventional places to add logging (System lifecycle, middleware, model access).
-- Conventions as contracts: factories guarantee one shared router, view engine, and database handle per request; global helpers guarantee stable URL, redirect, asset, and i18n seams.
+- Security: raw input with render-time escaping (`escape()`), upload allowlist plus size cap, session-backed rate limiting, and www canonicalization to reduce duplicate-origin issues.
+- Observability: PSR-3 file logger with trace ID on bootstrap, router, 404, controller, and unhandled paths (`App\Core\Log` mirror); version query strings for cache busting, active-route helper for navigation state.
+- Conventions as contracts: factories guarantee one shared router, view engine, and database handle per request; `App\Support` plus thin globals guarantee stable URL, redirect, asset, and i18n seams; `php roolith route:list` lints handlers.
 
 ## 9. Extension map
 

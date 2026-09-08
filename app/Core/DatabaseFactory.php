@@ -66,6 +66,22 @@ class DatabaseFactory
     }
 
     /**
+     * Run a callback inside a database transaction.
+     *
+     * Thin proxy over Database::transaction() so app code has one
+     * seam: DatabaseFactory::transaction(fn ($db) => ...). Commits
+     * when the callback returns, rolls back and rethrows when it
+     * throws. The callback receives the shared Database instance.
+     *
+     * @param callable $callback Work to run transactionally (receives DatabaseInterface).
+     * @return mixed Callback return value.
+     */
+    public static function transaction(callable $callback): mixed
+    {
+        return self::getInstance()->transaction($callback);
+    }
+
+    /**
      * Clear the cached database instance.
      *
      * Production reset: drops the singleton so the next getInstance()

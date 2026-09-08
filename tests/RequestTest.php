@@ -172,12 +172,12 @@ class RequestTest extends TestCase
     }
 
     /**
-     * JSON string values via input() must be sanitized (no raw markup).
+     * JSON string values via input() stay raw for render-time escaping.
      *
-     * A JSON body carrying `<script>` must not return raw markup from
-     * input(); strings are cleaned via Sanitize::any while int scalars
-     * keep their type. all() sanitizes the same way unless
-     * skipSanitization is set, and unsafeInput() keeps the raw value.
+     * Output-at-render (014-A14): a JSON body carrying `<script>` returns
+     * raw markup from input() so stored data keeps its exact form;
+     * views escape with escape(). Int scalars keep their type.
+     * unsafeInput() is a BC alias of input().
      *
      * @return void
      */
@@ -185,15 +185,16 @@ class RequestTest extends TestCase
     {
         Request::setRawInputForTests('{"comment":"<script>alert(1)</script>hello"}', 'application/json');
 
-        $cleaned = Request::input('comment');
+        $raw = Request::input('comment');
 
-        $this->assertIsString($cleaned);
-        $this->assertStringNotContainsString('<script>', (string) $cleaned);
-        $this->assertStringContainsString('hello', (string) $cleaned);
+        $this->assertIsString($raw);
+        $this->assertSame('<script>alert(1)</script>hello', $raw);
+        $this->assertSame('<script>alert(1)</script>hello', Request::unsafeInput('comment'));
+        $this->assertSame('&lt;script&gt;alert(1)&lt;/script&gt;hello', \App\Support\Html::escape($raw));
     }
 
     /**
-     * all() must sanitize stream inputs unless explicitly skipped.
+     * all() returns raw by default, sanitized only on opt-in.
      *
      * @return void
      */
@@ -203,16 +204,17 @@ class RequestTest extends TestCase
         Request::setRawInputForTests('{"comment":"<script>alert(1)</script>hello"}', 'application/json');
 
         try {
-            $sanitized = Request::all();
-            $raw = Request::all(['skipSanitization' => true]);
+            $raw = Request::all();
+            $legacy = Request::all(['sanitize' => true]);
+            $skipped = Request::all(['skipSanitization' => true]);
         } finally {
             unset($_SERVER['REQUEST_METHOD']);
         }
 
-        $this->assertIsArray($sanitized);
-        $this->assertStringNotContainsString('<script>', (string) ($sanitized['comment'] ?? ''));
-        $this->assertStringContainsString('<script>', (string) ($raw['comment'] ?? ''));
+        $this->assertIsArray($raw);
         $this->assertSame('<script>alert(1)</script>hello', $raw['comment'] ?? null);
+        $this->assertSame('<script>alert(1)</script>hello', $skipped['comment'] ?? null);
+        $this->assertStringNotContainsString('<script>', (string) ($legacy['comment'] ?? ''));
         $this->assertSame('<script>alert(1)</script>hello', Request::unsafeInput('comment'));
     }
 

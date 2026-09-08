@@ -1,6 +1,6 @@
 # Ticket C7 - Document string-based Controller at method dispatch with safety checks
 
-Status: Open
+Status: Done
 
 Order: 40 of 67
 
@@ -24,11 +24,15 @@ Add route:list lint command or bootstrap assertion, prefer `[$class,$method]` ca
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
+
+## Verification (Phase 5, 2026-09-08)
+
+- Added App\Core\RouteValidator with class_exists/method_exists checks, System::assertRouteHandlers bootstrap logging, php roolith route:list lint (exit 1 on invalid). routes.php now prefers [Class, method] callable syntax; docs updated. Verified: php roolith route:list shows 7 routes valid, Phase5Test validator pass.
 
 ## Notes
 

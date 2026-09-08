@@ -1,8 +1,7 @@
 name: CI
 
 on:
-  push:
-  pull_request:
+  workflow_dispatch:
 
 jobs:
   php:
@@ -31,9 +30,39 @@ jobs:
       - name: Run tests
         run: composer test
 
+      - name: Lint PHP
+        run: composer lint
+
+      - name: Static analysis
+        run: composer analyse
+
+      - name: Security audit
+        run: composer audit
+
       - name: Lint PHP entrypoints
         run: |
           php -l index.php
           php -l constant.php
           php -l config/config.php
           find app -name "*.php" -exec php -l {} \;
+
+      - name: Validate routes
+        run: php roolith route:list
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install node dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build

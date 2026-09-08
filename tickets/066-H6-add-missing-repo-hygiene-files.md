@@ -1,6 +1,6 @@
 # Ticket H6 - Add missing repo hygiene files
 
-Status: Open
+Status: Done
 
 Order: 66 of 67
 
@@ -24,11 +24,15 @@ Add minimal changelog, contribution steps with test command, security reporting 
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
+
+## Verification (Phase 5, 2026-09-08)
+
+- Added CHANGELOG.md, CONTRIBUTING.md, SECURITY.md, README support matrix. Verified: files exist, README links them.
 
 ## Notes
 

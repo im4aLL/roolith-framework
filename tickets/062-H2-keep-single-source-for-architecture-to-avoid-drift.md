@@ -1,6 +1,6 @@
 # Ticket H2 - Keep single source for architecture to avoid drift
 
-Status: Open
+Status: Done
 
 Order: 62 of 67
 
@@ -24,11 +24,15 @@ Keep `ARCHITECTURE.md` canonical and symlink or import into VitePress, add CI ch
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
+
+## Verification (Phase 5, 2026-09-08)
+
+- ARCHITECTURE.md marked canonical, docs/architecture.md mirror note, README pointer, CONTRIBUTING sync rule. Verified: both files carry canonical note.
 
 ## Notes
 

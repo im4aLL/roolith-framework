@@ -1,6 +1,6 @@
 # Ticket H7 - Clarify frontend workflow commands
 
-Status: Open
+Status: Done
 
 Order: 67 of 67
 
@@ -24,11 +24,15 @@ Paste actual `package.json` scripts, explain `dev` proxy URL vs direct `:8080`, 
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
+
+## Verification (Phase 5, 2026-09-08)
+
+- Pasted package.json scripts, explained dev proxy vs :8080, noted built files plus manifest, clarified app/style input keys. Verified: npm run build output matches docs.
 
 ## Notes
 

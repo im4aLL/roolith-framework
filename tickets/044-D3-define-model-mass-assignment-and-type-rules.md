@@ -1,6 +1,6 @@
 # Ticket D3 - Define model mass-assignment and type rules
 
-Status: Open
+Status: Done
 
 Order: 44 of 67
 
@@ -24,11 +24,15 @@ Document allowed pattern, add `$fillable` or DTO example, show validated write p
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
+
+## Verification (Phase 5, 2026-09-08)
+
+- Added Model fillable/casts/validationRules/validate/filterFillable/castRow/castRows plus validated write docs in README and models.md. Verified: Phase5Test fillable plus casts pass.
 
 ## Notes
 

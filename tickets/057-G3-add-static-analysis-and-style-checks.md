@@ -1,6 +1,6 @@
 # Ticket G3 - Add static analysis and style checks
 
-Status: Open
+Status: Done
 
 Order: 57 of 67
 
@@ -24,11 +24,15 @@ Add `phpstan.neon` level 6+, `composer lint` and `composer analyse`, fix baselin
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
+
+## Verification (Phase 5, 2026-09-08)
+
+- Added phpstan.neon level 6 plus baseline, composer lint plus analyse scripts, fixed new-code baseline, CI runs analyse. Verified: composer analyse OK, composer lint OK.
 
 ## Notes
 

@@ -1,6 +1,6 @@
 # Ticket C5 - Namespace global helpers and avoid __ collision
 
-Status: Open
+Status: Done
 
 Order: 38 of 67
 
@@ -24,11 +24,15 @@ Keep thin globals for BC but move logic to `App\Support\*` classes, make `p()` C
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
+
+## Verification (Phase 5, 2026-09-08)
+
+- Moved logic to App\Support\Debug, Url, Translator, Redirect, Html, IdGenerator; globals p/url/route/__/redirect/redirectToRoute now thin BC aliases. p() CLI-aware (plain text in CLI, escaped pre in web) with dev-only exit. Added trans() canonical plus __() alias and escape() helper. Verified: composer test 192 pass, Phase5Test support helpers plus trans alias pass.
 
 ## Notes
 

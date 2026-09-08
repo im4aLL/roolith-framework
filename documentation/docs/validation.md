@@ -1,7 +1,7 @@
 # Validation
 
 The `App\Core\Validator` class validates data against fluent rules built with `Rules::set()`.
-Sanitization helpers live in `App\Core\Sanitize`.
+Output is escaped at render with `escape()` or `App\Support\Html::escape()`; `Request::input()` stays raw so `O'Reilly` keeps its form.
 
 ## Validating Data
 
@@ -48,13 +48,14 @@ if ($validator->success()) {
 
 ## Sanitize
 
-Sanitize untrusted input before using or storing it.
+Narrow helpers for slug plus email lookups only. General input stays raw; escape at render with `escape()` or `Html::escape()`.
 
 ```php
 use App\Core\Sanitize;
 
-Sanitize::param($_GET['param']);
-Sanitize::any('untrusted_string<script>alert("a")</script>');
-Sanitize::email('something/@bad.com');
-Sanitize::string('xss_protect');
+Sanitize::param('hello-world_1'); // slug-safe: letters, digits, dash, dot, underscore
+Sanitize::email('user@example.com'); // email-safe lookup value
+escape($raw); // render-time escaping for views
 ```
+
+`Sanitize::any()`, `Sanitize::string()`, and `Sanitize::items()` are legacy for backward compatibility only. They strip tags and encode entities, destroying legitimate data like `O'Reilly` and risking double escaping when combined with view escaping. Do not call them on general input.

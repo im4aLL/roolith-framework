@@ -1,6 +1,6 @@
 # Ticket C8 - Clarify cache and event usage because they are shipped but unwired
 
-Status: Open
+Status: Done
 
 Order: 41 of 67
 
@@ -24,11 +24,15 @@ Add one caching example for config or model query and one event example for user
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
+
+## Verification (Phase 5, 2026-09-08)
+
+- Added App\Examples\CacheAndEventExamples with cachedModelQuery/cachedConfig plus userCreated event, README plus ARCHITECTURE 6.11 docs for when to use. Verified: Phase5Test cache plus event pass.
 
 ## Notes
 

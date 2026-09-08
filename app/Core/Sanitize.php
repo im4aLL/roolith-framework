@@ -5,12 +5,17 @@ namespace App\Core;
 use App\Core\Interfaces\SanitizeInterface;
 
 /**
- * String sanitizers for request input.
+ * Narrow input sanitizers for slug and email cases.
  *
- * Pure helpers: param() keeps URL-safe chars, email() keeps email chars,
- * any() strips tags/scripts and encodes entities, items() maps any() over
- * arrays. All string inputs are cast upstream; non-string scalars passed
- * to any() are stringified.
+ * Render-time escaping is the default: keep Request::input() raw,
+ * validate by type, and escape in views with escape() or
+ * $this->escape(). Use Sanitize only for narrow storage or lookup
+ * cases: param() for URL slugs, email() for email lookups.
+ *
+ * any(), string(), and items() remain for BC but are legacy: they
+ * strip tags and encode entities, destroying legitimate data like
+ * O'Reilly and risking double escaping when combined with view
+ * escaping. Do not call them on general input.
  */
 class Sanitize implements SanitizeInterface
 {
@@ -69,7 +74,11 @@ class Sanitize implements SanitizeInterface
     }
 
     /**
-     * Sanitize any string value.
+     * Sanitize any string value (legacy).
+     *
+     * Legacy for narrow cases only: strips tags/scripts and encodes
+     * entities, destroying legitimate data like O'Reilly. Prefer raw
+     * Request::input() plus view escaping with escape() instead.
      *
      * @param mixed $str Raw value (stringified when scalar).
      * @return string Sanitized string.
@@ -98,7 +107,9 @@ class Sanitize implements SanitizeInterface
     }
 
     /**
-     * Sanitize a plain string.
+     * Sanitize a plain string (legacy).
+     *
+     * Legacy narrow helper. Prefer view escaping with escape().
      *
      * @param string $string Raw string value.
      * @return string Sanitized string.
@@ -111,7 +122,9 @@ class Sanitize implements SanitizeInterface
     }
 
     /**
-     * Sanitize multiple items at once.
+     * Sanitize multiple items at once (legacy).
+     *
+     * Legacy for narrow cases only. Prefer raw input plus view escaping.
      *
      * @param array<int|string, mixed> $items Raw items.
      * @return array<int|string, mixed> Sanitized items (arrays recurse, scalars stringified via any()).

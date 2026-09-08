@@ -20,14 +20,21 @@ try {
 
 /**
  * Demo routes
+ *
+ * Preferred dispatch is the callable form [Controller::class, 'method']
+ * so typos fail fast via class_exists plus method_exists in
+ * App\Core\RouteValidator and `php roolith route:list`. The legacy
+ * string form `Controller::class . "@method"` still works at runtime
+ * (vendor Router checks class_exists plus method_exists) but is kept
+ * only for BC; new routes should use the array form.
  */
 $router->get("/", function () {
     return "Welcome to Roolith Framework!";
 });
 
-$router->get("/example", WelcomeController::class . "@index");
-$router->get("/form", WelcomeController::class . "@form")->name("welcome.form");
-$router->post("/form", WelcomeController::class . "@formSubmit")->middleware(CsrfMiddleware::class);
+$router->get("/example", [WelcomeController::class, "index"]);
+$router->get("/form", [WelcomeController::class, "form"])->name("welcome.form");
+$router->post("/form", [WelcomeController::class, "formSubmit"])->middleware(CsrfMiddleware::class);
 
 /**
  * Auth example (009-A9): deny-by-default middleware with new process(request, next).
@@ -72,8 +79,6 @@ $router->post("/form-secure", function (): string {
  * Gate parity with System.php: defined plus flag plus is_file plus
  * is_readable so CMS routes never load in core-only mode or from an
  * unreadable path.
- *
- * @var string $cmsRoutesPath Absolute path to the optional CMS routes file.
  */
 $cmsRoutesPath = (defined('APP_ROOT') ? (string) APP_ROOT : dirname(__DIR__, 2)) . "/app/Http/cms-routes.php";
 

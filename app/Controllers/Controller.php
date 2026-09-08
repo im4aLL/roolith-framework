@@ -2,11 +2,12 @@
 namespace App\Controllers;
 
 
+use App\Core\Log;
 use App\Core\TemplateEngineFactory;
 use Roolith\Configuration\Config;
 use Roolith\Configuration\Exception\InvalidArgumentException;
 use Roolith\Template\Engine\Exceptions\Exception as TemplateException;
-use Roolith\Template\Engine\Exceptions\InvalidArgumentException as TemplateInvalidArgumentException;
+use Roolith\Template\Engine\Interfaces\ViewInterface;
 use Throwable;
 
 /**
@@ -21,9 +22,9 @@ class Controller
     /**
      * Template engine instance.
      *
-     * @var null|\Roolith\Template\Engine\Interfaces\ViewInterface|\Roolith\Template\Engine\View
+     * @var ViewInterface
      */
-    private null|\Roolith\Template\Engine\Interfaces\ViewInterface|\Roolith\Template\Engine\View $templateEngine;
+    private ViewInterface $templateEngine;
 
     /**
      * Controller constructor.
@@ -61,9 +62,25 @@ class Controller
     public function view(string $filename, array $data = []): string
     {
         try {
-            return $this->templateEngine->compile($filename, $data);
-        } catch (TemplateException | TemplateInvalidArgumentException $e) {
-            error_log('[Roolith Controller] Failed rendering view \'' . $filename . '\': ' . substr(str_replace(["\r", "\n"], ' ', $e->getMessage()), 0, 500));
+            $rendered = $this->templateEngine->compile($filename, $data);
+
+            try {
+                Log::info('view rendered', ['view' => substr($filename, 0, 200)]);
+            } catch (\Throwable) {
+                // Logging must never break rendering.
+            }
+
+            return $rendered;
+        } catch (TemplateException $e) {
+            $detail = substr(str_replace(["\r", "\n"], ' ', $e->getMessage()), 0, 500);
+
+            try {
+                Log::error('view render failed', ['view' => substr($filename, 0, 200), 'error' => $detail]);
+            } catch (\Throwable) {
+                // Logging must never mask the failure.
+            }
+
+            error_log('[Roolith Controller] Failed rendering view \'' . $filename . '\': ' . $detail);
 
             throw new \App\Core\Exceptions\Exception(
                 "Failed rendering view '{$filename}': " . $e->getMessage(),
@@ -71,7 +88,15 @@ class Controller
                 $e
             );
         } catch (Throwable $e) {
-            error_log('[Roolith Controller] Failed rendering view \'' . $filename . '\': ' . substr(str_replace(["\r", "\n"], ' ', $e->getMessage()), 0, 500));
+            $detail = substr(str_replace(["\r", "\n"], ' ', $e->getMessage()), 0, 500);
+
+            try {
+                Log::error('view render failed', ['view' => substr($filename, 0, 200), 'error' => $detail]);
+            } catch (\Throwable) {
+                // Logging must never mask the failure.
+            }
+
+            error_log('[Roolith Controller] Failed rendering view \'' . $filename . '\': ' . $detail);
 
             throw new \App\Core\Exceptions\Exception(
                 "Failed rendering view '{$filename}': " . $e->getMessage(),

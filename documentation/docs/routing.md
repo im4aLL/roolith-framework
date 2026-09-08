@@ -43,12 +43,11 @@ All verbs accept a single path or an array of paths, so `post(['a', 'b'], $cb)` 
 
 ## Controller Routes
 
-Point a route to a controller method with the `Controller@method` syntax.
-The array form `[Controller::class, 'method']` is identical and also works with `match()` and `any()`. Already-instantiated and static callables dispatch directly, non-static `[Class, 'method']` pairs normalize to `Class@method` and use DI.
+Prefer the callable form `[Controller::class, 'method']` so typos fail fast via `class_exists` plus `method_exists` in `App\Core\RouteValidator` and `php roolith route:list`. The string form `Controller::class . "@method"` still works at runtime (vendor Router checks `class_exists` plus `method_exists`) but is legacy.
 
 ```php
-$router->get("/example", WelcomeController::class . "@index");
 $router->get("/example", [WelcomeController::class, "index"]);
+$router->get("/example", WelcomeController::class . "@index"); // legacy, still works
 ```
 
 Route params are passed to the controller method the same way as closures. A missing class responds with 404, a missing method responds with 404, and an invalid handler (string without `@`, bad array shape) responds with 500 without leaking internals.

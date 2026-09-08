@@ -1,90 +1,81 @@
 # Migration
 
-Migrations are handled by [roolith/migration](https://github.com/im4aLL/roolith-migration).
-It is a simple migration tool for PHP applications.
+Migrations are handled by the internal `App\Database\Migrator` (no external package required).
+Migration files live in `database/migrations` and applied names are tracked in the `migrations` table so schema never drifts between deploys.
 
-## Installation
+## Commands
 
-Install it with Composer.
-
-```bash
-composer require roolith/migration
-```
-
-## Setup
-
-Create a PHP file `migration.php` at your project root and add the following code.
-
-```php
-<?php
-use Roolith\Migration\Migration;
-
-require __DIR__ . "/vendor/autoload.php";
-
-$migration = new Migration();
-$migration
-    ->settings([
-        "folder" => __DIR__ . "/migrations",
-        "database" => [
-            "host" => "localhost",
-            "name" => "db_name",
-            "user" => "user",
-            "pass" => "pass",
-        ],
-    ])
-    ->run($argv);
-```
-
-Assuming your filename is `migration.php`, you can run the migration commands as follows.
+Run from the project root:
 
 ```bash
-php migration.php migration:create migration_name
-php migration.php migration:run # it will run all pending migrations
-php migration.php migration:run migration_name
-php migration.php migration:rollback migration_name
-php migration.php migration:status
+php roolith migrate:create create_users_table
+php roolith migrate
+php roolith migrate:status
+php roolith migrate:rollback
+php roolith migrate:rollback create_users_table
 ```
 
-## Notes
+- `migrate:create <Name>` scaffolds `database/migrations/<timestamp>_<rand>_<Slug>.php` with an `up()` plus `down()` skeleton. The directory is created when missing and the name includes a random suffix so concurrent creates never collide.
+- `migrate` runs pending migrations in filename order. Each `up()` runs inside the injected connection transaction and the tracking row is written only on success.
+- `migrate:status` lists applied plus pending names without running anything.
+- `migrate:rollback` reverts the last batch in reverse order (or one named migration when given). Each `down()` runs inside a transaction.
 
-- It will create the `migrations` table if it does not exist.
-- It will create the migrations folder if it does not exist.
-- You can change the name of the folder by passing settings.
-
-## Example of Migration File
+## Migration files
 
 ```bash
-php migration.php migration:create create_users_table
+php roolith migrate:create create_users_table
 ```
 
 ```php
 <?php
 
+use App\Database\MigrationInterface;
 use Roolith\Store\Interfaces\DatabaseInterface;
-use Roolith\Migration\Interfaces\MigrationInterface;
 
 class CreateUsersTable implements MigrationInterface
 {
-    public function up(DatabaseInterface $db): void {}
+    /**
+     * Apply the migration.
+     *
+     * @param DatabaseInterface $db Shared database connection.
+     * @return void
+     */
+    public function up(DatabaseInterface $db): void
+    {
+    }
 
-    public function down(DatabaseInterface $db): void {}
+    /**
+     * Revert the migration.
+     *
+     * @param DatabaseInterface $db Shared database connection.
+     * @return void
+     */
+    public function down(DatabaseInterface $db): void
+    {
+    }
 }
 ```
 
 Inside `up()` and `down()` you get the [database](/database) connection, so every driver method from the [database](/database) page is available on `$db`.
 
-## Complete Example
+## Complete example
 
 Here is a complete migration file that creates a `users` table.
 
 ```php
 <?php
 
+use App\Database\MigrationInterface;
 use Roolith\Store\Interfaces\DatabaseInterface;
-use Roolith\Migration\Interfaces\MigrationInterface;
 
-class _1764469375_CreateUser implements MigrationInterface
+class CreateUsersTable implements MigrationInterface
 {
+    /**
+     * Apply the migration.
+     *
+     * @param DatabaseInterface $db Shared database connection.
+     * @return void
+     */
     public function up(DatabaseInterface $db): void
     {
         $db->execute("
@@ -101,9 +92,30 @@ class _1764469375_CreateUser implements MigrationInterface
         ");
     }
 
+    /**
+     * Revert the migration.
+     *
+     * @param DatabaseInterface $db Shared database connection.
+     * @return void
+     */
     public function down(DatabaseInterface $db): void
     {
         $db->execute("DROP TABLE IF EXISTS `users`;");
     }
 }
 ```
+
+## Model-to-table contract
+
+One model class maps to one table via `protected string $table` plus `$primaryColumn` (default `id`). The migrator creates those tables; the model reads and writes them. See [models](/models) for `$fillable`, `$casts`, and `validate()`.
+
+## Notes
+
+- The `migrations` table (`migration` VARCHAR primary, `batch` INT, `migrated_at` TIMESTAMP) is created automatically when missing.
+- Only `*.php` files in `database/migrations` run, sorted by name so timestamp prefixes order correctly.
+- Read failures log via `App\Core\Log::error()` and rethrow so a failed read never looks like an empty success.
+- Migration names are restricted to letters, digits, and underscores; anything else is rejected before touching the filesystem.
+
+## Seeding data
+
+Migrations own schema; rows belong in [seeders](/seeder) (`php roolith seed:create`, `php roolith seed`, `php roolith seed:status`, `php roolith seed:run`). Migrate first, then seed.

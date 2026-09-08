@@ -6,16 +6,16 @@ use App\Core\Interfaces\ValidatorRulesInterface;
 use InvalidArgumentException;
 
 /*
- * Usage
+ * Usage (string plus array split, see README Validator section)
  * ===================================================
     $validator = new \App\Core\Validator();
     $validator->check(
         [
-            'name' => 'john',
+            'name' => 'john doe long enough',
             'email' => 'me@habibhadi.com',
             'company' => '',
             'age' => 18,
-            'url' => 'something!',
+            'url' => 'https://example.com',
             'data' => [],
             'associative_array' => ["name" => "", "type" => ""],
         ],
