@@ -4,6 +4,10 @@ Short end-to-end guides for common tasks. Each recipe shows one working approach
 
 - [Middleware](/middleware) - run a check before a route handler runs.
   Use it to redirect guests to login, verify CSRF tokens on forms, or throttle brute-force logins.
+- [CSRF with Forms](/csrf-forms) - protect state-changing routes with per-session tokens.
+  Use it to add `csrf_field()` to HTML forms or the `X-CSRF-TOKEN` header to fetch clients.
+- [Sanitizing Input](/sanitizing-input) - keep input raw, validate by type, escape at render.
+  Use it to apply `Sanitize` only to slugs and email lookups without mangling stored data.
 - [Extending a Model](/extending-a-model) - encapsulate business logic in models.
   Use it to keep controllers thin with query helpers, computed fields, and role checks.
 - [Lazy Load Models](/lazy-load-models) - attach related models with `App\Core\LazyLoad`.

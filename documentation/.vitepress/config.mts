@@ -5,7 +5,7 @@ export default defineConfig({
   lang: 'en-US',
   srcDir: 'docs',
 
-  title: 'Roolith PHP Framework',
+  title: 'Roolith PHP Framework v5',
   description: 'PHP micro-framework. Very minimalistic and less overhead.',
 
   themeConfig: {
@@ -65,6 +65,8 @@ export default defineConfig({
         text: 'Recipes',
         items: [
           { text: 'Middleware', link: '/middleware' },
+          { text: 'CSRF with Forms', link: '/csrf-forms' },
+          { text: 'Sanitizing Input', link: '/sanitizing-input' },
           { text: 'Extending a Model', link: '/extending-a-model' },
           { text: 'Lazy Load Models', link: '/lazy-load-models' },
           { text: 'File Upload', link: '/file-upload' },
