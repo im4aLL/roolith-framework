@@ -12,7 +12,7 @@ RUN echo '<Directory /var/www/html>\n    AllowOverride All\n</Directory>' \
     > /etc/apache2/conf-available/allow-override.conf \
     && a2enconf allow-override
 
-# 054-F6: minimal Apache hardening for prod. Hides version banners, disables
+# Minimal Apache hardening for prod. Hides version banners, disables
 # TRACE, and strips ETags. App security headers (CSP, nosniff, frame, HSTS)
 # are sent by PHP via System::sendSecurityHeaders(); this only covers the
 # server layer. Caching plus compression below is for static assets only.

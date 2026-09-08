@@ -43,7 +43,7 @@ export default defineConfig(({ mode }) => {
             port: 5173,
             // The PHP app on :8080 loads assets cross-origin when browsed directly
             cors: true,
-            // 048-E3 proxy limits: everything except Vite internals is proxied
+            // Proxy limits: everything except Vite internals is proxied
             // to PHP on :8080. Bypassed prefixes: @vite, @id, @fs,
             // node_modules, source, __open-in-editor. That means API routes,
             // websockets, and PHP sessions all flow through the proxy, so the
@@ -63,12 +63,12 @@ export default defineConfig(({ mode }) => {
         css: {
             postcss: "./postcss.config.cjs",
         },
-        // 046-E1 review: disable the default public/ copy so
+        // Disable the default public/ copy so
         // public/uploads/* is never duplicated into assets/build/uploads/*.
         // Uploads are served by Apache/PHP from the docroot, not by Vite.
         publicDir: false,
         build: {
-            // 046-E1: build only under assets/build so `emptyOutDir` can never
+            // Build only under assets/build so `emptyOutDir` can never
             // wipe user uploads. Uploads must live outside the build output,
             // e.g. public/uploads/ (web-accessible) or storage/ (outside the
             // docroot). See README frontend workflow plus docs/frontend-workflow.md.

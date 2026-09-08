@@ -35,7 +35,7 @@ Views use the `viteCss()` and `viteJs()` helpers which switch between dev server
 
 You can also browse the whole site through `http://localhost:5173` because the dev server proxies the PHP app and reloads the page when PHP files change.
 
-### Vite proxy limits (048-E3)
+### Vite proxy limits
 
 The dev server proxies everything except Vite internals to PHP on `:8080`:
 

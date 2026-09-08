@@ -6,7 +6,7 @@ use ReflectionClass;
 use Roolith\Configuration\Config;
 
 /**
- * Covers the Vite HMR edge case (033-B19).
+ * Covers the Vite HMR edge case.
  *
  * Proves the dev HMR client is emitted once whether viteJs or viteCss runs
  * first, and that dev plus prod URLs are escaped.

@@ -1,4 +1,4 @@
-# Production-like compose (052-F4). No repo bind mount: the app runs from the
+# Production-like compose. No repo bind mount: the app runs from the
 # COPY in Dockerfile, so permission and persistence issues cannot hide behind
 # the dev mount. Uploads persist in a named volume; build output
 # (assets/build) ships inside the image via `npm run build` before `docker build`.

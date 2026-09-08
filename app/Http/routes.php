@@ -37,7 +37,7 @@ $router->get("/form", [WelcomeController::class, "form"])->name("welcome.form");
 $router->post("/form", [WelcomeController::class, "formSubmit"])->middleware(CsrfMiddleware::class);
 
 /**
- * Auth example (009-A9): deny-by-default middleware with new process(request, next).
+ * Auth example: deny-by-default middleware with new process(request, next).
  *
  * AuthMiddleware checks $_SESSION['user_id']; guests get a 302 redirect to
  * /login, authed users flow to $next (controller). The vendor router runs
@@ -60,7 +60,7 @@ $router->get("/dashboard", function (): string {
 })->middleware(AuthMiddleware::class);
 
 /**
- * CSRF example (008-A8): state-changing routes require the per-session token.
+ * CSRF example: state-changing routes require the per-session token.
  *
  * Forms must include csrf_field() (hidden _csrf input); fetch clients may
  * send X-CSRF-TOKEN instead. GET stays open, POST without a valid token is
@@ -71,7 +71,7 @@ $router->post("/form-secure", function (): string {
 })->middleware(CsrfMiddleware::class);
 
 /**
- * CMS related routes (037-C4 CMS-only).
+ * CMS related routes (CMS-only).
  *
  * Mounted only when the explicit APP_ENABLE_CMS env flag is on and the CMS
  * release asset installed app/Http/cms-routes.php (see

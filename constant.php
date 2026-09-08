@@ -30,7 +30,7 @@ if (!defined('APP_VIEW_ROOT')) {
 }
 
 /**
- * Turn on or off CMS feature (037-C4).
+ * Turn on or off CMS feature.
  *
  * Explicit env flag: set APP_ENABLE_CMS=1 in .env to mount CMS routes plus
  * admin helpers. Default stays off so core boots without the optional CMS

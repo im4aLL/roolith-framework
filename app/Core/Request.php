@@ -9,7 +9,7 @@ use App\Utils\Arr;
 /**
  * HTTP request facade over POST, GET, and php://input streams.
  *
- * Output-at-render contract (014-A14): input() returns raw values
+ * Output-at-render contract: input() returns raw values
  * with types preserved (no stripping or entity encoding) so stored
  * data like O'Reilly, unicode, and HTML payloads keep their exact
  * form. Validate by type with Validator plus Rules, then escape at

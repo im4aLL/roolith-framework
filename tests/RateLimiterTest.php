@@ -56,7 +56,7 @@ class RateLimiterTest extends TestCase
     {
         SessionRateLimiter::setNowForTests(1000);
 
-        $limiter = new SessionRateLimiter('phase3-login', 2, 10);
+        $limiter = new SessionRateLimiter('test-login', 2, 10);
 
         $this->assertFalse($limiter->tooManyAttempts());
         $this->assertFalse($limiter->hit());
@@ -67,7 +67,7 @@ class RateLimiterTest extends TestCase
         $this->assertSame(2, $limiter->count());
 
         // Blocked path persists the pruned list.
-        $stored = $_SESSION['_roolith_rate_limit']['phase3-login'] ?? null;
+        $stored = $_SESSION['_roolith_rate_limit']['test-login'] ?? null;
 
         $this->assertIsArray($stored);
         $this->assertCount(2, $stored);
@@ -78,7 +78,7 @@ class RateLimiterTest extends TestCase
         $this->assertFalse($limiter->tooManyAttempts());
         $this->assertSame(0, $limiter->count());
 
-        $pruned = $_SESSION['_roolith_rate_limit']['phase3-login'] ?? null;
+        $pruned = $_SESSION['_roolith_rate_limit']['test-login'] ?? null;
 
         $this->assertIsArray($pruned);
         $this->assertCount(0, $pruned);
@@ -86,7 +86,7 @@ class RateLimiterTest extends TestCase
         // Namespaced key must not collide with app session data.
         $_SESSION['rate_limit'] = 'app-value';
 
-        $other = new SessionRateLimiter('phase3-other', 1, 10);
+        $other = new SessionRateLimiter('test-other', 1, 10);
         $other->hit();
 
         $this->assertSame('app-value', $_SESSION['rate_limit']);

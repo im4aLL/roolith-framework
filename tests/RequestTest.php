@@ -174,7 +174,7 @@ class RequestTest extends TestCase
     /**
      * JSON string values via input() stay raw for render-time escaping.
      *
-     * Output-at-render (014-A14): a JSON body carrying `<script>` returns
+     * Output-at-render: a JSON body carrying `<script>` returns
      * raw markup from input() so stored data keeps its exact form;
      * views escape with escape(). Int scalars keep their type.
      * unsafeInput() is a BC alias of input().

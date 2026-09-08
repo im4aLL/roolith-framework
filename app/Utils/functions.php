@@ -14,7 +14,7 @@ use Roolith\Configuration\Exception\InvalidArgumentException;
  *
  * Thin BC alias over App\Support\Debug::dump(). CLI-aware: web SAPIs
  * wrap escaped output in pre tags, CLI prints plain text. Dev-only
- * exit (015-B1, M1): $exit terminates via exit() only when
+ * exit: $exit terminates via exit() only when
  * APP_ENV=development, otherwise ignored so production can never
  * truncate emission or skip System::complete().
  *
@@ -111,8 +111,8 @@ function viteBuiltAssetUrl(string $path): string
  *
  * Looks for assets/build/.vite/manifest.json (Vite 5 default when
  * manifest:true with outDir assets/build) then assets/build/manifest.json,
- * keeping the pre-Phase-4 assets/.vite locations as a legacy fallback so
- * deploys built before 046-E1 still resolve. Missing or invalid files yield
+ * keeping the legacy assets/.vite locations as a fallback so
+ * older deploys still resolve. Missing or invalid files yield
  * []. Results are cached per request in $GLOBALS so the test seam fully
  * clears; tests can override via setViteManifestForTests().
  *
@@ -686,7 +686,7 @@ function getVersion(): string
 }
 
 /**
- * CMS admin helpers (037-C4 CMS-only).
+ * CMS admin helpers (CMS-only).
  *
  * Mounted only when the explicit APP_ENABLE_CMS env flag is on and the CMS
  * release asset installed app/Utils/Admin/functions.php (see

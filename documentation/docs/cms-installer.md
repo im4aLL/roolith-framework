@@ -1,6 +1,6 @@
 # CMS installer (release asset)
 
-The optional CMS admin sources ship as `installer.zip`, which stays tracked in git for reference and local install (231K, owner decision Sep 2026, 053-F5). The zip is opaque and cannot be reviewed, so it is omitted from distribution artifacts via `composer create-project` exclusions. CMS mode is an explicit opt-in via the `APP_ENABLE_CMS` env flag (037-C4).
+The optional CMS admin sources ship as `installer.zip`, which stays tracked in git for reference and local install (231K, owner decision Sep 2026). The zip is opaque and cannot be reviewed, so it is omitted from distribution artifacts via `composer create-project` exclusions. CMS mode is an explicit opt-in via the `APP_ENABLE_CMS` env flag.
 
 ## Enabling CMS
 
@@ -15,7 +15,7 @@ APP_ENABLE_CMS=1
 
 ## Release asset flow
 
-Publish `installer.zip` as a GitHub Release asset with a checksum published alongside in the release notes; no checksum sidecar is tracked in git (owner decision Sep 2026, 053-F5):
+Publish `installer.zip` as a GitHub Release asset with a checksum published alongside in the release notes; no checksum sidecar is tracked in git (owner decision Sep 2026):
 
 ```bash
 # Maintainer: attach to a release (example v1.2.0)

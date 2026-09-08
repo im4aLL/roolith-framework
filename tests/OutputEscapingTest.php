@@ -6,7 +6,7 @@ use App\Support\Html;
 use PHPUnit\Framework\TestCase;
 
 /**
- * Covers output-at-render escaping (014-A14).
+ * Covers output-at-render escaping.
  *
  * Request::input() stays raw so stored data keeps its exact form;
  * views escape with escape() or Html::escape(). Asserts O'Reilly,

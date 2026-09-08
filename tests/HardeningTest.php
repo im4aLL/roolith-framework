@@ -15,12 +15,12 @@ use PHPUnit\Framework\TestCase;
 use Roolith\Event\Event;
 
 /**
- * Covers Phase 5 hardening helpers.
+ * Covers hardening helpers.
  *
  * Asserts crypto IDs, support aliases, route validation, model
  * fillable plus casts plus validation, and cache plus event examples.
  */
-class Phase5Test extends TestCase
+class HardeningTest extends TestCase
 {
     /**
      * Ensure framework constants exist.
@@ -93,9 +93,9 @@ class Phase5Test extends TestCase
         $this->assertSame('&lt;b&gt;', escape('<b>'));
         $this->assertTrue(Debug::isCli());
 
-        $formatted = Debug::format('hello-phase5');
+        $formatted = Debug::format('hello-hardening');
 
-        $this->assertStringContainsString('hello-phase5', $formatted);
+        $this->assertStringContainsString('hello-hardening', $formatted);
 
         $redirect = Redirect::to('/dashboard');
 
@@ -191,11 +191,11 @@ class Phase5Test extends TestCase
     public function testCacheAndEventExamples(): void
     {
         if (!defined('ROOLITH_CACHE_DIR')) {
-            define('ROOLITH_CACHE_DIR', sys_get_temp_dir() . '/roolith-phase5-cache');
+            define('ROOLITH_CACHE_DIR', sys_get_temp_dir() . '/roolith-hardening-cache');
         }
 
         $calls = 0;
-        $first = CacheAndEventExamples::cachedModelQuery('phase5_test_model_query', static function () use (&$calls): array {
+        $first = CacheAndEventExamples::cachedModelQuery('hardening_test_model_query', static function () use (&$calls): array {
             $calls++;
 
             return ['rows' => [1, 2]];

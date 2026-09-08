@@ -1,4 +1,4 @@
-# Uploads directory hardening (046-E1 review follow-up).
+# Uploads directory hardening.
 #
 # - Disables the PHP engine so an uploaded file can never run as code.
 # - Removes script handlers/types so .php/.phtml uploads stay inert.

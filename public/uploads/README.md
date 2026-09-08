@@ -1,6 +1,6 @@
 Place web-accessible uploads here, outside the Vite build output.
 
-046-E1: `npm run build` wipes only `assets/build/` (`emptyOutDir`), so files
+`npm run build` wipes only `assets/build/` (`emptyOutDir`), so files
 under `public/uploads/` survive rebuilds. `publicDir: false` in
 vite.config.mjs disables Vite's default `public/` copy, so uploads are
 never duplicated into `assets/build/uploads/`; the files here are served

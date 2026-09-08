@@ -338,7 +338,7 @@ class File implements FileInterface
     }
 
     /**
-     * Strictly sanitize a custom upload filename (H2).
+     * Strictly sanitize a custom upload filename.
      *
      * Rejects empty names, NUL bytes, path separators (/ and \), parent
      * references (..), and bare dot names. Applies basename defense in depth,

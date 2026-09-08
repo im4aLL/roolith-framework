@@ -405,7 +405,7 @@ class InMemorySeederDatabase implements DatabaseInterface
 /**
  * Covers the internal file-based seeder runner.
  *
- * Mirrors the Phase5 migrator tests: create plus files plus status
+ * Mirrors the migrator tests: create plus files plus status
  * plus run with an in-memory double or temp dir, slug guard, and
  * single-run behavior.
  */

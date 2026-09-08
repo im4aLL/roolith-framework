@@ -85,7 +85,7 @@ class System
 
         require_once $basePath . "/constant.php";
 
-        // 037-C4 legacy seam: optional cms-constant.php from the CMS release
+        // Legacy seam: optional cms-constant.php from the CMS release
         // asset (see docs/cms-installer.md). Gated on the APP_ENABLE_CMS
         // opt-in flag like routes.php and functions.php so CMS constants
         // never load when core-only mode is on (APP_ENABLE_CMS=0).

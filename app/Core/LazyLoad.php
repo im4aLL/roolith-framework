@@ -31,7 +31,7 @@ class LazyLoad
     private iterable $result = [];
 
     /**
-     * Queued eager-load descriptors (023-B9: init to [] so get() without with() is safe).
+     * Queued eager-load descriptors (init to [] so get() without with() is safe).
      *
      * @var array<int, object>
      */
@@ -187,7 +187,7 @@ class LazyLoad
      *
      * Guards missing keys via null coalescing, normalizes IDs to string so
      * int 1 matches string "1" deliberately, handles empty data early, then
-     * attaches via a keyed map indexed once (045-D4: O(n+m) instead of
+     * attaches via a keyed map indexed once (O(n+m) instead of
      * O(n*m) filter per parent). Unknown or non-model classes plus ORM
      * failures fail closed per descriptor (M4) so one bad with() never
      * breaks the whole result set.

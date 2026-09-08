@@ -1,4 +1,4 @@
-# Block direct access to sensitive files (Phase 1 A10).
+# Block direct access to sensitive files.
 # These return 404 so existence is hidden. Keep before the front-controller rewrite.
 RedirectMatch 404 "(?i)(^|/)(config|vendor|\.git)(/|$)"
 RedirectMatch 404 "(?i)(^|/)(constant\.php|cms-constant\.php|installer\.zip|composer\.json|composer\.lock|phpunit\.xml|\.env.*|.*\.log(\..*)?)$"

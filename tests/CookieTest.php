@@ -67,11 +67,11 @@ class CookieTest extends TestCase
     {
         $expiration = Carbon::now()->addHour();
 
-        $this->assertTrue(Storage::setCookie('phase1_test', 'value', $expiration));
+        $this->assertTrue(Storage::setCookie('cookie_test', 'value', $expiration));
 
-        $_COOKIE['phase1_test'] = 'value';
+        $_COOKIE['cookie_test'] = 'value';
 
-        $this->assertTrue(Storage::deleteCookie('phase1_test'));
-        $this->assertArrayNotHasKey('phase1_test', $_COOKIE);
+        $this->assertTrue(Storage::deleteCookie('cookie_test'));
+        $this->assertArrayNotHasKey('cookie_test', $_COOKIE);
     }
 }

@@ -230,7 +230,7 @@ class SecurityHardeningTest extends TestCase
     /**
      * Htaccess must block sensitive files case-insensitively.
      *
-     * Covers Phase 4 F5: /installer.zip must 404 so the tracked binary stays
+     * Covers installer.zip 404: /installer.zip must 404 so the tracked binary stays
      * hidden over HTTP.
      *
      * @return void

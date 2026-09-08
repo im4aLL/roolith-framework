@@ -189,7 +189,7 @@ class ResponsePipelineTest extends TestCase
     {
         $system = new System(new NullLogger());
 
-        Storage::setSession('phase3_temp_holder', 'x');
+        Storage::setSession('temp_holder', 'x');
         Storage::temp('flash_key', 'flash_value');
 
         $this->assertSame('flash_value', Storage::getTemp('flash_key'));
@@ -411,12 +411,12 @@ class ResponsePipelineTest extends TestCase
         ob_start();
 
         try {
-            $controller->view('__missing_view_phase3');
+            $controller->view('__missing_view_test');
             $output = (string) ob_get_clean();
             $this->fail('Expected App exception for missing view.');
         } catch (\App\Core\Exceptions\Exception $e) {
             $output = (string) ob_get_clean();
-            $this->assertStringContainsString('__missing_view_phase3', $e->getMessage());
+            $this->assertStringContainsString('__missing_view_test', $e->getMessage());
             $this->assertNotNull($e->getPrevious());
         }
 
