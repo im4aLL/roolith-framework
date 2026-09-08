@@ -34,6 +34,7 @@ Then open http://localhost:8080. See [DOCKER-README.md](DOCKER-README.md) for de
 * Database [documentation](https://github.com/im4aLL/roolith-database)
 * Event [documentation](https://github.com/im4aLL/roolith-event)
 * Generator [documentation](https://github.com/im4aLL/roolith-generator)
+* Migration [documentation](https://github.com/im4aLL/roolith-migration)
 * Router [documentation](https://github.com/im4aLL/roolith-router)
 * Template-engine [documentation](https://github.com/im4aLL/roolith-template-engine)
 
@@ -135,13 +136,13 @@ User::transaction(static function ($db) use ($data): void {
 });
 ```
 
-Migrations plus transactions:
+Migrations plus transactions (via `roolith/migration`; files in `database/migrations` as `*.migration.php`, seeders in `database/seeders` as `*.seeder.php`, rows in the shared `migrations` table):
 
 ```
 php roolith migrate:create create_users_table
 php roolith migrate
 php roolith migrate:status
-php roolith migrate:rollback
+php roolith migrate:rollback create_users_table
 ```
 
 ```php
@@ -274,14 +275,20 @@ Note: `Settings::setLang('es')` writes a cookie, so the new locale applies on th
 
 ### Cache and events
 
-Cache expensive reads, fire events for side effects (see `App\Examples\CacheAndEventExamples`):
+Cache expensive reads, fire events for side effects (see `documentation/docs/cache.md` and `documentation/docs/events.md`):
 
 ```php
-use App\Examples\CacheAndEventExamples;
+use Roolith\Caching\Cache\CacheFactory;
+use Roolith\Event\Event;
 
-$user = CacheAndEventExamples::cachedModelQuery('users_by_id_1', static fn () => User::orm()->where('id', 1)->get());
-CacheAndEventExamples::registerUserCreatedListeners();
-CacheAndEventExamples::userCreated(['email' => 'a@b.c']);
+if (!CacheFactory::has('users_by_id_1')) {
+    CacheFactory::put('users_by_id_1', User::orm()->where('id', 1)->get(), 3600);
+}
+
+$user = CacheFactory::get('users_by_id_1');
+
+Event::listen('user.created', static fn (array $user): string => 'welcome:' . $user['email']);
+Event::trigger('user.created', [['email' => 'a@b.c']]);
 ```
 
 ### Validator

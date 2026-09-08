@@ -21,7 +21,8 @@
         "nesbot/carbon": "^2.73",
         "filp/whoops": "^2.18",
         "psr/log": "^3.0",
-        "php": ">=8.2"
+        "php": ">=8.2",
+        "roolith/migration": "^2.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^11.5",
@@ -30,6 +31,11 @@
     "autoload": {
         "psr-4": {
             "App\\": "app/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
         }
     },
     "archive": {

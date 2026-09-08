@@ -110,4 +110,50 @@ echo $simple->get('foo');
 
 ## Worked example
 
-See `app/Examples/CacheAndEventExamples.php` (`cachedModelQuery`, `cachedConfig`) for the read-through shape. Use it only for expensive, rarely-changing reads - slow queries or config snapshots - never by default on every request.
+Copy-paste read-through helpers for expensive, rarely-changing reads - slow queries or config snapshots - never by default on every request.
+
+```php
+<?php
+use Roolith\Caching\Cache\CacheFactory;
+
+function cachedModelQuery(string $key, callable $loader, int $ttl = 3600): mixed
+{
+    if (CacheFactory::has($key)) {
+        $cached = CacheFactory::get($key);
+
+        if ($cached !== false) {
+            return $cached;
+        }
+    }
+
+    $fresh = $loader();
+    CacheFactory::put($key, $fresh, $ttl);
+
+    return $fresh;
+}
+
+function cachedConfig(string $key, callable $loader, int $ttl = 3600): mixed
+{
+    if (CacheFactory::has($key)) {
+        $cached = CacheFactory::get($key);
+
+        if ($cached !== false) {
+            return $cached;
+        }
+    }
+
+    $fresh = $loader();
+    CacheFactory::put($key, $fresh, $ttl);
+
+    return $fresh;
+}
+
+// Each query needs its own key so entries never collide.
+$users = cachedModelQuery('users:active', fn () => $db->query('SELECT * FROM users'));
+$settings = cachedConfig('config:snapshot', fn () => require APP_ROOT . '/config/config.php');
+
+// Flush when the source changes.
+CacheFactory::remove('users:active');
+```
+
+Always check `has()` before trusting `get()` because `get()` returns `false` on miss, expiry, or corrupt entries.

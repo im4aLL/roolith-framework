@@ -2,8 +2,7 @@
 namespace Tests;
 
 use App\Core\RouteValidator;
-use App\Database\Migrator;
-use App\Examples\CacheAndEventExamples;
+use App\Database\MigrationFactory;
 use App\Models\Model;
 use App\Support\Debug;
 use App\Support\Html;
@@ -12,13 +11,15 @@ use App\Support\Redirect;
 use App\Support\Translator;
 use App\Support\Url;
 use PHPUnit\Framework\TestCase;
+use Roolith\Caching\Cache\CacheFactory;
 use Roolith\Event\Event;
+use Tests\Support\InMemorySeederDatabase;
 
 /**
  * Covers hardening helpers.
  *
  * Asserts crypto IDs, support aliases, route validation, model
- * fillable plus casts plus validation, and cache plus event examples.
+ * fillable plus casts plus validation, and cache plus event packages.
  */
 class HardeningTest extends TestCase
 {
@@ -184,34 +185,52 @@ class HardeningTest extends TestCase
     }
 
     /**
-     * Cache and event examples must run without a database.
+     * Cache and event packages must run without a database.
+     *
+     * Mirrors the read-through and register-once-at-boot shapes in
+     * documentation/docs/cache.md and documentation/docs/events.md.
      *
      * @return void
      */
-    public function testCacheAndEventExamples(): void
+    public function testCacheAndEvents(): void
     {
         if (!defined('ROOLITH_CACHE_DIR')) {
             define('ROOLITH_CACHE_DIR', sys_get_temp_dir() . '/roolith-hardening-cache');
         }
 
+        $key = 'hardening_test_model_query';
+        CacheFactory::remove($key);
+
         $calls = 0;
-        $first = CacheAndEventExamples::cachedModelQuery('hardening_test_model_query', static function () use (&$calls): array {
+        $loader = static function () use (&$calls): array {
             $calls++;
 
             return ['rows' => [1, 2]];
-        });
+        };
+
+        if (CacheFactory::has($key)) {
+            $cached = CacheFactory::get($key);
+            $first = $cached !== false ? $cached : $loader();
+        } else {
+            $first = $loader();
+            CacheFactory::put($key, $first, 3600);
+        }
 
         $this->assertSame(['rows' => [1, 2]], $first);
 
-        CacheAndEventExamples::registerUserCreatedListeners();
-        $results = CacheAndEventExamples::userCreated(['email' => 'a@b.c']);
+        Event::listen('user.created', static function (array $user): string {
+            return 'welcome:' . (string) ($user['email'] ?? '');
+        });
+        $results = Event::trigger('user.created', [['email' => 'a@b.c']]);
 
         $this->assertNotSame([], $results);
         $this->assertStringContainsString('a@b.c', (string) $results[0]);
     }
 
     /**
-     * Migrator create plus status must work on an empty dir.
+     * Package migration create must write a timestamped file plus row.
+     *
+     * Uses an in-memory Database double so no MySQL is needed.
      *
      * @return void
      */
@@ -221,11 +240,17 @@ class HardeningTest extends TestCase
         mkdir($dir, 0775, true);
 
         try {
-            $migrator = new Migrator($dir, new \Roolith\Store\Database());
-            $created = $migrator->create('create_users_table');
+            $db = new InMemorySeederDatabase();
+            $migration = MigrationFactory::create($dir, $db);
 
-            $this->assertFileExists($dir . '/' . $created . '.php');
-            $this->assertContains($created, $migrator->files());
+            $this->assertSame(0, $migration->run(['roolith', 'migration:create', 'create_users_table']));
+
+            $files = glob($dir . '/*.migration.php') ?: [];
+            $this->assertCount(1, $files);
+            $this->assertStringContainsString('create_users_table', basename($files[0]));
+
+            $rows = $db->table(MigrationFactory::TABLE)->where('file_type', 'migration')->get();
+            $this->assertCount(1, $rows);
         } finally {
             $files = glob($dir . '/*') ?: [];
 

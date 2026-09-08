@@ -5,22 +5,88 @@ namespace App\Console;
  * CLI entry for framework maintenance commands.
  *
  * Handles `php roolith route:list` (lint plus display),
- * `php roolith migrate` commands (create, run, status, rollback), and
- * `php roolith seed` commands plus `seeder:` aliases (create, run, status).
- * Help output covers `help`, `--help`, and `-h`. Unknown commands
- * return 1 without side effects; generator delegation lives in the
- * `roolith` entrypoint, not here. All methods never echo secrets and
- * return integer exit codes.
+ * migration commands (`migrate` family as BC aliases of
+ * `migration:*` from `roolith/migration`), and seeder commands
+ * (`seed` family plus `seeder:*`). Help output covers `help`,
+ * `--help`, and `-h`. Unknown commands return 1 without side
+ * effects; generator delegation lives in the `roolith` entrypoint,
+ * not here. All methods never echo secrets and return integer exit codes.
  */
 final class Cli
 {
     /**
+     * Migrate family (BC aliases) to native migration:* commands.
+     *
+     * Single source of truth for every migrate/migration command the
+     * CLI handles; Cli::run(), isFrameworkCommand(), and migrate()
+     * all read this map.
+     *
+     * @var array<string, string>
+     */
+    private const MIGRATE_MAP = [
+        'migrate' => 'migration:run',
+        'migrate:run' => 'migration:run',
+        'migration:run' => 'migration:run',
+        'migrate:status' => 'migration:status',
+        'migration:status' => 'migration:status',
+        'migrate:create' => 'migration:create',
+        'migration:create' => 'migration:create',
+        'migrate:rollback' => 'migration:rollback',
+        'migration:rollback' => 'migration:rollback',
+    ];
+
+    /**
+     * Seed family (plus seeder:* natives) to native seeder:* commands.
+     *
+     * Single source of truth for every seed/seeder command the CLI
+     * handles; Cli::run(), isFrameworkCommand(), and seed() all read
+     * this map.
+     *
+     * @var array<string, string>
+     */
+    private const SEED_MAP = [
+        'seed' => 'seeder:run',
+        'seed:run' => 'seeder:run',
+        'seeder:run' => 'seeder:run',
+        'seed:status' => 'seeder:status',
+        'seeder:status' => 'seeder:status',
+        'seed:create' => 'seeder:create',
+        'seeder:create' => 'seeder:create',
+    ];
+
+    /**
+     * Help aliases handled locally.
+     *
+     * @var array<int, string>
+     */
+    private const HELP_COMMANDS = ['help', '--help', '-h'];
+
+    /**
+     * Check whether a command is handled by the framework CLI.
+     *
+     * Used by the `roolith` entrypoint so the framework command list
+     * lives in exactly one place; generator fallback handles the rest.
+     *
+     * @param string $command CLI command without script name.
+     * @return bool True for route:list, help, and every migrate/seed key.
+     */
+    public static function isFrameworkCommand(string $command): bool
+    {
+        return $command === 'route:list'
+            || isset(self::MIGRATE_MAP[$command])
+            || isset(self::SEED_MAP[$command])
+            || in_array($command, self::HELP_COMMANDS, true);
+    }
+
+    /**
      * Run the CLI with raw argv including the script name.
      *
-     * Dispatches route:list, migrate commands, and seed plus seeder
-     * commands locally plus help output; unknown commands return 1. Generator fallback is
-     * handled by the `roolith` entrypoint which routes non-framework
-     * commands to GeneratorFactory, so this class never shells out.
+     * Dispatches route:list, migration commands (`migrate` family plus
+     * native `migration:*`), and seeder commands (`seed` family plus
+     * native `seeder:*`) locally plus help output; unknown commands
+     * return 1. Generator fallback is handled by the `roolith`
+     * entrypoint which routes non-framework commands to
+     * GeneratorFactory, so this class never shells out.
      * Returns 0 on success, 1 on failure.
      *
      * @param array<int, string> $argv Raw CLI arguments including script name.
@@ -36,15 +102,15 @@ final class Cli
             return self::routeList();
         }
 
-        if ($command === 'migrate' || $command === 'migrate:status' || $command === 'migrate:create' || $command === 'migrate:rollback') {
+        if (isset(self::MIGRATE_MAP[$command])) {
             return self::migrate($args);
         }
 
-        if ($command === 'seed' || $command === 'seed:status' || $command === 'seed:create' || $command === 'seed:run' || $command === 'seeder:create' || $command === 'seeder:run') {
+        if (isset(self::SEED_MAP[$command])) {
             return self::seed($args);
         }
 
-        if ($command === '' || $command === 'help' || $command === '--help' || $command === '-h') {
+        if ($command === '' || in_array($command, self::HELP_COMMANDS, true)) {
             self::printHelp();
 
             return 0;
@@ -64,13 +130,14 @@ final class Cli
         echo '  php roolith generate <type> <Name>' . PHP_EOL;
         echo '  php roolith route:list' . PHP_EOL;
         echo '  php roolith migrate' . PHP_EOL;
-        echo '  php roolith migrate:status' . PHP_EOL;
+        echo '  php roolith migrate:status [Name]' . PHP_EOL;
         echo '  php roolith migrate:create <Name>' . PHP_EOL;
-        echo '  php roolith migrate:rollback [Name]' . PHP_EOL;
+        echo '  php roolith migrate:rollback <Name>' . PHP_EOL;
         echo '  php roolith seed' . PHP_EOL;
-        echo '  php roolith seed:status' . PHP_EOL;
+        echo '  php roolith seed:status [Name]' . PHP_EOL;
         echo '  php roolith seed:create <Name>' . PHP_EOL;
         echo '  php roolith seed:run [Name]' . PHP_EOL;
+        echo '  (migration:* and seeder:* natives accepted)' . PHP_EOL;
     }
 
     /**
@@ -134,17 +201,17 @@ final class Cli
     }
 
     /**
-     * Run migration subcommands.
+     * Boot framework paths plus config and return the database section.
      *
-     * Supports migrate (pending only), migrate:status, migrate:create,
-     * and migrate:rollback. Boots Env plus Config so database config
-     * resolves, connects via DatabaseFactory, then delegates to
-     * App\Database\Migrator. Never prints credentials.
+     * Shared by migrate() and seed() so Env loading, path defines, and
+     * the database-null check live in one place. Echoes the reason and
+     * returns null when config.php is invalid or has no database
+     * section; throws when Env or bootstrap itself fails so callers
+     * keep their own failure prefix. Never prints credentials.
      *
-     * @param array<int, string> $args CLI arguments without script name.
-     * @return int Exit code (0 success, 1 failure).
+     * @return array<string, mixed>|null Database config, or null when invalid.
      */
-    public static function migrate(array $args): int
+    private static function bootDatabaseConfig(): array|null
     {
         if (!defined('APP_ROOT')) {
             define('APP_ROOT', dirname(__DIR__, 2));
@@ -164,91 +231,72 @@ final class Cli
             define('APP_ENABLE_CMS', false);
         }
 
-        try {
-            \App\Core\Env::load((string) APP_ROOT);
-            require_once (string) APP_ROOT . '/constant.php';
-            require_once (string) APP_ROOT . '/app/Utils/functions.php';
-            $config = require (string) APP_ROOT . '/config/config.php';
+        \App\Core\Env::load((string) APP_ROOT);
+        require_once (string) APP_ROOT . '/constant.php';
+        require_once (string) APP_ROOT . '/app/Utils/functions.php';
+        $config = require (string) APP_ROOT . '/config/config.php';
 
-            if (!is_array($config)) {
-                echo 'Invalid config/config.php.' . PHP_EOL;
+        if (!is_array($config)) {
+            echo 'Invalid config/config.php.' . PHP_EOL;
+
+            return null;
+        }
+
+        $database = isset($config['database']) && is_array($config['database']) ? $config['database'] : null;
+
+        if ($database === null) {
+            echo 'Database connection failed.' . PHP_EOL;
+
+            return null;
+        }
+
+        return $database;
+    }
+
+    /**
+     * Run migration subcommands via roolith/migration.
+     *
+     * Accepts the `migrate` family (`migrate`, `migrate:run`,
+     * `migrate:status`, `migrate:create`, `migrate:rollback`) as BC
+     * aliases of the native `migration:*` commands. Boots Env plus
+     * Config so database config resolves, then delegates to
+     * `App\Database\MigrationFactory` plus the package `run()` (which
+     * echoes progress and returns the exit code). Bare `migrate`
+     * runs all pending; `migrate [Name]` runs one named migration.
+     * Rollback requires a name; batch rollback from the old internal
+     * runner no longer exists. Never prints credentials.
+     *
+     * @param array<int, string> $args CLI arguments without script name.
+     * @return int Exit code (0 success, 1 failure).
+     */
+    public static function migrate(array $args): int
+    {
+        try {
+            if (count($args) > 2) {
+                echo 'Usage: php roolith migrate[:status|:create|:run] [Name], php roolith migrate:rollback <Name>' . PHP_EOL;
 
                 return 1;
             }
 
-            $database = isset($config['database']) && is_array($config['database']) ? $config['database'] : null;
+            $database = self::bootDatabaseConfig();
 
-            if ($database !== null) {
-                $connected = \App\Core\DatabaseFactory::getInstance()->connect($database);
-
-                if (!$connected) {
-                    echo 'Database connection failed.' . PHP_EOL;
-
-                    return 1;
-                }
+            if ($database === null) {
+                return 1;
             }
 
-            $migrator = new \App\Database\Migrator();
             $sub = isset($args[0]) ? (string) $args[0] : 'migrate';
+            $name = isset($args[1]) ? trim((string) $args[1]) : '';
+            $map = self::MIGRATE_MAP;
 
-            if ($sub === 'migrate:status') {
-                $status = $migrator->status();
-                echo 'Applied: ' . count($status['applied']) . PHP_EOL;
+            if (!isset($map[$sub])) {
+                echo 'Usage: php roolith migrate[:status|:create|:run] [Name], php roolith migrate:rollback <Name>' . PHP_EOL;
 
-                foreach ($status['applied'] as $name) {
-                    echo '  [applied] ' . $name . PHP_EOL;
-                }
-
-                echo 'Pending: ' . count($status['pending']) . PHP_EOL;
-
-                foreach ($status['pending'] as $name) {
-                    echo '  [pending] ' . $name . PHP_EOL;
-                }
-
-                return 0;
+                return 1;
             }
 
-            if ($sub === 'migrate:create') {
-                $name = isset($args[1]) ? trim((string) $args[1]) : '';
+            $migration = \App\Database\MigrationFactory::forMigrations(null, null, $database);
 
-                if ($name === '') {
-                    echo 'Usage: php roolith migrate:create <Name>' . PHP_EOL;
-
-                    return 1;
-                }
-
-                $created = $migrator->create($name);
-                echo 'Created ' . $created . PHP_EOL;
-
-                return 0;
-            }
-
-            if ($sub === 'migrate:rollback') {
-                $name = isset($args[1]) && trim((string) $args[1]) !== '' ? trim((string) $args[1]) : null;
-                $done = $migrator->rollback($name);
-
-                if ($done === []) {
-                    echo 'Nothing to roll back.' . PHP_EOL;
-                } else {
-                    foreach ($done as $rolledBack) {
-                        echo 'Rolled back ' . $rolledBack . PHP_EOL;
-                    }
-                }
-
-                return 0;
-            }
-
-            $ran = $migrator->run();
-
-            if ($ran === []) {
-                echo 'Nothing to migrate.' . PHP_EOL;
-            } else {
-                foreach ($ran as $migrated) {
-                    echo 'Migrated ' . $migrated . PHP_EOL;
-                }
-            }
-
-            return 0;
+            return $migration->run(['roolith', $map[$sub], $name]);
         } catch (\Throwable $e) {
             echo 'Migration failed: ' . substr(str_replace(["\r", "\n"], ' ', $e->getMessage()), 0, 500) . PHP_EOL;
 
@@ -257,122 +305,47 @@ final class Cli
     }
 
     /**
-     * Run seeder subcommands.
+     * Run seeder subcommands via roolith/migration.
      *
-     * Supports seed (pending only), seed:status, seed:create,
-     * seed:run with an optional name, plus seeder:create and
-     * seeder:run upstream aliases. Boots Env plus Config so database
-     * config resolves, connects via DatabaseFactory, then delegates
-     * to App\Database\Seeder. Never prints credentials.
+     * Accepts `seed` (run pending), `seed:status` / `seeder:status`,
+     * `seed:create` / `seeder:create`, and `seed:run` / `seeder:run`
+     * with an optional name. Boots Env plus Config so database config
+     * resolves, then delegates to `App\Database\MigrationFactory`
+     * (seeders folder, shared status table) plus the package `run()`.
+     * Bare `seed` runs all pending; `seed [Name]` runs one named
+     * seeder. Never prints credentials.
      *
      * @param array<int, string> $args CLI arguments without script name.
      * @return int Exit code (0 success, 1 failure).
      */
     public static function seed(array $args): int
     {
-        if (!defined('APP_ROOT')) {
-            define('APP_ROOT', dirname(__DIR__, 2));
-        }
-
-        require_once (string) APP_ROOT . '/vendor/autoload.php';
-
-        if (!defined('ROOLITH_CONFIG_ROOT')) {
-            define('ROOLITH_CONFIG_ROOT', (string) APP_ROOT . '/config');
-        }
-
-        if (!defined('APP_VIEW_ROOT')) {
-            define('APP_VIEW_ROOT', (string) APP_ROOT . '/views');
-        }
-
-        if (!defined('APP_ENABLE_CMS')) {
-            define('APP_ENABLE_CMS', false);
-        }
-
         try {
-            \App\Core\Env::load((string) APP_ROOT);
-            require_once (string) APP_ROOT . '/constant.php';
-            require_once (string) APP_ROOT . '/app/Utils/functions.php';
-            $config = require (string) APP_ROOT . '/config/config.php';
-
-            if (!is_array($config)) {
-                echo 'Invalid config/config.php.' . PHP_EOL;
+            if (count($args) > 2) {
+                echo 'Usage: php roolith seed[:status|:create|:run] [Name]' . PHP_EOL;
 
                 return 1;
             }
 
-            $database = isset($config['database']) && is_array($config['database']) ? $config['database'] : null;
+            $database = self::bootDatabaseConfig();
 
-            if ($database !== null) {
-                $connected = \App\Core\DatabaseFactory::getInstance()->connect($database);
-
-                if (!$connected) {
-                    echo 'Database connection failed.' . PHP_EOL;
-
-                    return 1;
-                }
+            if ($database === null) {
+                return 1;
             }
 
-            $seeder = new \App\Database\Seeder();
             $sub = isset($args[0]) ? (string) $args[0] : 'seed';
+            $name = isset($args[1]) ? trim((string) $args[1]) : '';
+            $map = self::SEED_MAP;
 
-            if ($sub === 'seed:status') {
-                $status = $seeder->status();
-                echo 'Applied: ' . count($status['applied']) . PHP_EOL;
+            if (!isset($map[$sub])) {
+                echo 'Usage: php roolith seed[:status|:create|:run] [Name]' . PHP_EOL;
 
-                foreach ($status['applied'] as $name) {
-                    echo '  [applied] ' . $name . PHP_EOL;
-                }
-
-                echo 'Pending: ' . count($status['pending']) . PHP_EOL;
-
-                foreach ($status['pending'] as $name) {
-                    echo '  [pending] ' . $name . PHP_EOL;
-                }
-
-                return 0;
+                return 1;
             }
 
-            if ($sub === 'seed:create' || $sub === 'seeder:create') {
-                $name = isset($args[1]) ? trim((string) $args[1]) : '';
+            $seeder = \App\Database\MigrationFactory::forSeeders(null, null, $database);
 
-                if ($name === '') {
-                    echo 'Usage: php roolith seed:create <Name>' . PHP_EOL;
-
-                    return 1;
-                }
-
-                $created = $seeder->create($name);
-                echo 'Created ' . $created . PHP_EOL;
-
-                return 0;
-            }
-
-            if ($sub === 'seed:run' || $sub === 'seeder:run') {
-                $name = isset($args[1]) && trim((string) $args[1]) !== '' ? trim((string) $args[1]) : null;
-                $done = $seeder->run($name);
-
-                if ($done === []) {
-                    echo 'Nothing to seed.' . PHP_EOL;
-                } else {
-                    foreach ($done as $seeded) {
-                        echo 'Seeded ' . $seeded . PHP_EOL;
-                    }
-                }
-
-                return 0;
-            }
-
-            $ran = $seeder->run();
-
-            if ($ran === []) {
-                echo 'Nothing to seed.' . PHP_EOL;
-            } else {
-                foreach ($ran as $seeded) {
-                    echo 'Seeded ' . $seeded . PHP_EOL;
-                }
-            }
-
-            return 0;
+            return $seeder->run(['roolith', $map[$sub], $name]);
         } catch (\Throwable $e) {
             echo 'Seeder failed: ' . substr(str_replace(["\r", "\n"], ' ', $e->getMessage()), 0, 500) . PHP_EOL;
 

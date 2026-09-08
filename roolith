@@ -8,14 +8,14 @@ require_once __DIR__ . '/vendor/autoload.php';
 /**
  * Roolith CLI entrypoint.
  *
- * Framework commands (route:list, migrate commands, seed plus seeder
+ * Framework commands (route:list, migrate/migration commands, seed/seeder
  * commands) are handled by App\Console\Cli. Unknown commands fall
  * through to the generator so `generate` keeps working.
  */
 $cliArgs = $argv ?? [];
 $first = (string) ($cliArgs[1] ?? '');
 
-if ($first === 'route:list' || $first === 'migrate' || $first === 'migrate:status' || $first === 'migrate:create' || $first === 'migrate:rollback' || $first === 'seed' || $first === 'seed:status' || $first === 'seed:create' || $first === 'seed:run' || $first === 'seeder:create' || $first === 'seeder:run' || $first === 'help' || $first === '--help' || $first === '-h') {
+if (Cli::isFrameworkCommand($first)) {
     exit(Cli::run($cliArgs));
 }
 

@@ -4,7 +4,7 @@
 
 Roollith is a minimal, synchronous PHP micro-framework with an MVC shape. One entrypoint boots shared services, routes one HTTP request to one controller action, optionally touches the database, renders a view, then cleans up.
 
-The framework is thin glue (`app/`, `config/`, `views/`, `index.php`, `constant.php`) over seven standalone `roolith/*` Composer libraries, plus Carbon for time and Whoops for dev errors. There is no app-level container (only per-service factories), no background worker, and no built-in ORM relationship manager.
+The framework is thin glue (`app/`, `config/`, `views/`, `index.php`, `constant.php`) over eight standalone `roolith/*` Composer libraries, plus Carbon for time and Whoops for dev errors. There is no app-level container (only per-service factories), no background worker, and no built-in ORM relationship manager.
 
 Full detail lives in [ARCHITECTURE.md](https://github.com/im4aLL/roolith-framework/blob/next/ARCHITECTURE.md). For the file layout, see [Getting Started](/getting-started).
 
@@ -57,7 +57,7 @@ flowchart TB
 | Delivery | Entry, URL policy, routing | `index.php`, `System`, `PreProcessor`, `RouterFactory` |
 | Application | Request orchestration | Controllers, `Request`, `Validator`, `Storage`, `Language` |
 | Presentation | HTML output | `views/`, template engine, `source/` + `assets/build` |
-| Domain and data | Persistence | Base `Model`, app models, `DatabaseFactory`, `Migrator`/`Seeder` |
+| Domain and data | Persistence | Base `Model`, app models, `DatabaseFactory`, `MigrationFactory` + `roolith/migration` |
 | Platform | Shared, dependency-free services | Config, cache, events, utils, errors, generator |
 
 ::: info Dependency rule
@@ -107,7 +107,7 @@ Details live in dedicated pages. This table is the map, not the manual.
 | Input and files | `Request` (raw), `Sanitize::param()`/`email()` (narrow), `File` + `FS` | [Request](/request), [Validation](/validation), [File Upload](/file-upload) |
 | Validation rules | `Validator` + `Rules` per field (`success`/`fails`/`errors`) | [Validation](/validation) |
 | Reads and writes | Base `Model` (`all`/`orm`/`raw`), `$fillable`, `$casts`, `LazyLoad::with()` | [Models](/models), [Database](/database), [Extending a Model](/extending-a-model) |
-| Schema and seeds | `Migrator` (`migrate*`), `Seeder` (`seed*`), `DatabaseFactory::transaction()` | [Migration](/migration), [Seeder](/seeder), [CLI](/cli) |
+| Schema and seeds | `MigrationFactory` + `roolith/migration` (`migrate*`, `seed*`), `DatabaseFactory::transaction()` | [Migration](/migration), [Seeder](/seeder), [CLI](/cli) |
 | Cookies and sessions | `Storage`, `Session` (`start`/`regenerate`), `Settings` (locale) | [Storage](/storage), [Session](/session) |
 | Abuse control | `SessionRateLimiter` (`hit`/`tooManyAttempts`/`clear`) | [Middleware](/middleware), [Security](/security) |
 | Text and locale | `Language`, `trans()` (`__()` is a BC alias), `lang/{locale}/` | [Localization](/localization) |

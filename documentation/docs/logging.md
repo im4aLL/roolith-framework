@@ -95,4 +95,4 @@ public function store()
 }
 ```
 
-Note: `app/Examples/CacheAndEventExamples.php` covers cache and event patterns only - it has no logging snippet. App logging always goes through `Log` as shown above. See [Cache](/cache) and [Events](/events) for those helpers.
+App logging always goes through `Log` as shown above. See [Cache](/cache) and [Events](/events) for those helpers.

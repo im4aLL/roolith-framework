@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "4905096d5611dad11e194a8b41dd2074",
+    "content-hash": "dc0828ef59ae6e4fad1a43c1be8c8374",
     "packages": [
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -921,6 +921,51 @@
                 "source": "https://github.com/im4aLL/roolith-generator/tree/2.0.0"
             },
             "time": "2026-09-07T04:26:51+00:00"
+        },
+        {
+            "name": "roolith/migration",
+            "version": "2.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/im4aLL/roolith-migration.git",
+                "reference": "f9b73c4eee44152387a4b3d0b25d47a807b59630"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/im4aLL/roolith-migration/zipball/f9b73c4eee44152387a4b3d0b25d47a807b59630",
+                "reference": "f9b73c4eee44152387a4b3d0b25d47a807b59630",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=8.0",
+                "roolith/database": "^2.0"
+            },
+            "require-dev": {
+                "fakerphp/faker": "^1.24",
+                "phpunit/phpunit": "^9.6 || ^10.5 || ^11.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Roolith\\Migration\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Hadi",
+                    "email": "me@habibhadi.com"
+                }
+            ],
+            "description": "php simple migration",
+            "support": {
+                "issues": "https://github.com/im4aLL/roolith-migration/issues",
+                "source": "https://github.com/im4aLL/roolith-migration/tree/2.0.0"
+            },
+            "time": "2026-09-08T18:43:17+00:00"
         },
         {
             "name": "roolith/router",
