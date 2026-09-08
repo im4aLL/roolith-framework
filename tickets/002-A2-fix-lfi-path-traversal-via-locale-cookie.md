@@ -1,6 +1,6 @@
 # Ticket A2 - Fix LFI/path traversal via locale cookie
 
-Status: Open
+Status: Done
 
 Order: 2 of 67
 
@@ -24,12 +24,12 @@ Allowlist locales from `lang/*` directory or regex `^[a-z]{2}(-[A-Z]{2})?$`, fal
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
 
 ## Notes
 
-Update Status to In Progress when started and to Done when verified.
+Verified: Language::sanitizeLang enforces regex ^[a-z]{2}(-[A-Z]{2})?$ plus lang/ directory allowlist with en fallback; Settings::getLang/setLang sanitize; tests/LanguageTest.php (6 tests) covers ../../etc/passwd, ../en, non-string, and unknown locales; live curl -b 'lang=../../etc/passwd' on /example renders English.

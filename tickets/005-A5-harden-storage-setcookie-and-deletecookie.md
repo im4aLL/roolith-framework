@@ -1,6 +1,6 @@
 # Ticket A5 - Harden Storage::setCookie and deleteCookie
 
-Status: Open
+Status: Done
 
 Order: 5 of 67
 
@@ -24,12 +24,12 @@ Accept options array from config, use `setcookie($name,$value,['expires'=>...,'p
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
 
 ## Notes
 
-Update Status to In Progress when started and to Done when verified.
+Verified: Storage::setCookie/deleteCookie use setcookie with options array (expires, path /, domain from config, Secure, HttpOnly true, SameSite Lax) sharing config keys with Session; delete matches path/domain and unsets $_COOKIE; values cast to string and left for setcookie to encode (documented alternative to manual urlencode, which would double-encode); tests/CookieTest.php covers cookieOptions flags plus set/delete round trip.

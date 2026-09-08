@@ -1,6 +1,6 @@
 # Ticket A11 - Do not leak internal errors to browsers
 
-Status: Open
+Status: Done
 
 Order: 11 of 67
 
@@ -24,12 +24,12 @@ Log full error with trace ID, return generic 500 page in prod with correct statu
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
 
 ## Notes
 
-Update Status to In Progress when started and to Done when verified.
+Verified: ErrorHandler logs full error with class, file, and trace string under the request trace ID and returns generic 500 with escaped trace ID in prod (rethrows only in dev); Controller::view no longer echoes, it rethrows with view context and previous preserved so ErrorHandler returns 500; routes.php bootstrap failure rethrows instead of echoing with 200; tests/ErrorPagesTest.php covers prod generic body with trace in log, missing-view throw without output, and redirect defaults.

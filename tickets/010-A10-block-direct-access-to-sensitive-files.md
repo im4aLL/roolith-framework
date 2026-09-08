@@ -1,6 +1,6 @@
 # Ticket A10 - Block direct access to sensitive files
 
-Status: Open
+Status: Done
 
 Order: 10 of 67
 
@@ -24,12 +24,12 @@ Add `RedirectMatch 404` or `Require all denied` rules for those paths, move docr
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
 
 ## Notes
 
-Update Status to In Progress when started and to Done when verified.
+Verified: .htaccess returns 404 via RedirectMatch for config|vendor|.git paths and for constant.php, cms-constant.php, installer.zip, .env*, *.log (plus .env* hardening within the same rule); pattern matrix checked in PHP against all ticket paths (blocked) and /, /example, /form, /assets/css/app.css, /catalog (allowed); apachectl configtest Syntax OK; live Apache curl matrix deferred because this environment serves via php -S which does not enforce .htaccess - re-run the curl matrix on an Apache docroot before release.

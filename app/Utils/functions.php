@@ -168,13 +168,24 @@ function __(string $name): mixed
 /**
  * Redirect to URL
  *
- * @param string $url
- * @param integer $statusCode
+ * Status is deliberate: 303 (See Other) is the default because it implements
+ * Post/Redirect/Get safely by always following up with GET. Pass 302 for a
+ * temporary redirect where legacy behavior is needed, or 301/308 for a
+ * permanent redirect (308 preserves the method, 301 may not).
+ *
+ * Only single-slash relative URLs or absolute URLs allowlisted against the
+ * base URL are sent; anything else (for example ?next=https://evil.com,
+ * //evil.com, javascript:) falls back to / to block open redirects.
+ *
+ * @param string $url Redirect target.
+ * @param integer $statusCode HTTP redirect code, 303 by default.
  * @return void
  */
 function redirect(string $url, int $statusCode = 303): void
 {
-    header("Location: {$url}", true, $statusCode);
+    $target = \App\Core\PreProcessor::resolveSafeRedirectTarget($url);
+
+    header("Location: {$target}", true, $statusCode);
 
     die();
 }
@@ -182,9 +193,12 @@ function redirect(string $url, int $statusCode = 303): void
 /**
  * Redirect to route name
  *
- * @param string $routeName
- * @param array $settings
- * @param integer $statusCode
+ * Uses 303 by default for the same Post/Redirect/Get reason as redirect().
+ * Pass an explicit code when a different redirect semantic is intended.
+ *
+ * @param string $routeName Route name.
+ * @param array $settings Route params.
+ * @param integer $statusCode HTTP redirect code, 303 by default.
  * @return void
  */
 function redirectToRoute(string $routeName, array $settings = [], int $statusCode = 303): void
@@ -267,37 +281,110 @@ function isProductionEnvironment(): bool
 }
 
 /**
- * Get user IP address
+ * List proxy IPs allowed to set forwarded-IP headers.
  *
- * @return mixed|string
+ * Single source is config trustedProxies (mapped from TRUSTED_PROXIES).
+ * Empty means proxy headers are never trusted. Only exact IP matches are
+ * honored (CIDR ranges are not supported and are dropped); invalid IPs are
+ * filtered out. Never throws so IP resolution stays available before
+ * config boots.
+ *
+ * @return array<int, string> Trusted proxy IP strings (valid IPs only).
  */
-function getIpAddress(): mixed
+function trustedProxies(): array
 {
-    $ipAddress = "127.0.0.1";
-
-    if (isset($_SERVER["HTTP_CLIENT_IP"])) {
-        $ipAddress = $_SERVER["HTTP_CLIENT_IP"];
-    } elseif (isset($_SERVER["HTTP_X_FORWARDED_FOR"])) {
-        $ipAddress = $_SERVER["HTTP_X_FORWARDED_FOR"];
-    } elseif (isset($_SERVER["HTTP_X_FORWARDED"])) {
-        $ipAddress = $_SERVER["HTTP_X_FORWARDED"];
-    } elseif (isset($_SERVER["HTTP_FORWARDED_FOR"])) {
-        $ipAddress = $_SERVER["HTTP_FORWARDED_FOR"];
-    } elseif (isset($_SERVER["HTTP_FORWARDED"])) {
-        $ipAddress = $_SERVER["HTTP_FORWARDED"];
-    } elseif (isset($_SERVER["REMOTE_ADDR"])) {
-        $ipAddress = $_SERVER["REMOTE_ADDR"];
+    try {
+        $configured = Config::get('trustedProxies');
+    } catch (\Throwable) {
+        $configured = null;
     }
 
-    return $ipAddress;
+    if (is_array($configured)) {
+        $proxies = [];
+
+        foreach ($configured as $proxy) {
+            if (is_string($proxy)) {
+                $proxy = trim($proxy);
+
+                if ($proxy !== '' && filter_var($proxy, FILTER_VALIDATE_IP) !== false) {
+                    $proxies[] = $proxy;
+                }
+            }
+        }
+
+        return $proxies;
+    }
+
+    $raw = \App\Core\Env::get('TRUSTED_PROXIES', '');
+
+    if ($raw === null || trim($raw) === '') {
+        return [];
+    }
+
+    $proxies = [];
+
+    foreach (explode(',', $raw) as $proxy) {
+        $proxy = trim($proxy);
+
+        if ($proxy !== '' && filter_var($proxy, FILTER_VALIDATE_IP) !== false) {
+            $proxies[] = $proxy;
+        }
+    }
+
+    return $proxies;
+}
+
+/**
+ * Get user IP address
+ *
+ * Fail-closed: proxy headers (X-Forwarded-For and friends) are only
+ * honored when REMOTE_ADDR itself is an exact match in trustedProxies().
+ * Otherwise REMOTE_ADDR is returned so clients cannot spoof rate
+ * limiting or logs. Forwarded lists resolve to the first valid IP.
+ * CIDR ranges are not supported; list individual proxy IPs.
+ *
+ * @return string Client IP address.
+ */
+function getIpAddress(): string
+{
+    $remote = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
+    $remote = is_string($remote) ? trim($remote) : '127.0.0.1';
+
+    if (filter_var($remote, FILTER_VALIDATE_IP) === false) {
+        $remote = '127.0.0.1';
+    }
+
+    if (!in_array($remote, trustedProxies(), true)) {
+        return $remote;
+    }
+
+    $headers = ['HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'HTTP_X_FORWARDED', 'HTTP_FORWARDED_FOR', 'HTTP_FORWARDED'];
+
+    foreach ($headers as $header) {
+        if (!isset($_SERVER[$header]) || !is_string($_SERVER[$header])) {
+            continue;
+        }
+
+        $first = trim(explode(',', $_SERVER[$header])[0] ?? '');
+
+        if ($first !== '' && filter_var($first, FILTER_VALIDATE_IP) !== false) {
+            return $first;
+        }
+    }
+
+    return $remote;
 }
 
 /**
  * Parse basic template
  *
- * @param string|array $string Template string or strings.
- * @param array $data
- * @return string|string[]|null
+ * Replaces {{key}} placeholders with string casts of the given values
+ * using literal string replacement (no regex) so keys with regex chars
+ * cannot break or inject patterns.
+ *
+ * @param string|array<string> $string Template string or strings.
+ * @param array<string, mixed> $data Placeholder values keyed by name.
+ * @return string|string[]|null Replaced template(s).
  */
 function parseBasicTemplate(string|array $string, array $data = []): array|string|null
 {
@@ -305,11 +392,15 @@ function parseBasicTemplate(string|array $string, array $data = []): array|strin
     $replaceArray = [];
 
     foreach ($data as $key => $value) {
-        $findArray[] = "/{{$key}}/";
-        $replaceArray[] = $value;
+        $findArray[] = '{{' . (string) $key . '}}';
+        $replaceArray[] = (string) $value;
     }
 
-    return preg_replace($findArray, $replaceArray, $string);
+    if ($findArray === []) {
+        return $string;
+    }
+
+    return str_replace($findArray, $replaceArray, $string);
 }
 
 /**

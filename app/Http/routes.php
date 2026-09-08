@@ -10,7 +10,10 @@ try {
     $router->setBaseUrl(Config::get("baseUrl"));
     $router->setViewDir(APP_VIEW_ROOT);
 } catch (\Roolith\Configuration\Exception\InvalidArgumentException $e) {
-    echo $e->getMessage();
+    // Fail-closed: never echo config details with HTTP 200. Rethrow so the
+    // front-controller ErrorHandler logs the full trace and returns a
+    // generic 500 in prod (details only in dev).
+    throw new \App\Core\Exceptions\Exception("Router bootstrap failed: " . $e->getMessage(), 0, $e);
 }
 
 /**

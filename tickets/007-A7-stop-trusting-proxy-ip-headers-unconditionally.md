@@ -1,6 +1,6 @@
 # Ticket A7 - Stop trusting proxy IP headers unconditionally
 
-Status: Open
+Status: Done
 
 Order: 7 of 67
 
@@ -24,12 +24,12 @@ Only trust proxy headers from configured trusted proxies, otherwise use `REMOTE_
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
 
 ## Notes
 
-Update Status to In Progress when started and to Done when verified.
+Verified: getIpAddress returns REMOTE_ADDR unless it is in config trustedProxies (TRUSTED_PROXIES, default empty means trust none); trusted path parses the first IP of X-Forwarded-For and friends and validates with filter_var, falling back to REMOTE_ADDR; return type narrowed to string; tests/TrustedProxyTest.php (4 tests) covers spoof ignored, first-IP honored, invalid fallback, and missing REMOTE_ADDR.

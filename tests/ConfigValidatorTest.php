@@ -287,20 +287,19 @@ class ConfigValidatorTest extends TestCase
     }
 
     /**
-     * Missing logPath must throw a message naming logPath.
+     * Missing logPath is optional and must pass validation.
+     *
+     * The minimal config.php omits logPath; Logger::defaultLogPath() supplies the default.
      *
      * @return void
      */
-    public function testMissingLogPathThrowsHelpfulMessage(): void
+    public function testMissingLogPathIsOptional(): void
     {
         $this->seedConfig($this->validBaseConfig());
 
-        try {
-            ConfigValidator::validate();
-            $this->fail('Expected AppException for missing logPath.');
-        } catch (AppException $e) {
-            $this->assertStringContainsString('logPath', $e->getMessage());
-        }
+        ConfigValidator::validate();
+
+        $this->assertTrue(true);
     }
 
     /**
@@ -361,22 +360,21 @@ class ConfigValidatorTest extends TestCase
     }
 
     /**
-     * Missing logEnabled must throw a message naming logEnabled.
+     * Missing logEnabled is optional and must pass validation.
+     *
+     * The minimal config.php omits logEnabled; Logger::defaultLogEnabled() supplies the default.
      *
      * @return void
      */
-    public function testMissingLogEnabledThrowsHelpfulMessage(): void
+    public function testMissingLogEnabledIsOptional(): void
     {
         $config = $this->validFullConfig();
         unset($config['logEnabled']);
         $this->seedConfig($config);
 
-        try {
-            ConfigValidator::validate();
-            $this->fail('Expected AppException for missing logEnabled.');
-        } catch (AppException $e) {
-            $this->assertStringContainsString('logEnabled', $e->getMessage());
-        }
+        ConfigValidator::validate();
+
+        $this->assertTrue(true);
     }
 
     /**

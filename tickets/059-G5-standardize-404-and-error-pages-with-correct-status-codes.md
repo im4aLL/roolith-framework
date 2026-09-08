@@ -1,6 +1,6 @@
 # Ticket G5 - Standardize 404 and error pages with correct status codes
 
-Status: Open
+Status: Done
 
 Order: 59 of 67
 
@@ -24,12 +24,12 @@ Ensure 404 sends 404, 500 sends 500, use 302 or 303 deliberately with comment, a
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
 
 ## Notes
 
-Update Status to In Progress when started and to Done when verified.
+Verified: unknown routes render views/404.php with HTTP 404 (router path, asserted live and in tests/ErrorPagesTest.php); forced exceptions return HTTP 500 with trace ID; redirect() and redirectToRoute() keep deliberate 303 defaults for Post/Redirect/Get with docblock rationale while Request::redirect uses explicit 302 with CRLF stripping; Controller::view keeps string|bool signature for BC but throws instead of returning false.

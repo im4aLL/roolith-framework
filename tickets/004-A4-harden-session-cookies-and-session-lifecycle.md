@@ -1,6 +1,6 @@
 # Ticket A4 - Harden session cookies and session lifecycle
 
-Status: Open
+Status: Done
 
 Order: 4 of 67
 
@@ -24,12 +24,12 @@ Set `session_set_cookie_params(['httponly'=>true,'secure'=>true,'samesite'=>'Lax
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
 
 ## Notes
 
-Update Status to In Progress when started and to Done when verified.
+Verified: new App\Core\Session::start() helper owns startup with session_set_cookie_params httponly true, Secure via config (https default), SameSite Lax, path /; System::bootstrap calls it after config validation, index.php bare session_start removed, Storage::setSession and SessionRateLimiter delegate to it, Session::regenerate available for login privilege change; tests/CookieTest.php covers params; live Set-Cookie shows path=/ HttpOnly SameSite=Lax (Secure only on https by design so local http sessions still work).

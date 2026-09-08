@@ -9,6 +9,6 @@
     <?= viteCss('source/scss/app.scss', 'assets/css/app.css') ?>
 </head>
 <body>
-    <p><?= $message ?></p>
+    <p><?= htmlspecialchars($message ?? '', ENT_QUOTES, 'UTF-8') ?></p>
 </body>
 </html>

@@ -7,14 +7,24 @@ use Roolith\Template\Engine\View;
 
 class TemplateEngineFactory
 {
-    private static $view = null;
+    /**
+     * Cached template engine instance.
+     *
+     * @var ViewInterface|null
+     */
+    private static ?ViewInterface $view = null;
 
+    /**
+     * Private constructor to enforce factory use.
+     */
     private function __construct() {}
 
     /**
-     * @return ViewInterface
+     * Get the shared template engine instance.
+     *
+     * @return ViewInterface Shared view engine.
      */
-    public static function getInstance()
+    public static function getInstance(): ViewInterface
     {
         if (self::$view === null) {
             self::$view = new View(APP_VIEW_ROOT);

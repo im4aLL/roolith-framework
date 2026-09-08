@@ -1,16 +1,28 @@
 <?php
 namespace App\Core;
 
+/**
+ * Session-backed rate limiter bucket.
+ */
 class SessionRateLimiter {
     private string $key;
     private int $maxAttempts;
     private int $windowSeconds;
     private string $rateLimitKey = 'rate_limit';
 
+    /**
+     * Create a rate limiter bucket backed by the session.
+     *
+     * Session startup goes through the shared Session helper so cookie
+     * flags stay consistent across the app.
+     *
+     * @param string $key Bucket key.
+     * @param int $maxAttempts Max attempts per window.
+     * @param int $windowSeconds Window length in seconds.
+     * @return void
+     */
     public function __construct(string $key, int $maxAttempts = 3, int $windowSeconds = 300) {
-        if (session_status() !== PHP_SESSION_ACTIVE) {
-            session_start();
-        }
+        Session::start();
 
         $this->key = $key;
         $this->maxAttempts = $maxAttempts;

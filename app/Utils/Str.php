@@ -10,10 +10,10 @@ class Str
     /**
      * Get a message
      *
-     * @param $name
-     * @return mixed|null
+     * @param string $name Message key in dot notation.
+     * @return mixed Message value or null when missing.
      */
-    public static function getMessage($name): mixed
+    public static function getMessage(string $name): mixed
     {
         $lang = Settings::getLang();
         $languageInstance = Lang::getInstance();

@@ -13,10 +13,24 @@ use Throwable;
 final class ErrorHandler
 {
     /**
+     * Headers sent with the generic 500 response (test seam).
+     *
+     * Reuses the System baseline so error responses carry the same
+     * hardening as normal responses.
+     *
+     * @return array<string, string> Header name to value map.
+     */
+    public static function headersForErrorResponse(): array
+    {
+        return System::securityHeaders();
+    }
+
+    /**
      * Handle an uncaught throwable from the front controller.
      *
-     * Logs with trace/class/file, rethrows in development, else sends
-     * HTTP 500 with an escaped trace ID. Never throws for logging failures.
+     * Logs with trace/class/file/trace-string, rethrows in development,
+     * else sends HTTP 500 with baseline security headers and an escaped
+     * trace ID. Never throws for logging or header failures.
      *
      * @param System|null $app Booted app (null when boot failed before System existed).
      * @param Throwable $e Uncaught throwable.
@@ -32,6 +46,7 @@ final class ErrorHandler
                 'error' => $e->getMessage(),
                 'class' => get_class($e),
                 'file' => $e->getFile() . ':' . $e->getLine(),
+                'trace' => $e->getTraceAsString(),
             ]);
         } catch (Throwable) {
             // Logging must never mask the original failure.
@@ -46,6 +61,14 @@ final class ErrorHandler
 
         if (!headers_sent()) {
             http_response_code(500);
+
+            try {
+                foreach (System::securityHeaders() as $name => $value) {
+                    header($name . ': ' . $value);
+                }
+            } catch (Throwable) {
+                // Headers must never mask the original failure.
+            }
         }
 
         echo 'Internal Server Error (trace: ' . htmlspecialchars($traceId, ENT_QUOTES, 'UTF-8') . ')';

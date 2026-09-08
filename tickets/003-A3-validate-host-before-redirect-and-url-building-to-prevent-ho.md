@@ -1,6 +1,6 @@
 # Ticket A3 - Validate Host before redirect and URL building to prevent Host header injection and open redirect
 
-Status: Open
+Status: Done
 
 Order: 3 of 67
 
@@ -24,12 +24,12 @@ Compare host against `baseUrl` host allowlist, use 301/308 with encoded URI, dro
 
 ## Acceptance criteria
 
-- [ ] Fix implemented as described or documented alternative.
+- [x] Fix implemented as described or documented alternative.
 
-- [ ] Manual or automated verification note added here.
+- [x] Manual or automated verification note added here.
 
-- [ ] No unrelated scope changed.
+- [x] No unrelated scope changed.
 
 ## Notes
 
-Update Status to In Progress when started and to Done when verified.
+Verified: PreProcessor validates Host against baseUrl allowlist (base host plus www/bare counterpart, port-insensitive), canonical redirects use 301 with percent-encoded URI and CRLF stripping, mismatches are logged via PSR-3 logger with error_log fallback and dropped without redirect; Request::fullUrl falls back to baseUrl host on mismatch; tests/HostValidationTest.php (5 tests); live curl -H 'Host: evil.com' returns 200 with no Location to evil, curl -H 'Host: www.localhost' returns 301 to http://localhost/ with encoded path, mismatch warnings appear in storage/logs/app.log.

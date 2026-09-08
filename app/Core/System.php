@@ -130,6 +130,9 @@ class System
             ConfigValidator::validate();
             $this->logger->info('config validated');
 
+            Session::start();
+            $this->sendSecurityHeaders();
+
             $this->preProcessor();
         } catch (InvalidArgumentException $e) {
             $this->logger->error('bootstrap failed', ['error' => $e->getMessage()]);
@@ -174,11 +177,20 @@ class System
     /**
      * Process route
      *
+     * Loads routes.php with require (not require_once, which returns 1 on
+     * repeat calls) and verifies the RouterInterface contract so a bad
+     * return fails fast with context instead of a TypeError.
+     *
      * @return $this
+     * @throws Exception When routes.php does not return a RouterInterface.
      */
     public function processRequest(): static
     {
-        $router = require_once APP_ROOT . "/app/Http/routes.php";
+        $router = require APP_ROOT . "/app/Http/routes.php";
+
+        if (!$router instanceof RouterInterface) {
+            throw new Exception("Router bootstrap failed: app/Http/routes.php must return a RouterInterface.");
+        }
 
         $this->router($router);
 
@@ -234,13 +246,122 @@ class System
     /**
      * Pre processor
      *
+     * Runs canonical host redirects with the request logger so dropped
+     * hosts leave a trace in the same correlated log stream. forceNonWww=1
+     * strips www (example www.site -> site); forceNonWww=0 adds www
+     * (example site -> www.site). There is no "off" mode by design so one
+     * canonical host always wins.
+     *
      * @return void
      * @throws InvalidArgumentException When config lookup fails.
      */
     private function preProcessor(): void
     {
         if (Config::get("forceNonWww")) {
-            PreProcessor::forceNonWww();
+            PreProcessor::forceNonWww($this->logger);
+        } else {
+            PreProcessor::forceWww($this->logger);
+        }
+    }
+
+    /**
+     * Baseline security headers sent on every response.
+     *
+     * Conservative fail-closed values: scripts and frames stay
+     * same-origin, MIME sniffing is off, referrers are limited, and HSTS
+     * pins https for a year (browsers ignore it over plain http, and
+     * sendSecurityHeaders() skips HSTS unless the request is https).
+     * Disable with SECURITY_HEADERS=0 only when a reverse proxy already
+     * sends equivalent headers. The CSP default-src 'self' blocks inline
+     * scripts/styles and remote Vite dev servers; override or extend the
+     * policy in the proxy or view layer when inline/Vite HMR is needed.
+     *
+     * @return array<string, string> Header name to value map.
+     */
+    public static function securityHeaders(): array
+    {
+        return [
+            'Content-Security-Policy' => "default-src 'self'",
+            'X-Content-Type-Options' => 'nosniff',
+            'X-Frame-Options' => 'SAMEORIGIN',
+            'Referrer-Policy' => 'strict-origin-when-cross-origin',
+            'Strict-Transport-Security' => 'max-age=31536000; includeSubDomains',
+        ];
+    }
+
+    /**
+     * Whether baseline security headers are enabled.
+     *
+     * Config `securityHeaders` wins when a bool; otherwise falls back to
+     * Env `SECURITY_HEADERS` parsed with filter_var, then true, so
+     * setting `.env` alone takes effect without a config key. Never
+     * throws so a header failure can never break the request.
+     *
+     * @return bool True when baseline headers should be sent.
+     */
+    public static function isSecurityHeadersEnabled(): bool
+    {
+        try {
+            $configured = Config::get('securityHeaders');
+
+            if (is_bool($configured)) {
+                return $configured;
+            }
+        } catch (Throwable) {
+            // Fall through to Env fallback below.
+        }
+
+        try {
+            $raw = Env::get('SECURITY_HEADERS');
+
+            if ($raw === null) {
+                return true;
+            }
+
+            return filter_var($raw, FILTER_VALIDATE_BOOLEAN);
+        } catch (Throwable) {
+            return true;
+        }
+    }
+
+    /**
+     * Send baseline security headers unless disabled or already sent.
+     *
+     * Reads the securityHeaders flag via isSecurityHeadersEnabled()
+     * (default on) and never throws so a header failure can never break
+     * the request. HSTS is only sent when the current request is https;
+     * over plain http it is skipped because browsers ignore it there.
+     *
+     * @return void
+     */
+    public function sendSecurityHeaders(): void
+    {
+        try {
+            $enabled = self::isSecurityHeadersEnabled();
+        } catch (Throwable) {
+            $enabled = true;
+        }
+
+        if (!$enabled) {
+            return;
+        }
+
+        if (headers_sent()) {
+            return;
+        }
+
+        try {
+            $isHttps = PreProcessor::currentScheme() === 'https';
+
+            foreach (self::securityHeaders() as $name => $value) {
+                if ($name === 'Strict-Transport-Security' && !$isHttps) {
+                    continue;
+                }
+
+                header($name . ': ' . $value);
+            }
+        } catch (\Throwable) {
+            // Headers must never break the request.
         }
     }
 
